@@ -1,0 +1,11 @@
+.DS_Store
+build
+*.mode1v3
+*.pbxuser
+*.perspectivev3
+*.o
+profile
+xcuserdata
+project.xcworkspace
+
+Pods
