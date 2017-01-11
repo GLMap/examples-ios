@@ -243,7 +243,7 @@
 
 // Example how to add map from resources.
 - (void) loadEmbedMap {
-    [[GLMapManager sharedManager] addMapWithPath:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
+    [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
     //[[GLMapManager manager] addMapWithPath:[[NSBundle mainBundle] pathForResource:@"Belarus" ofType:@"vm"]];
     
     // Move map to the Montenegro capital
