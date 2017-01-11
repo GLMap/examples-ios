@@ -525,50 +525,46 @@ class MapViewController: UIViewController {
         
         multiline.addGeoLine(line2)
         
-        if let style = GLMapVectorStyle.createStyle("{galileo-fast-draw:true;width: 2pt;color:green;}") {
+        if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
             map.add([multiline], with: style)
         }
     }
     
     func polygonDemo() -> Void {
-        let pointCount = 25
-        var circlePoints:Array<GLMapGeoPoint> = []
-        let centerPoint = GLMapGeoPoint.init(lat:53, lon: 27)
-        var radius = 10.0
-        let sectorSize = 2*M_PI / Double(pointCount)
         
-        for i in 0...pointCount-1 {
-            circlePoints.append(GLMapGeoPoint.init(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radius,
-                                                   lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
+        func fillPoints(centerPoint:GLMapGeoPoint, radius:Double) -> Array<GLMapGeoPoint> {
+            let pointCount = 25
+            let sectorSize = 2*M_PI / Double(pointCount)
+            
+            var circlePoints:Array<GLMapGeoPoint> = []
+            for i in 0...pointCount-1 {
+                circlePoints.append(GLMapGeoPoint.init(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radius,
+                                                       lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
+            }
+            return circlePoints
         }
-        
+    
         let polygon = GLMapVectorObject.init()
+        let centerPoint = GLMapGeoPointMake(53, 27);
         
-        polygon.addGeoPolygonOuterRing(circlePoints)
+        polygon.addGeoPolygonOuterRing(fillPoints(centerPoint: centerPoint, radius: 10))
         
-        radius = 5.0
-        circlePoints.removeAll()
-        for i in 0...pointCount-1 {
-            circlePoints.append(GLMapGeoPoint.init(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radius,
-                                                   lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
-        }
-        
-        polygon.addGeoPolygonInnerRing(circlePoints)
-        
-        if let style = GLMapVectorStyle.createStyle("{fill-color:#10106050;}") {
+        polygon.addGeoPolygonInnerRing(fillPoints(centerPoint: centerPoint, radius: 5))
+
+        if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
             map.add([polygon], with: style)
         }
-        
+
         map.move(to: centerPoint)
     }
-  
+
     func geoJsonDemo() -> Void {
         if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
         "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
         "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}," +
             "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]") {
         
-            if let style = GLMapVectorStyle.createCascadeStyle("node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
+            if let style = GLMapVectorCascadeStyle.createStyle("node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
                 "node|z-9[id=2]{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
                 "line{linecap: round; width: 5pt; color:blue; layer:100;}" +
                 "area{fill-color:green; width:1pt; color:red; layer:100;}") {
@@ -618,7 +614,7 @@ class MapViewController: UIViewController {
             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 56]}, \"properties\": {\"id\": \"7\"}}," +
             "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]") {
         
-        if let style = GLMapVectorStyle.createCascadeStyle(
+        if let style = GLMapVectorCascadeStyle.createStyle(
             "node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}" +
             "node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}" +
             "node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}" +

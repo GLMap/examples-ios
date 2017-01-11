@@ -182,7 +182,7 @@
                                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-20, 55]}, \"properties\": {\"id\": \"7\"}},"
                                 "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]"];
             
-            GLMapVectorStyle *style = [GLMapVectorStyle createCascadeStyle:
+            GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:
                                        @"node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}"
                                        @"node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}"
                                        @"node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}"
@@ -650,7 +650,7 @@
     [multilineData addObject:data];
     
     // style applied to all lines added. Style is string with mapcss rules. Read more in manual.
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{galileo-fast-draw:true;width: 2pt;color:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true;width: 2pt;color:green;}"];
     
     // All user geometry objects should be drawn trough GLMapVectorObject
     // To load data faster we use NSArray of NSData. Each NSData contains GLMapPoints of one line. Allocate buffers first, then load it using appropriate function.
@@ -693,7 +693,7 @@
     
     GLMapVectorObject *vectorObject = [[GLMapVectorObject alloc] init];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{fill-color:#10106050;}"]; // #RRGGBBAA format
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
     [vectorObject loadGeoPolygon:@[outerRings, innerRings]];
     
     [_mapView addVectorObject:vectorObject withStyle:style onReadyToDraw:nil];
@@ -762,11 +762,11 @@
                         "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},"
                         "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createCascadeStyle:
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:
                                @"node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}"
                                "node|z-9[id=2]{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}"
-                               "line{linecap: round; width: 5pt; color:blue; layer:100;}"
-                               "area{fill-color:green; width:1pt; color:red; layer:100;}"];
+                               "line{linecap: round; width: 5pt; color:blue;}"
+                               "area{fill-color:green; width:1pt; color:red;}"];
     
     [_mapView addVectorObjects:objects withStyle:style];
     
@@ -776,21 +776,21 @@
 - (void) loadPointGeoJSON {
     NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
 - (void) loadMultiPointGeoJSON {
     NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, 55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
 - (void) loadLineStringGeoJSON {
     NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{galileo-fast-draw:true; width: 4pt; color:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true; width: 4pt; color:green;}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
@@ -798,7 +798,7 @@
     NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiLineString\",\"coordinates\":"
                         "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
                         " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{galileo-fast-draw:false; linecap: round; width: 5pt; color:blue;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:false; linecap: round; width: 5pt; color:blue;}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
@@ -808,7 +808,7 @@
                         "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
                         " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{fill-color:green}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
@@ -819,7 +819,7 @@
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
     
-    GLMapVectorStyle *style = [GLMapVectorStyle createStyle:@"{fill-color:blue; width:1pt; color:red;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
     [_mapView addVectorObjects:objects withStyle:style];
 }
 
