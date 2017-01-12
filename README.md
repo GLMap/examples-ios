@@ -29,7 +29,7 @@ Need help with your code? Write us at [support@getyourmap.com](mailto:support@ge
 
 ## Feedback
 
-**_If you use GLMap and are happy with it, all we ask is that you please consider sending out a tweet mentioning [@GLMapFrameowrk](https://twitter.com/GLMapFrameowrk) or email [hi@getyourmap.com](mailto:hi@getyourmap.com) to share your thoughts!_**
+**_If you use GLMap and are happy with it, all we ask is that you please consider sending out a tweet mentioning [@GLMapFramework](https://twitter.com/GLMapFramework) or email [hi@getyourmap.com](mailto:hi@getyourmap.com) to share your thoughts!_**
 
 **_And if you don't like it, please let us know what you would like improved, so we can fix it!_**
 ![analytics](https://www.facebook.com/tr?id=1514826728831437&ev=ReadmeView&noscript=1)
