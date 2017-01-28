@@ -1,11 +1,11 @@
 PODS:
-  - GLMap (0.8.3)
+  - GLMap (0.8.4)
 
 DEPENDENCIES:
   - GLMap
 
 SPEC CHECKSUMS:
-  GLMap: 0c0f9efb2bb2bd8b675b1c8d42ccb9d99f30bc28
+  GLMap: 2cbac67aca9cfe8aaa0ca47c8a27a124ef103d6e
 
 PODFILE CHECKSUM: efb7c0d913964b73980cdc2f8409108180e1d812
 
