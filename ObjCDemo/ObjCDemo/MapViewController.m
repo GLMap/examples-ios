@@ -116,14 +116,7 @@
         }
         case Test_MultiImage: // add pin from navigation item, remove by tap on pin
         {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"Long tap on map to add pin, tap on pin to remove it" preferredStyle:UIAlertControllerStyleAlert];
-            
-            [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction * _Nonnull action) {
-            }]];
-            
-            [self presentViewController:alert animated:YES completion:nil];
+            [self displayAlertWithTitle:nil message:@"Long tap on map to add pin, tap on pin to remove it"];
             
             [self setupPinGestures];
             break;
@@ -171,7 +164,6 @@
         }
         case Test_Fonts:
         {
-            
             NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
                                 @"[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 64]}, \"properties\": {\"id\": \"1\"}},"
                                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63]}, \"properties\": {\"id\": \"2\"}},"
@@ -228,6 +220,17 @@
             
             break;
         }
+        case Test_StyleReload: {
+            UITextField *textField = [[UITextField alloc]initWithFrame:CGRectMake(0, 0, self.navigationController.navigationBar.frame.size.width, 21.0)];
+            textField.placeholder = @"Enter style URL";
+            self.navigationItem.titleView = textField;
+            
+            [textField becomeFirstResponder];
+            
+            UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Reload style" style:UIBarButtonItemStylePlain target:self action:@selector(reloadStyle)];
+            self.navigationItem.rightBarButtonItem = barButton;
+        }
+            
         default:
             break;
     }
@@ -843,4 +846,43 @@
     [_mapView flyTo:GLMapGeoPointMake(minPt.lat + (maxPt.lat - minPt.lat)*drand48(), minPt.lon + (maxPt.lon - minPt.lon)*drand48()) zoomLevel:14];
 }
 
+#pragma mark Style Reload
+
+- (void) displayAlertWithTitle:(NSString *)title message:(NSString *)message {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction * _Nonnull action) {
+                                            }]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)reloadStyle {
+    UITextField *urlField = (UITextField *)self.navigationItem.titleView;
+    
+    NSError *error = nil;
+    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:urlField.text] options:NSDataReadingUncached error:&error];
+    
+    if (error) {
+        [self displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Style downloading error: %@", [error localizedDescription]]];
+    } else {
+        BOOL rv = [_mapView loadStyleWithBlock:^GLMapResource(NSString * _Nonnull name) {
+            
+            if ([name isEqualToString:@"Style.mapcss"]) {
+                return GLMapResourceWithData(data);
+            }
+            
+            return GLMapResourceEmpty();
+        }];
+        
+        if (!rv) {
+            [self displayAlertWithTitle:nil message:@"Style syntax error. Check log for details."];
+        }
+        
+        [_mapView reloadTiles];
+    }
+}
 @end

@@ -26,6 +26,7 @@ enum Test{
     Test_Fonts,
     Test_FlyTo,
     
+    Test_StyleReload,
     Test_DownloadMap,
 };
 
