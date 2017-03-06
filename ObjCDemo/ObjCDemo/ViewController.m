@@ -41,6 +41,7 @@
                     @{@"name":@"Fonts"},
                     @{@"name":@"Fly to"},
                     
+                    @{@"name":@"Style live reload"},
                     @{@"name":@"Download offline map"}
                     ];
 }

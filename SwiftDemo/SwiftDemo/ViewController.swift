@@ -28,6 +28,7 @@ class ViewController: UITableViewController {
         case Screenshot
         case Fonts
         case FlyTo
+        case StyleReload
         
         case DownloadMap
     }
@@ -70,6 +71,8 @@ class ViewController: UITableViewController {
                      TableRow(.Screenshot, name:"Take screenshot"),
                      TableRow(.Fonts, name:"Fonts"),
                      TableRow(.FlyTo, name:"Fly to"),
+                     
+                     TableRow(.StyleReload, name:"Style live reload"),
                      
                      TableRow(.DownloadMap, name:"Download offline map")
     ]

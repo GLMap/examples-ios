@@ -35,7 +35,8 @@ class MapViewController: UIViewController {
         Demo.GeoJSON: geoJsonDemo,
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
-        Demo.FlyTo: flyToDemo
+        Demo.FlyTo: flyToDemo,
+        Demo.StyleReload: styleReloadDemo,
     ]
 
     override func viewDidLoad() {
@@ -169,7 +170,7 @@ class MapViewController: UIViewController {
     
     func showEmbedMap() -> Void {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
-            GLMapManager.shared().addMap(withPath: mapPath)
+            GLMapManager.shared().addMap(mapPath)
         
             map.move(to: GLMapGeoPoint.init(lat: 42.4341, lon: 19.26), zoomLevel: 14)
         }
@@ -290,10 +291,7 @@ class MapViewController: UIViewController {
     var pinToDelete : Pin?
     
     func multiImageDemo() -> Void {
-        let alert = UIAlertController.init(title: nil, message: "Long tap on map to add pin, tap on pin to remove it", preferredStyle: .alert)
-        
-        alert.addAction(UIAlertAction.init(title: "OK", style: .default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        displayAlert(nil, message: "Long tap on map to add pin, tap on pin to remove it")
         
         map.longPressGestureBlock = { [weak self] (point: CGPoint) in
             let menu = UIMenuController.shared
@@ -675,5 +673,44 @@ class MapViewController: UIViewController {
         map.fly(to: GLMapGeoPoint.init(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
                                        lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()),
                 zoomLevel:14)
+    }
+    
+    func styleReloadDemo() -> Void {
+        let textField = UITextField.init(frame: CGRect.init(x: 0, y: 0, width: self.navigationController!.navigationBar.frame.size.width, height: 21))
+        textField.placeholder = "Enter style URL"
+        self.navigationItem.titleView = textField
+        
+        textField.becomeFirstResponder()
+        
+        let barButton = UIBarButtonItem.init(title: "Reload style", style: .plain, target: self, action: #selector(MapViewController.styleReload))
+        self.navigationItem.rightBarButtonItem = barButton
+    }
+    
+    func styleReload() -> Void {
+        let urlField = self.navigationItem.titleView as! UITextField
+        
+        do {
+            let styleData = try Data.init(contentsOf: URL.init(string: urlField.text!)!)
+            if map.loadStyle({ (name) -> GLMapResource in
+                if (name == "Style.mapcss") {
+                    return GLMapResourceWithData(styleData);
+                }
+                
+                return GLMapResourceEmpty()
+            }) {
+                map.reloadTiles()
+            } else {
+                displayAlert(nil, message: "Style syntax error. Check log for details.")
+            }
+        } catch let error as NSError {
+            displayAlert(nil, message: "Style downloading error: \(error.localizedDescription)")
+        }
+    }
+    
+    func displayAlert(_ title:String?, message:String?) -> Void {
+        let alert = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction.init(title: "OK", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }
