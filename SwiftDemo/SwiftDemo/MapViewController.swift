@@ -190,29 +190,13 @@ class MapViewController: UIViewController {
 
     func zoomToBBox() {
         // get pixel coordinates of geo points
-        let geoPoint1 = GLMapGeoPoint.init(lat:52.5037, lon:13.4102)
-        let geoPoint2 = GLMapGeoPoint.init(lat:53.9024, lon:27.5618)
+        var bbox = GLMapBBox.empty()
 
-        // get internal coordinates of geo points
-        let mapPoint1 = GLMapView.makeMapPoint(from: geoPoint1)
-        let mapPoint2 = GLMapView.makeMapPoint(from: geoPoint2)
-
-        // get pixel positions of geo points
-        let screenPoint1 = map.makeDisplayPoint(from: mapPoint1)
-        let screenPoint2 = map.makeDisplayPoint(from: mapPoint2)
-
-        // get scale between current screen size and desired screen size to fit points
-        let wscale = fabs(screenPoint1.x - screenPoint2.x) / map.bounds.size.width
-        let hscale = fabs(screenPoint1.y - screenPoint2.y) / map.bounds.size.height
-        let zoomChange = fmax(wscale, hscale)
-
-        // get new map center and zoom
-        let newMapCenter = GLMapPoint.init(x: (mapPoint1.x + mapPoint2.x)/2,
-                                           y: (mapPoint1.y + mapPoint2.y)/2)
-        let newZoom = map.mapZoom() / Double(zoomChange)
-
+        bbox.addPoint(GLMapView.makeMapPoint(from: GLMapGeoPoint(lat:52.5037, lon:13.4102)))
+        bbox.addPoint(GLMapView.makeMapPoint(from: GLMapGeoPoint(lat:53.9024, lon:27.5618)))
+        
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
-        map.setMapCenter(newMapCenter, zoom: newZoom)
+        map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox, viewSize: map.bounds.size))
     }
 
     func testNotifications() {

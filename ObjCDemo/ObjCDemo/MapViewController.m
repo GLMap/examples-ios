@@ -176,13 +176,13 @@
             
             GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:
                                        @"node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}"
-                                       @"node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}"
-                                       @"node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}"
-                                       @"node[id=4]{text:'Test12';text-color:black;font-size:20;text-priority:100;}"
-                                       @"node[id=5]{text:'Test12';text-color:black;font-size:25;text-priority:100;}"
-                                       @"node[id=6]{text:'Test12';text-color:black;font-size:30;text-priority:100;}"
-                                       @"node[id=6]{text:'Test12';text-color:black;font-size:60;text-priority:100;}"
-                                       @"area{fill-color:white; layer:100;}"
+                                       "node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}"
+                                       "node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}"
+                                       "node[id=4]{text:'Test12';text-color:black;font-size:20;text-priority:100;}"
+                                       "node[id=5]{text:'Test12';text-color:black;font-size:25;text-priority:100;}"
+                                       "node[id=6]{text:'Test12';text-color:black;font-size:30;text-priority:100;}"
+                                       "node[id=6]{text:'Test12';text-color:black;font-size:60;text-priority:100;}"
+                                       "area{fill-color:white; layer:100;}"
                                        ];
             
             [_mapView addVectorObjects:objects withStyle:style];
@@ -674,7 +674,7 @@
     
     NSMutableData *data = [NSMutableData dataWithLength:sizeof(GLMapPoint)*pointCount];
     GLMapGeoPoint *pts = (GLMapGeoPoint *)data.mutableBytes;
-    
+
     // let's display circle
     for (int i=0; i<pointCount; i++) {
         pts[i] = GLMapGeoPointMake(centerPoint.lat + sin(2*M_PI / pointCount * i) * radius,
@@ -706,30 +706,17 @@
 
 // Example how to calcludate zoom level for some bbox
 - (void) changeBBox {
+    GLMapBBox bbox = GLMapBBoxEmpty();
     // Minsk
-    GLMapGeoPoint geoPt1 = GLMapGeoPointMake(52.5037, 13.4102);
+    bbox = GLMapBBoxAddPoint(bbox, [GLMapView makeMapPointFromGeoPoint:GLMapGeoPointMake(52.5037, 13.4102)]);
     // Paris
-    GLMapGeoPoint geoPt2 = GLMapGeoPointMake(48.8505, 2.3343);
+    bbox = GLMapBBoxAddPoint(bbox, [GLMapView makeMapPointFromGeoPoint:GLMapGeoPointMake(48.8505, 2.3343)]);
     
-    // get internal coordinates of geo points
-    GLMapPoint internalPt1 = [GLMapView makeMapPointFromGeoPoint:geoPt1];
-    GLMapPoint internalPt2 = [GLMapView makeMapPointFromGeoPoint:geoPt2];
-    
-    // get pixel positions of geo points
-    CGPoint screenPt1 = [_mapView makeDisplayPointFromMapPoint:internalPt1];
-    CGPoint screenPt2 = [_mapView makeDisplayPointFromMapPoint:internalPt2];
-    
-    // get distance in pixels in current zoom level
-    CGPoint screenDistance = CGPointMake(fabs(screenPt1.x - screenPt2.x), fabs(screenPt1.y - screenPt2.y));
-    
-    // get scale beteen current screen size and desired screen size to fit points
-    double wscale = screenDistance.x / _mapView.bounds.size.width;
-    double hscale = screenDistance.y / _mapView.bounds.size.height;
-    double zoomChange = fmax(wscale, hscale);
+    GLMapPoint center = GLMapPointMake(bbox.origin.x + bbox.size.x/2, bbox.origin.y + bbox.size.y/2);
     
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
-    [_mapView setMapCenter:GLMapPointMake((internalPt1.x + internalPt2.x)/2, (internalPt1.y + internalPt2.y)/2)
-                      zoom:[_mapView mapZoom]/zoomChange];
+    [_mapView setMapCenter:center
+                      zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
 }
 
 - (void) testNotifications {
@@ -852,7 +839,7 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                    message:message
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    
+
     [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction * _Nonnull action) {
@@ -870,7 +857,6 @@
         [self displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Style downloading error: %@", [error localizedDescription]]];
     } else {
         BOOL rv = [_mapView loadStyleWithBlock:^GLMapResource(NSString * _Nonnull name) {
-            
             if ([name isEqualToString:@"Style.mapcss"]) {
                 return GLMapResourceWithData(data);
             }
