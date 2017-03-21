@@ -29,10 +29,10 @@ class ViewController: UITableViewController {
         case Fonts
         case FlyTo
         case StyleReload
-        
+
         case DownloadMap
     }
-    
+
     struct TableRow {
         let id: Demo
         let name: String
@@ -43,45 +43,45 @@ class ViewController: UITableViewController {
             self.name = name
             self.description = nil
         }
-        
+
         init(_ id: Demo, name: String, description: String) {
             self.id = id
             self.name = name
             self.description = description
         }
     }
-    
+
     var tableRows = [TableRow(.OfflineMap, name:"Open offline map"),
                      TableRow(.EmbeddMap, name:"Open embedd map"),
                      TableRow(.OnlineMap, name:"Open online map", description:"Downloads tiles one by one"),
                      TableRow(.RasterOnlineMap, name:"Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
-                     
+
                      TableRow(.ZoomToBBox, name:"Zoom to bbox"),
                      TableRow(.Notifications, name:"Notification test"),
                      TableRow(.SingleImage, name:"GLMapImage demo", description:"For one pin or any other image"),
                      TableRow(.MultiImage, name:"GLMapImageGroup demo", description:"For large set of pins with smaller set of images"),
-                     
+
                      TableRow(.MarkerLayer, name:"GLMapMarkerLayer demo"),
                      TableRow(.MarkerLayerWithClustering, name:"GLMapMarkerLayer with clustering"),
-                     
+
                      TableRow(.MultiLine, name:"Add multiline"),
-                     
+
                      TableRow(.Polygon, name:"Add polygon"),
                      TableRow(.GeoJSON, name:"Load GeoJSON"),
                      TableRow(.Screenshot, name:"Take screenshot"),
                      TableRow(.Fonts, name:"Fonts"),
                      TableRow(.FlyTo, name:"Fly to"),
-                     
+
                      TableRow(.StyleReload, name:"Style live reload"),
-                     
+
                      TableRow(.DownloadMap, name:"Download offline map")
     ]
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-    
-        self.title = "GLMap examples";
+
+        self.title = "GLMap examples"
     }
 
     override func didReceiveMemoryWarning() {
@@ -90,30 +90,30 @@ class ViewController: UITableViewController {
     }
 
 // MARK: Table view data source
-    
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tableRows.count
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let identifier = "Cell"
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
-    
+
         let row = tableRows[indexPath.row]
-    
+
         cell.textLabel?.text = row.name
         cell.detailTextLabel?.text = row.description
-        
+
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = tableRows[indexPath.row]
-        
+
         if row.id == Demo.DownloadMap {
             self.performSegue(withIdentifier: "DownloadMaps", sender: nil)
         } else {
@@ -121,7 +121,7 @@ class ViewController: UITableViewController {
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "Map" {
             if let mapViewController = segue.destination as? MapViewController {
@@ -129,7 +129,6 @@ class ViewController: UITableViewController {
                     mapViewController.currentDemo = demoCase
                 }
             }
-        } 
+        }
     }
 }
-
