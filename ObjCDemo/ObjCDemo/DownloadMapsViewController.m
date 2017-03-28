@@ -62,7 +62,7 @@
     return unrolledArray;
 }
 
-- (NSArray *) sortMaps:(NSArray *)maps byDistanceFromLocation:(CLLocation *)location {
+- (NSArray *) sortMaps:(NSArray *)maps byDistanceFromLocation:(GLMapGeoPoint)location {
     return [maps sortedArrayUsingComparator:^NSComparisonResult(GLMapInfo *obj1, GLMapInfo *obj2) {
         double a = [obj1 distanceFrom:location];
         double b = [obj2 distanceFrom:location];
@@ -84,15 +84,10 @@
 
 -(void) setMaps:(NSArray *)maps
 {
-    
     // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
-    CLLocation *userLocation = [[CLLocation alloc] initWithLatitude:40.7 longitude:-73.9];
-    
-    if (userLocation) {
-        maps = [self sortMaps:maps byDistanceFromLocation:userLocation];
-    }else {
-        maps = [self sortMapsByName:maps forLocale:@"en"];
-    }
+    GLMapGeoPoint userLocation = GLMapGeoPointMake(40.7, -73.9);
+    maps = [self sortMaps:maps byDistanceFromLocation:userLocation];
+    //maps = [self sortMapsByName:maps forLocale:@"en"];
     
     _allMaps = maps;
     
@@ -204,7 +199,7 @@
                 case GLMapInfoState_Downloaded:
                 {
                     cell.accessoryView = nil;
-                    double sizeInMB = (map.sizeOnDisk).doubleValue/(1000*1000);
+                    double sizeInMB = (double)map.sizeOnDisk/(1000*1000);
                     if (sizeInMB != 0)
                     {
                         cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", sizeInMB, @"MB"];
@@ -228,7 +223,7 @@
         } else {
             cell.accessoryType = UITableViewCellAccessoryNone;
             
-            double sizeInMB = (map.sizeOnServer).doubleValue/(1000*1000);
+            double sizeInMB = (double)map.sizeOnServer/(1000*1000);
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", sizeInMB, @"MB"];
         }
     }
