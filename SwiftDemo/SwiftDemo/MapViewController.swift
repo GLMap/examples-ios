@@ -515,7 +515,7 @@ class MapViewController: UIViewController {
 
         func fillPoints(centerPoint: GLMapGeoPoint, radius: Double) -> Array<GLMapGeoPoint> {
             let pointCount = 25
-            let sectorSize = 2*M_PI / Double(pointCount)
+            let sectorSize = 2*Double.pi / Double(pointCount)
 
             var circlePoints: Array<GLMapGeoPoint> = []
             for i in 0...pointCount-1 {
@@ -575,8 +575,8 @@ class MapViewController: UIViewController {
         NSLog("Start capturing frame")
         map.captureFrame { [weak self] (image: UIImage?) in
             if image != nil {
-                NSLog("Image captured \(image)")
-                let alert = UIAlertController.init(title: nil, message: "Image captured \(image)", preferredStyle:.alert)
+                NSLog("Image captured \(String(describing: image))")
+                let alert = UIAlertController.init(title: nil, message: "Image captured \(String(describing: image))", preferredStyle:.alert)
                 alert.addAction(UIAlertAction.init(title: "OK", style: .default, handler:nil))
 
                 self?.present(alert, animated: true, completion: nil)

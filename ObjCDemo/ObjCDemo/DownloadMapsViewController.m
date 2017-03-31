@@ -181,7 +181,7 @@
     {
         map = _mapsOnDevice[indexPath.row];
         
-        if (map.subMaps)
+        if ([map.subMaps count])
         {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.detailTextLabel.text = @"";
@@ -217,7 +217,7 @@
         }
     } else {
         map = _mapsOnServer[indexPath.row];
-        if (map.subMaps) {
+        if ([map.subMaps count]) {
             cell.detailTextLabel.text = @"";
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         } else {
@@ -269,7 +269,7 @@
         map = _mapsOnServer[indexPath.row];
     }
     
-    if (map.subMaps)
+    if ([map.subMaps count])
     {
         [self performSegueWithIdentifier:@"openSubmap" sender:map];
     }else if(map.state != GLMapInfoState_Downloaded )

@@ -61,22 +61,20 @@ class DownloadMapsViewController: UITableViewController {
         // maps = [self unrollMapArray:maps];
 
         // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
-        let userLocation: CLLocation? = CLLocation.init(latitude: 40.7, longitude: -73.9)
+        let userLocation = GLMapGeoPoint.init(lat: 40.7, lon: -73.9)
 
-        let sortedMaps: [GLMapInfo]
-        if let location = userLocation {
-            sortedMaps = sort(maps: maps, byDistanceFrom: location)
-        } else {
-            sortedMaps = sort(maps: maps, byNameIn: "en")
-        }
-
+        let sortedMaps = sort(maps: maps, byDistanceFrom: userLocation)
+        // let sortedMaps = sort(maps: maps, byNameIn: "en")
+        
         allMaps = sortedMaps
 
         mapsOnDevice.removeAll()
         mapsOnServer.removeAll()
 
         for mapInfo in allMaps {
-            if let subMaps = mapInfo.subMaps {
+            let subMaps = mapInfo.subMaps;
+            
+            if (subMaps.count != 0){
                 var downloadedSubMaps = 0
 
                 for subInfo in subMaps {
@@ -101,7 +99,7 @@ class DownloadMapsViewController: UITableViewController {
         self.tableView.reloadData()
     }
 
-    func sort(maps: [GLMapInfo], byDistanceFrom location: CLLocation) -> [GLMapInfo] {
+    func sort(maps: [GLMapInfo], byDistanceFrom location: GLMapGeoPoint) -> [GLMapInfo] {
         return maps.sorted(by: { (a: GLMapInfo, b: GLMapInfo) -> Bool in
             return a.distance(from: location) < b.distance(from: location)
         })
@@ -158,7 +156,7 @@ class DownloadMapsViewController: UITableViewController {
         if indexPath.section == 0 {
             mapInfo = mapsOnDevice[indexPath.row]
 
-            if mapInfo.subMaps != nil {
+            if mapInfo.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
             } else {
@@ -171,9 +169,7 @@ class DownloadMapsViewController: UITableViewController {
                     cell.detailTextLabel?.text = "Resume"
                 case .downloaded:
                     cell.accessoryView = nil
-                    if let mapSize = mapInfo.sizeOnDisk {
-                        cell.detailTextLabel?.text = String.init(format: "%.2f MB", mapSize.doubleValue / 1000000)
-                    }
+                    cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnDisk) / 1000000)
                 case .inProgress:
                     cell.detailTextLabel?.text = String.init(format: "Downloading %.2f%%", mapInfo.downloadProgress*100)
                 case .notDownloaded:
@@ -185,15 +181,12 @@ class DownloadMapsViewController: UITableViewController {
         } else {
             mapInfo = mapsOnServer[indexPath.row]
 
-            if mapInfo.subMaps == nil {
-                cell.accessoryType = .none
-
-                if let mapSize = mapInfo.sizeOnServer {
-                    cell.detailTextLabel?.text = String.init(format: "%.2f MB", mapSize.doubleValue / 1000000)
-                }
-            } else {
+            if mapInfo.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
+            } else {
+                cell.accessoryType = .none
+                cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnServer) / 1000000)
             }
         }
 
@@ -211,7 +204,7 @@ class DownloadMapsViewController: UITableViewController {
             mapInfo = mapsOnServer[indexPath.row]
         }
 
-        if mapInfo.subMaps != nil {
+        if mapInfo.subMaps.count > 0 {
             performSegue(withIdentifier: "OpenSubmap", sender: mapInfo)
         } else {
             if mapInfo.state != .downloaded {
@@ -229,7 +222,7 @@ class DownloadMapsViewController: UITableViewController {
     func startDownloadingMap(_ map: GLMapInfo, retryCount: Int) {
         if retryCount > 0 {
             GLMapManager.shared().downloadMap(map, withCompletionBlock: { (task: GLMapDownloadTask) in
-                if let error = task.error as? NSError {
+                if let error = task.error as NSError? {
                     NSLog("Map downloading error: \(error)")
                     //CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
                     if error.domain == "CURL" && error.code == 28 {
@@ -255,11 +248,8 @@ class DownloadMapsViewController: UITableViewController {
         if segue.identifier == "OpenSubmap" {
             if let mapViewController = segue.destination as? DownloadMapsViewController {
                 if let map = sender as? GLMapInfo {
-                    if let subMaps = map.subMaps {
-                        mapViewController.setMaps(subMaps)
-
-                        mapViewController.title = map.name()
-                    }
+                    mapViewController.setMaps(map.subMaps)
+                    mapViewController.title = map.name()
                 }
             }
         }
@@ -269,7 +259,7 @@ class DownloadMapsViewController: UITableViewController {
         if indexPath.section == 0 {
             let map = mapsOnDevice[indexPath.row]
 
-            if map.subMaps == nil {
+            if map.subMaps.count == 0 {
                 return .delete
             }
         }
