@@ -105,11 +105,11 @@ class MapViewController: UIViewController {
 
     func updateDownloadButton() {
         switch map.centerTileState {
-        case GLMapTileState_HasData:
+        case .hasData:
             if downloadButton.isHidden == false {
                 downloadButton.isHidden = true
             }
-        case GLMapTileState_NoData:
+        case .noData:
             if downloadButton.isHidden {
                 downloadButton.isHidden = false
             }
@@ -122,7 +122,7 @@ class MapViewController: UIViewController {
     var mapToDownload: GLMapInfo?
 
     func updateDownloadButtonText() {
-        if map.centerTileState == GLMapTileState_NoData {
+        if map.centerTileState == .noData {
             let mapCenter = map.mapCenter()
 
             mapToDownload = GLMapManager.shared().map(at: mapCenter)
