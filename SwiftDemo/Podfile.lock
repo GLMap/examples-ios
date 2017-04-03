@@ -1,14 +1,14 @@
 PODS:
-  - GLMap (0.8.5)
-  - GLMapSwift (0.8.5):
-    - GLMap (= 0.8.5)
+  - GLMap (0.8.6)
+  - GLMapSwift (0.8.6):
+    - GLMap (= 0.8.6)
 
 DEPENDENCIES:
   - GLMapSwift
 
 SPEC CHECKSUMS:
-  GLMap: db43c9658ee938710fc5c4e490f5088fc97f5a1f
-  GLMapSwift: 462045856c7d1eb6a7182c45bf8fe31d5848deb7
+  GLMap: 99ea44d5208a051fb92f7fbd8d7f40bc4e929bc3
+  GLMapSwift: 38e8fbf9510f8e532fd47849e272e9c3837c3381
 
 PODFILE CHECKSUM: 1162096d0dd0129d9f844a7876ab99c6c1bea662
 
