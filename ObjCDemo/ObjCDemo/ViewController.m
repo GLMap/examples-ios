@@ -34,6 +34,8 @@
                     @{@"name":@"GLMapImageGroup demo", @"descr":@"For large set of pins with smaller set of images"},
                     @{@"name":@"GLMapMarkerLayer demo"},
                     @{@"name":@"GLMapMarkerLayer with clustering"},
+                    @{@"name":@"GLMapMarkerLayer with mapcss clustering"},
+
                     @{@"name":@"Add multiline"},
                     @{@"name":@"Add polygon"},
                     @{@"name":@"Load GeoJSON"},
