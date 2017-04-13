@@ -560,14 +560,14 @@
     
     // Create cascade style that will select style from collection
     GLMapVectorCascadeStyle *cascadeStyle = [GLMapVectorCascadeStyle createStyle:
-              @"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:16; font-stroke-width:2pt; font-stroke-color:#FFFFFFEE;}"
-               "node[count>=2]{icon-image:\"uni1\"; text:eval(tag(\"count\"));}"
-               "node[count>=4]{icon-image:\"uni2\";}"
-               "node[count>=8]{icon-image:\"uni3\";}"
-               "node[count>=16]{icon-image:\"uni4\";}"
-               "node[count>=32]{icon-image:\"uni5\";}"
-               "node[count>=64]{icon-image:\"uni6\";}"
-               "node[count>=128]{icon-image:\"uni7\";}"];
+              @"node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:16; font-stroke-width:2pt; font-stroke-color:#FFFFFFEE;}"
+               "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}"
+               "node[count>=4]{icon-image:\"uni2\"; text-priority: 102;}"
+               "node[count>=8]{icon-image:\"uni3\"; text-priority: 103;}"
+               "node[count>=16]{icon-image:\"uni4\"; text-priority: 104;}"
+               "node[count>=32]{icon-image:\"uni5\"; text-priority: 105;}"
+               "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}"
+               "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}"];
     
     // When we have big dataset to load. We could load it in background thread. And create marker layer on main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
