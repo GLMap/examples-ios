@@ -244,7 +244,7 @@
 // Stop rendering when map is hidden to save resources on CADisplayLink calls
 -(void)viewDidDisappear:(BOOL)animated
 {
-    [super viewWillDisappear:animated];
+    [super viewDidDisappear:animated];
     [NSObject cancelPreviousPerformRequestsWithTarget:self]; //Remove link to self from flashObject:
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -555,7 +555,7 @@
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
         uint32_t styleIndex = [style addMarkerImage:img];
-        [style setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex];
+        [style setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex]; //set name of style that can be refrenced from mapcss
     }
     
     // Create cascade style that will select style from collection
@@ -611,18 +611,14 @@
     // Create style for text
     GLMapVectorStyle *textStyle = [GLMapVectorStyle createStyle:@"{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"];
     
-    // Data fill block used to set location for marker and it's style
-    // It could work with any user defined object type. GLMapVectorObject in our case.
+    // Data fill block used to set style for marker. When constructing with GLMapVectorObjectArray layer can contain only vector objects
     [style setMarkerDataFillBlock:^(NSObject *marker, GLMapMarkerData data) {
         // marker - is an object from markers array.
-        if ([marker isKindOfClass:[GLMapVectorObject class]]) {
-            GLMapVectorObject *obj = (GLMapVectorObject *)marker;
-            GLMapMarkerSetLocation(data, obj.point);
-            GLMapMarkerSetStyle(data, 0);
-            NSString *name = [obj valueForKey:@"name"];
-            if (name) {
-                GLMapMarkerSetText(data, name, CGPointMake(0, 7), textStyle);
-            }
+        GLMapVectorObject *obj = (GLMapVectorObject *)marker;
+        GLMapMarkerSetStyle(data, 0);
+        NSString *name = [obj valueForKey:@"name"];
+        if (name) {
+            GLMapMarkerSetText(data, name, CGPointMake(0, 7), textStyle);
         }
     }];
     
@@ -633,16 +629,16 @@
         if (markerStyle >= unionCount) {
             markerStyle = unionCount-1;
         }
-        
         GLMapMarkerSetStyle(data, markerStyle);
+        GLMapMarkerSetText(data, [NSString stringWithFormat:@"%d", markerCount], CGPointMake(0, 0), textStyle);
     }];
     
-    // When we have big dataset to load. We could load it in background thread. And create marker layer on main thread only when data is loaded.
+    // When we have big dataset to load. We could load and create marker layer in background thread. And display layer when all data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:points andStyles:style];
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:style];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView displayMarkerLayer:layer completion:nil];

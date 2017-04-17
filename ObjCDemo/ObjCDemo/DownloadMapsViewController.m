@@ -22,6 +22,7 @@
 }
 
 -(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     if(_mapsOnDevice==nil && _mapsOnServer==nil && _allMaps == nil) {
         // Just opened Map list
         NSArray *cachedMapList = [[GLMapManager sharedManager] cachedMapList];
@@ -40,6 +41,7 @@
 
 -(void)viewDidDisappear:(BOOL)animated
 {
+    [super viewDidDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kGLMapInfoStateChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kGLMapInfoDownloadProgress object:nil];
 }
