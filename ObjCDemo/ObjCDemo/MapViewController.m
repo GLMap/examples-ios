@@ -169,7 +169,7 @@
         }
         case Test_Fonts:
         {
-            NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
+            GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
                                 @"[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 64]}, \"properties\": {\"id\": \"1\"}},"
                                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63]}, \"properties\": {\"id\": \"2\"}},"
                                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 62]}, \"properties\": {\"id\": \"3\"}},"
@@ -190,7 +190,7 @@
                                        "area{fill-color:white; layer:100;}"
                                        ];
             
-            [_mapView addVectorObjects:objects withStyle:style];
+            [_mapView addVectorObjectArray:objects withStyle:style];
             
             UIView *testView = [[UIView alloc] initWithFrame:CGRectMake(350, 200, 150, 200)];
             UIView *testView2 = [[UIView alloc] initWithFrame:CGRectMake(200, 200, 150, 200)];
@@ -498,9 +498,6 @@
 
 // Minimal usage example of marker layer
 - (void)addMarkers {
-    // Move map to the UK
-    [_mapView moveTo:GLMapGeoPointMake(53.46, -2) zoomLevel:6];
-    
     // Create marker image
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
     UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:0.2];
@@ -522,15 +519,17 @@
     
     // Load UK postal codes from GeoJSON
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
+    GLMapVectorObjectArray *objectArray = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
     
     // Put our array of objects into marker layer. It could be any custom array of objects.
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:objects andStyles:style];
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:objectArray andStyles:style];
     // Disable clustering in this demo
     layer.clusteringEnabled = NO;
     
     // Add marker layer on map
     [_mapView displayMarkerLayer:layer completion:nil];
+    GLMapBBox bbox = objectArray.bbox;
+    [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
 }
 
 - (void)addMarkersWithMapCSSClustering {
@@ -548,19 +547,21 @@
     };
     
     // Create style collection - it's storage for all images possible to use for markers and clusters
-    GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
+    GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
     // Render possible images from svgpb
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
     for (int i=0; i<unionCount; i++){
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
-        uint32_t styleIndex = [style addMarkerImage:img];
-        [style setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex]; //set name of style that can be refrenced from mapcss
+        uint32_t styleIndex = [styleCollection addMarkerImage:img];
+        
+        //set name of style that can be refrenced from mapcss
+        [styleCollection setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex];
     }
     
     // Create cascade style that will select style from collection
     GLMapVectorCascadeStyle *cascadeStyle = [GLMapVectorCascadeStyle createStyle:
-              @"node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:16; font-stroke-width:2pt; font-stroke-color:#FFFFFFEE;}"
+              @"node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
                "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}"
                "node[count>=4]{icon-image:\"uni2\"; text-priority: 102;}"
                "node[count>=8]{icon-image:\"uni3\"; text-priority: 103;}"
@@ -569,15 +570,15 @@
                "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}"
                "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}"];
     
-    // When we have big dataset to load. We could load it in background thread. And create marker layer on main thread only when data is loaded.
+    // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:style];        
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView displayMarkerLayer:layer completion:nil];
-            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
+            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
 }
@@ -597,7 +598,7 @@
     };
     
     // Create style collection - it's storage for all images possible to use for markers and clusters
-    GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
+    GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
     
     // Render possible images from svgpb
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
@@ -605,14 +606,14 @@
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
         
-        [style addMarkerImage:img];
+        [styleCollection addMarkerImage:img];
     }
     
     // Create style for text
     GLMapVectorStyle *textStyle = [GLMapVectorStyle createStyle:@"{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"];
     
     // Data fill block used to set style for marker. When constructing with GLMapVectorObjectArray layer can contain only vector objects
-    [style setMarkerDataFillBlock:^(NSObject *marker, GLMapMarkerData data) {
+    [styleCollection setMarkerDataFillBlock:^(NSObject *marker, GLMapMarkerData data) {
         // marker - is an object from markers array.
         GLMapVectorObject *obj = (GLMapVectorObject *)marker;
         GLMapMarkerSetStyle(data, 0);
@@ -623,26 +624,26 @@
     }];
     
     // Union fill block used to set style for cluster object. First param is number objects inside the cluster and second is marker object.
-    [style setMarkerUnionFillBlock:^(uint32_t markerCount, GLMapMarkerData data) {
+    [styleCollection setMarkerUnionFillBlock:^(uint32_t markerCount, GLMapMarkerData data) {
         // we have 8 marker styles for 1, 2, 4, 8, 16, 32, 64, 128+ markers inside
         int markerStyle = log2(markerCount);
         if (markerStyle >= unionCount) {
             markerStyle = unionCount-1;
         }
         GLMapMarkerSetStyle(data, markerStyle);
-        GLMapMarkerSetText(data, [NSString stringWithFormat:@"%d", markerCount], CGPointMake(0, 0), textStyle);
+        GLMapMarkerSetText(data, [NSString stringWithFormat:@"%d", markerCount], CGPointZero, textStyle);
     }];
     
-    // When we have big dataset to load. We could load and create marker layer in background thread. And display layer when all data is loaded.
+    // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:style];
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView displayMarkerLayer:layer completion:nil];
-            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
+            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
 }
@@ -773,7 +774,7 @@
 
 -(void) loadGeoJSONWithCSSStyle
 {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
                         @"[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}},"
                         "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}},"
                         "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},"
@@ -785,59 +786,59 @@
                                "line{linecap: round; width: 5pt; color:blue;}"
                                "area{fill-color:green; width:1pt; color:red;}"];
     
-    [_mapView addVectorObjects:objects withStyle:_style];
+    [_mapView addVectorObjectArray:objects withStyle:_style];
     
     [self flashObject: objects[0]];
 }
 
 - (void) loadPointGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 - (void) loadMultiPointGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, 55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, 55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 - (void) loadLineStringGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true; width: 4pt; color:green;}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 - (void) loadMultiLineStringGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiLineString\",\"coordinates\":"
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiLineString\",\"coordinates\":"
                         "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
                         " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:false; linecap: round; width: 5pt; color:blue;}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 
 - (void) loadPolygonGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Polygon\",\"coordinates\":"
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Polygon\",\"coordinates\":"
                         "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
                         " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 - (void) loadMultiPolygonGeoJSON {
-    NSArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
                         "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
                         "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
-    [_mapView addVectorObjects:objects withStyle:style];
+    [_mapView addVectorObjectArray:objects withStyle:style];
 }
 
 
