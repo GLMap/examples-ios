@@ -30,6 +30,7 @@ class MapViewController: UIViewController {
         Demo.MultiImage: multiImageDemo,
         Demo.MarkerLayer: markerLayer,
         Demo.MarkerLayerWithClustering: markerLayerWithClustering,
+        Demo.MarkerLayerWithMapCSSClustering: markerLayerWithMapCSSClustering,
         Demo.MultiLine: multiLineDemo,
         Demo.Polygon: polygonDemo,
         Demo.GeoJSON: geoJsonDemo,
@@ -381,9 +382,6 @@ class MapViewController: UIViewController {
     }
 
     func markerLayer() {
-        // Move map to the UK
-        map.move(to: GLMapGeoPoint.init(lat: 53.46, lon: -2), zoomLevel: 6)
-
         // Create marker image
         if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
             if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: 0.2) {
@@ -404,12 +402,14 @@ class MapViewController: UIViewController {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
                     if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         // Put our array of objects into marker layer. It could be any custom array of objects.
-                        let markerLayer = GLMapMarkerLayer.init(markers: objects, andStyles: style)
+                        let markerLayer = GLMapMarkerLayer.init(vectorObjects: objects, andStyles: style)
                         // Disable clustering in this demo
                         markerLayer.clusteringEnabled = false
 
                         // Add marker layer on map
                         map.display(markerLayer, completion: nil)
+                        let bbox = objects.bbox
+                        map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
                     }
                 }
 
@@ -418,9 +418,6 @@ class MapViewController: UIViewController {
     }
 
     func markerLayerWithClustering() {
-        // Move map to the UK
-        map.move(to: GLMapGeoPoint.init(lat: 53.46, lon: -2), zoomLevel: 6)
-
         if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
             // We use different colours for our clusters
             let tintColors = [
@@ -435,14 +432,14 @@ class MapViewController: UIViewController {
             ]
 
             // Create style collection - it's storage for all images possible to use for markers and clusters
-            let style = GLMapMarkerStyleCollection.init()
+            let styleCollection = GLMapMarkerStyleCollection.init()
 
             // Render possible images from svgpb
             for i in 0 ... tintColors.count-1 {
                 let scale = 0.2 + 0.1 * Double(i)
                 if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
 
-                    style.addMarkerImage(image)
+                    styleCollection.addMarkerImage(image)
                 }
             }
 
@@ -451,7 +448,7 @@ class MapViewController: UIViewController {
 
             // Data fill block used to set location for marker and it's style
             // It could work with any user defined object type. GLMapVectorObject in our case.
-            style.setMarkerDataFill({ (marker, data) in
+            styleCollection.setMarkerDataFill({ (marker, data) in
                 if let obj = marker as? GLMapVectorObject {
                     data.setLocation(obj.point)
                     data.setStyle(0)
@@ -463,7 +460,7 @@ class MapViewController: UIViewController {
             })
 
             // Union fill block used to set style for cluster object. First param is number objects inside the cluster and second is marker object.
-            style.setMarkerUnionFill({ (markerCount, data) in
+            styleCollection.setMarkerUnionFill({ (markerCount, data) in
                 // we have 8 marker styles for 1, 2, 4, 8, 16, 32, 64, 128+ markers inside
                 var markerStyle = Int( log2( Double(markerCount) ) )
                 if markerStyle >= tintColors.count {
@@ -471,17 +468,82 @@ class MapViewController: UIViewController {
                 }
 
                 data.setStyle( UInt(markerStyle) )
+                data.setText("\(markerCount)", offset: CGPoint.zero, style: textStyle!)
             })
 
-            // When we have big dataset to load. We could load it in background thread. And create marker layer on main thread only when data is loaded.
+            // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
             DispatchQueue.global().async {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
                     if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                        let markerLayer = GLMapMarkerLayer.init(vectorObjects: objects, andStyles: styleCollection)
+                        //markerLayer.clusteringEnabled = false
+                        let bbox = objects.bbox
+                        
                         DispatchQueue.main.async { [weak self] in
-                            let markerLayer = GLMapMarkerLayer.init(markers: objects, andStyles: style)
+                            if let wself = self {
+                                let map = wself.map;
+                                map.display(markerLayer, completion: nil)
+                                map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func markerLayerWithMapCSSClustering() {
+        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
+            // We use different colours for our clusters
+            let tintColors = [
+                GLMapColorMake(33, 0, 255, 255),
+                GLMapColorMake(68, 195, 255, 255),
+                GLMapColorMake(63, 237, 198, 255),
+                GLMapColorMake(15, 228, 36, 255),
+                GLMapColorMake(168, 238, 25, 255),
+                GLMapColorMake(214, 234, 25, 255),
+                GLMapColorMake(223, 180, 19, 255),
+                GLMapColorMake(255, 0, 0, 255)
+            ]
+            
+            // Create style collection - it's storage for all images possible to use for markers and clusters
+            let styleCollection = GLMapMarkerStyleCollection.init()
+            
+            // Render possible images from svgpb
+            for i in 0 ... tintColors.count-1 {
+                let scale = 0.2 + 0.1 * Double(i)
+                if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
+                    
+                    let styleIndex = styleCollection.addMarkerImage(image)
+                    styleCollection.setStyleName("uni\(styleIndex)", forStyleIndex: styleIndex)
+                }
+            }
+            
+            // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
+            DispatchQueue.global().async {
+                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
+                    if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                        if let cascadeStyle = GLMapVectorCascadeStyle.createStyle(
+                            "node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}" +
+                                "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}" +
+                                "node[count>=4]{icon-image:\"uni2\"; text-priority: 102;}" +
+                                "node[count>=8]{icon-image:\"uni3\"; text-priority: 103;}" +
+                                "node[count>=16]{icon-image:\"uni4\"; text-priority: 104;}" +
+                                "node[count>=32]{icon-image:\"uni5\"; text-priority: 105;}" +
+                                "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}" +
+                            "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}") {
+                            
+                            let markerLayer = GLMapMarkerLayer.init(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection)
                             //markerLayer.clusteringEnabled = false
-
-                            self?.map.display(markerLayer, completion: nil)
+                            let bbox = objects.bbox
+                            
+                            DispatchQueue.main.async { [weak self] in
+                                if let wself = self {
+                                    let map = wself.map;
+                                    map.display(markerLayer, completion: nil)
+                                    map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
+                                }
+                            }
                         }
                     }
                 }
