@@ -27,8 +27,8 @@
                     @{@"name":@"Open embedd map"},
                     @{@"name":@"Open online map", @"descr": @"Downloads tiles one by one"},
                     @{@"name":@"Raster online map", @"descr": @"Downloads raster tiles one by one from custom tile source"},
-                    
                     @{@"name":@"Zoom to bbox"},
+                    @{@"name":@"Offline Search"},
                     @{@"name":@"Notification test"},
                     @{@"name":@"GLMapImage demo", @"descr":@"For one pin or any other image"},
                     @{@"name":@"GLMapImageGroup demo", @"descr":@"For large set of pins with smaller set of images"},

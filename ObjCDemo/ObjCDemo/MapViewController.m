@@ -31,8 +31,9 @@
     BOOL _flashAdd;
     
     GLMapVectorCascadeStyle *_style;
-    
     CLLocationManager *_locationManager;
+    
+    GLSearchCategories *_categories;
 }
 
 - (void)viewDidLoad
@@ -103,6 +104,9 @@
         }
         case Test_ZoomToBBox: // zoom to bbox
             [self zoomToBBox];
+            break;
+        case Test_OfflineSearch:
+            [self offlineSearch];
             break;
         case Test_Notifications:
             [self testNotifications];
@@ -267,6 +271,89 @@
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.9024, 27.5618));
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
     [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
+}
+
+// Return search categories that used to sort search results.
+- (GLSearchCategories *) getCategories
+{
+    if(_categories == nil)
+    {
+        //To compare string GLMap use ICU v56. It needs collation data (icudt56l.dat). You can place this line in main.m
+        [GLSearchCategories setCollationDataLocation:[NSBundle mainBundle].bundlePath];
+        
+        //Load preapred categories from biary file.
+        _categories = [[GLSearchCategories alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"categories" ofType:@""]];
+    }
+    return _categories;
+}
+
+- (void) offlineSearch{
+    //Offline search works only with offline maps. Online tiles does not contains search index
+    [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
+    
+    // Move map to the Montenegro capital
+    GLMapGeoPoint center = GLMapGeoPointMake(42.4341, 19.26);
+    [_mapView moveTo:center zoomLevel:14];
+    
+    GLSearchCategories *categories = [self getCategories];
+    
+    //Create new offline search request
+    GLSearchOffline *searchOffline = [[GLSearchOffline alloc] init];
+    //Set search categories
+    searchOffline.categories = categories;
+    //Set center of search. Objects that is near center will recive bonus while sorting happens
+    searchOffline.center = GLMapPointMakeFromGeoCoordinates(center.lat, center.lon);
+    //Set maximum number of results. By default is is 100
+    searchOffline.limit = 20;
+    //Set locale settings. Used to boost results with locales native to user
+    searchOffline.localeSettings = _mapView.localeSettings;
+
+    NSArray<GLSearchCategory *> *category = [categories categoriesStartedWith:@[@"food"] localeSettings:_mapView.localeSettings]; //find categories by name
+    if(category.count != 0)
+    {
+        NSString *name = [category[0] localizedName:_mapView.localeSettings];
+        NSLog(@"Searching %@", name);
+        [searchOffline addCategoryFilter:category[0]]; //Filter results by category
+    }
+    
+    //You can add more filters. For example by name
+    //[searchOffline addNameFilter:@"cali"]; //Add filter by name
+    
+    [searchOffline startWithCompletionBlock:^(NSArray<GLMapVectorObject *> * _Nonnull results) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self displaySearchResults:results];
+        });
+    }];
+}
+
+-(void) displaySearchResults:(NSArray<GLMapVectorObject *> *)results
+{
+    GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
+    [style addMarkerImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000]];
+    [style setMarkerDataFillBlock:^(NSObject * _Nonnull marker, GLMapMarkerData  _Nonnull data) {
+        if([marker isKindOfClass:[GLMapVectorObject class]])
+        {
+            GLMapVectorObject *obj = (GLMapVectorObject *)marker;
+            GLMapMarkerSetLocation(data, obj.point);
+            GLMapMarkerSetStyle(data, 0);
+        }
+    }];
+    
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style];
+    layer.clusteringEnabled = NO;
+    [_mapView displayMarkerLayer:layer completion:nil];
+    
+    //Zoom to results
+    if(results.count != 0)
+    {
+        //Calculate bbox
+        GLMapBBox bbox = GLMapBBoxEmpty();
+        for(GLMapVectorObject *object in results)
+            bbox = GLMapBBoxAddPoint(bbox, object.point);
+        
+        [_mapView setMapCenter:GLMapBBoxCenter(bbox)];
+        [_mapView setMapZoom:[_mapView mapZoomForBBox:bbox]];
+    }
 }
 
 #pragma mark Download button

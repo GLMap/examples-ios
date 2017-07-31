@@ -14,6 +14,7 @@ enum Test{
     Test_OnlineMap,
     Test_RasterOnlineMap,
     Test_ZoomToBBox,
+    Test_OfflineSearch,
     Test_Notifications,
     Test_SingleImage,
     Test_MultiImage,
