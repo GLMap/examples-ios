@@ -11,14 +11,13 @@
 
 @implementation DownloadMapsViewController
 
--(void) updateMaps {
-    GLMapListUpdateBlock block = ^(NSArray *fetchedMaps, BOOL mapListUpdated, NSError *error) {
+-(void) updateMaps
+{
+    [[GLMapManager sharedManager] updateMapListWithCompletionBlock:^(NSArray *fetchedMaps, BOOL mapListUpdated, NSError *error) {
         if(!error && mapListUpdated) {
             [self setMaps:fetchedMaps];
         }
-    };
-    
-    [[GLMapManager sharedManager] updateMapListWithCompletionBlock:block];
+    }];
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -96,9 +95,8 @@
     NSMutableArray *mapsOnDevice = [[NSMutableArray alloc] init];
     NSMutableArray *mapsOnServer = [[NSMutableArray alloc] init];
     for (GLMapInfo *info in _allMaps) {
-        if((info.subMaps).count) {
+        if(info.subMaps.count) {
             NSUInteger downloadedSubMaps = 0;
-            
             for (GLMapInfo *subInfo in info.subMaps) {
                 if (subInfo.state > GLMapInfoState_NotDownloaded) {
                     downloadedSubMaps ++;
@@ -111,13 +109,11 @@
             if (downloadedSubMaps != (info.subMaps).count) {
                 [mapsOnServer addObject:info];
             }
-            
         } else if(info.state == GLMapInfoState_NotDownloaded) {
             [mapsOnServer addObject:info];
         }  else {
             [mapsOnDevice addObject:info];
-        }
-        
+        }        
     }
     
     _mapsOnDevice = mapsOnDevice;

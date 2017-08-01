@@ -26,6 +26,8 @@
 		6C6C26161DDDF0520060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C260A1DDDF0520060A241 /* pin3@2x.png */; };
 		6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196E1E0D516100FBCF75 /* cluster_data.json */; };
 		6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196F1E0D516100FBCF75 /* cluster.svgpb */; };
+		6CCEFCD51F30CCBB005BB149 /* categories in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD31F30CCBB005BB149 /* categories */; };
+		6CCEFCD61F30CCBB005BB149 /* icudt56l.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD41F30CCBB005BB149 /* icudt56l.dat */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +58,8 @@
 		6C6C260A1DDDF0520060A241 /* pin3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin3@2x.png"; sourceTree = "<group>"; };
 		6CB9196E1E0D516100FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196F1E0D516100FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
+		6CCEFCD31F30CCBB005BB149 /* categories */ = {isa = PBXFileReference; lastKnownFileType = file; name = categories; path = ../../../Resources/categories; sourceTree = "<group>"; };
+		6CCEFCD41F30CCBB005BB149 /* icudt56l.dat */ = {isa = PBXFileReference; lastKnownFileType = file; name = icudt56l.dat; path = ../../../Resources/icudt56l.dat; sourceTree = "<group>"; };
 		E439A1F90C707DA765D3D5E8 /* Pods-ObjCDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,8 +127,10 @@
 		6C6C25FE1DDDF0520060A241 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6CCEFCD31F30CCBB005BB149 /* categories */,
 				6CB9196E1E0D516100FBCF75 /* cluster_data.json */,
 				6CB9196F1E0D516100FBCF75 /* cluster.svgpb */,
+				6CCEFCD41F30CCBB005BB149 /* icudt56l.dat */,
 				6C6C26041DDDF0520060A241 /* Montenegro.vm */,
 				6C6C26051DDDF0520060A241 /* pin1.png */,
 				6C6C26061DDDF0520060A241 /* pin1@2x.png */,
@@ -218,6 +224,7 @@
 				6C6C26141DDDF0520060A241 /* pin2@2x.png in Resources */,
 				6C6C26111DDDF0520060A241 /* pin1.png in Resources */,
 				6C6C25CA1DDA04840060A241 /* LaunchScreen.storyboard in Resources */,
+				6CCEFCD51F30CCBB005BB149 /* categories in Resources */,
 				6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */,
 				6C6C26101DDDF0520060A241 /* Montenegro.vm in Resources */,
 				6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */,
@@ -227,6 +234,7 @@
 				6C6C26121DDDF0520060A241 /* pin1@2x.png in Resources */,
 				6C6C26161DDDF0520060A241 /* pin3@2x.png in Resources */,
 				6C6C25C51DDA04840060A241 /* Main.storyboard in Resources */,
+				6CCEFCD61F30CCBB005BB149 /* icudt56l.dat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
