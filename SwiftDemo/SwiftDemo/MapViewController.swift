@@ -125,7 +125,7 @@ class MapViewController: UIViewController {
 
     func updateDownloadButtonText() {
         if map.centerTileState == .noData {
-            let mapCenter = map.mapCenter()
+            let mapCenter = map.mapCenter
 
             mapToDownload = GLMapManager.shared().map(at: mapCenter)
 
@@ -269,8 +269,8 @@ class MapViewController: UIViewController {
             for object in results {
                 bbox.addPoint(object.point);
             }
-            map.setMapCenter(bbox.center);
-            map.setMapZoom(map.mapZoom(for: bbox))
+            map.mapCenter = bbox.center
+            map.mapZoom = map.mapZoom(for: bbox)
         }
     }
 
@@ -311,13 +311,13 @@ class MapViewController: UIViewController {
             if let title = button.title {
                 switch title {
                 case "Add image":
-                    mapImage?.hidden = false
-                    mapImage?.position = map.mapCenter()
-                    mapImage?.angle = Float(arc4random_uniform(360))
+                    mapImage?.hidden = false;
+                    mapImage?.position = map.mapCenter;
+                    mapImage?.angle = Float(arc4random_uniform(360));
 
                     button.title = "Move image"
                 case "Move image":
-                    mapImage?.position = map.mapCenter()
+                    mapImage?.position = map.mapCenter
 
                     button.title = "Remove image"
                 case "Remove image":
