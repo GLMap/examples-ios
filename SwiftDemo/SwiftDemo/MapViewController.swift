@@ -25,6 +25,7 @@ class MapViewController: UIViewController {
         Demo.OnlineMap: showOnlineMap,
         Demo.RasterOnlineMap: showRasterOnlineMap,
         Demo.ZoomToBBox: zoomToBBox,
+        Demo.OfflineSearch: offlineSearch,
         Demo.Notifications: testNotifications,
         Demo.SingleImage: singleImageDemo,
         Demo.MultiImage: multiImageDemo,
@@ -198,6 +199,79 @@ class MapViewController: UIViewController {
         
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
         map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox, viewSize: map.bounds.size))
+    }
+    
+    var _categories: GLSearchCategories?
+    // Return search categories that used to sort search results.
+    func getCategories() -> GLSearchCategories{
+        if(_categories == nil){
+            //To compare string GLMap use ICU v56. It needs collation data (icudt56l.dat). You can place this line in main.m
+            GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath);
+            
+            //Load preapred categories from biary file.
+            _categories = GLSearchCategories.init(path: Bundle.main.path(forResource: "categories", ofType: "")!);
+        }
+        return _categories!;
+    }
+    
+    func offlineSearch() {
+        if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
+            GLMapManager.shared().addMap(mapPath)
+            let center = GLMapGeoPoint.init(lat: 42.4341, lon: 19.26)
+            map.move(to: center, zoomLevel: 14)
+            
+            
+            let categories = getCategories();
+            
+            //Create new offline search request
+            let searchOffline = GLSearchOffline.init();
+            //Set search categories
+            searchOffline.setCategories(categories);
+            //Set center of search. Objects that is near center will recive bonus while sorting happens
+            searchOffline.setCenter(GLMapPointMakeFromGeoCoordinates(center.lat, center.lon));
+            //Set maximum number of results. By default is is 100
+            searchOffline.setLimit(20);
+            //Set locale settings. Used to boost results with locales native to user
+            searchOffline.setLocaleSettings(map.localeSettings);
+            
+            let category = categories.categoriesStarted(with: ["food"], localeSettings: map.localeSettings);
+            if(category.count != 0){
+                let name = category[0].localizedName(map.localeSettings);
+                NSLog("Searching %@", name ?? "no name");
+                searchOffline.addCategoryFilter(category[0]);
+            }
+            //You can add more filters. For example by name
+            //searchOffline.addNameFilter("cali"); //Add filter by name
+            
+            searchOffline.start(completionBlock: { (results) in
+                DispatchQueue.main.async {
+                    self.displaySearchResults(results: results);
+                }
+            });                        
+        }
+    }
+    
+    func displaySearchResults(results : [GLMapVectorObject]) {
+        let styles = GLMapMarkerStyleCollection.init()
+        styles.addMarkerImage(GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
+        styles.setMarkerDataFill { (marker, data) in
+            if let obj = marker as? GLMapVectorObject {
+                data.setLocation(obj.point)
+                data.setStyle(0)
+            }
+        }
+        let layer = GLMapMarkerLayer.init(markers: results, andStyles: styles);
+        layer.clusteringEnabled = false;
+        map.display(layer, completion: nil);
+        
+        if(results.count != 0){
+            var bbox = GLMapBBox.empty();
+            for object in results {
+                bbox.addPoint(object.point);
+            }
+            map.setMapCenter(bbox.center);
+            map.setMapZoom(map.mapZoom(for: bbox))
+        }
     }
 
     func testNotifications() {
