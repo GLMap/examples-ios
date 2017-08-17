@@ -35,7 +35,8 @@
                     @{@"name":@"GLMapMarkerLayer demo"},
                     @{@"name":@"GLMapMarkerLayer with clustering"},
                     @{@"name":@"GLMapMarkerLayer with mapcss clustering"},
-
+                    @{@"name":@"GPS track recording"},
+                    
                     @{@"name":@"Add multiline"},
                     @{@"name":@"Add polygon"},
                     @{@"name":@"Load GeoJSON"},

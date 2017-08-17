@@ -24,6 +24,7 @@ class ViewController: UITableViewController {
         case MarkerLayer
         case MarkerLayerWithClustering
         case MarkerLayerWithMapCSSClustering
+        case Track
         case MultiLine
         case Polygon
         case GeoJSON
@@ -68,6 +69,7 @@ class ViewController: UITableViewController {
                      TableRow(.MarkerLayerWithClustering, name:"GLMapMarkerLayer with clustering"),
                      TableRow(.MarkerLayerWithMapCSSClustering, name:"GLMapMarkerLayer with MapCSS clustering"),
 
+                     TableRow(.Track, name:"GPS track recording"),
                      TableRow(.MultiLine, name:"Add multiline"),
 
                      TableRow(.Polygon, name:"Add polygon"),

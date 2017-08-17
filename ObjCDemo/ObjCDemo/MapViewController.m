@@ -34,6 +34,9 @@
     CLLocationManager *_locationManager;
     
     GLSearchCategories *_categories;
+
+    GLMapTrackData *_trackData;
+    GLMapTrack *_track;
 }
 
 - (void)viewDidLoad
@@ -135,6 +138,9 @@
             break;
         case Test_MarkersWithMapCSSClustering:
             [self addMarkersWithMapCSSClustering];
+            break;
+        case Test_Track:
+            [self recordGPSTrack];
             break;
         case Test_MultiLine:
             [self addMultiline];
@@ -986,4 +992,38 @@
         [_mapView reloadTiles];
     }
 }
+
+- (void) recordGPSTrack {
+    if (_trackData == nil) {
+        _trackData = [[GLMapTrackData alloc] initWithPointsCallback:^(NSUInteger index, GLTrackPoint * _Nonnull pt) {} count:0];
+    }
+    
+    if (_track == nil) {
+        _track = [_mapView displayTrackData:_trackData];
+        [_track setWidth:5];
+    }
+    
+    // we'll forward location to mapView. I promise.
+    _locationManager.delegate = self;
+}
+
+#pragma mark CLLocationManagerDelegate
+
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    
+    // To display current user location on the map
+    [_mapView locationManager:manager didUpdateLocations:locations];
+    
+    for (CLLocation *location in locations) {
+        GLTrackPoint point;
+        point.pt = GLMapPointMakeFromGeoCoordinates(location.coordinate.latitude, location.coordinate.longitude);
+        point.color = GLMapColorMake(255, 255, 0, 255);
+        
+        // It copies only references between TrackData objects so it's fast and optimized way to work with tracks up to million points inside.
+        _trackData = [[GLMapTrackData alloc] initWithData:_trackData andNewPoint:&point startNewSegment:NO];
+    }
+    
+    [_track setTrackData:_trackData];
+}
+
 @end

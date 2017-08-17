@@ -21,6 +21,7 @@ enum Test{
     Test_Markers,
     Test_MarkersWithClustering,
     Test_MarkersWithMapCSSClustering,
+    Test_Track,
     Test_MultiLine,
     Test_Polygon,
     Test_GeoJSON,

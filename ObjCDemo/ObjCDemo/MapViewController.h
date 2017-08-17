@@ -11,7 +11,7 @@
 
 @class Pin;
 
-@interface MapViewController : UIViewController
+@interface MapViewController : UIViewController <CLLocationManagerDelegate>
 
 @property (nonatomic, strong) NSNumber *demoScenario;
 

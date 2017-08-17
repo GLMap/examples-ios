@@ -10,10 +10,13 @@ import UIKit
 import GLMap
 import GLMapSwift
 
-class MapViewController: UIViewController {
+class MapViewController: UIViewController, CLLocationManagerDelegate {
     let map = GLMapView()
     let downloadButton = UIButton(type:.system)
     let locationManager = CLLocationManager.init()
+    
+    var trackData : GLMapTrackData? = nil
+    var track : GLMapTrack? = nil
 
     typealias Demo = ViewController.Demo
 
@@ -33,6 +36,7 @@ class MapViewController: UIViewController {
         Demo.MarkerLayerWithClustering: markerLayerWithClustering,
         Demo.MarkerLayerWithMapCSSClustering: markerLayerWithMapCSSClustering,
         Demo.MultiLine: multiLineDemo,
+        Demo.Track: recordGPSTrack,
         Demo.Polygon: polygonDemo,
         Demo.GeoJSON: geoJsonDemo,
         Demo.Screenshot: screenshotDemo,
@@ -831,5 +835,34 @@ class MapViewController: UIViewController {
 
         alert.addAction(UIAlertAction.init(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func recordGPSTrack() {
+        locationManager.delegate = self
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        // Forward events to GLMapView
+        map.locationManager(manager, didUpdateLocations: locations)
+        
+        for location in locations {
+            let mapPoint = GLMapPointMakeFromGeoCoordinates(location.coordinate.latitude, location.coordinate.longitude)
+            var trackPoint = GLTrackPoint.init(pt: mapPoint, color: GLMapColorMake(255, 255, 0, 255))
+
+            if trackData != nil {
+                trackData = GLMapTrackData.init(data: trackData!, andNewPoint: UnsafeMutablePointer.init(mutating: &trackPoint), startNewSegment: false)
+            } else {
+                trackData = GLMapTrackData.init(points: &trackPoint, count: 1)
+            }
+        }
+        
+        if track == nil {
+            track = map.display(trackData!, drawOrder: 1);
+            track?.setWidth(5)
+        } else {
+            track?.setTrackData(trackData!)
+        }
+        
     }
 }
