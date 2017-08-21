@@ -838,11 +838,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func recordGPSTrack() {
+        // we'll forward location back to mapView. I promise.
         locationManager.delegate = self
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
         // Forward events to GLMapView
         map.locationManager(manager, didUpdateLocations: locations)
         
@@ -851,14 +851,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             var trackPoint = GLTrackPoint.init(pt: mapPoint, color: GLMapColorMake(255, 255, 0, 255))
 
             if trackData != nil {
-                trackData = GLMapTrackData.init(data: trackData!, andNewPoint: UnsafeMutablePointer.init(mutating: &trackPoint), startNewSegment: false)
+                trackData = GLMapTrackData.init(data: trackData!, andNewPoint: trackPoint, startNewSegment: false)
             } else {
                 trackData = GLMapTrackData.init(points: &trackPoint, count: 1)
             }
         }
         
         if track == nil {
-            track = map.display(trackData!, drawOrder: 1);
+            track = map.display(trackData!);
             track?.setWidth(5)
         } else {
             track?.setTrackData(trackData!)

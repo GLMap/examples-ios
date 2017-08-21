@@ -994,16 +994,7 @@
 }
 
 - (void) recordGPSTrack {
-    if (_trackData == nil) {
-        _trackData = [[GLMapTrackData alloc] initWithPointsCallback:^(NSUInteger index, GLTrackPoint * _Nonnull pt) {} count:0];
-    }
-    
-    if (_track == nil) {
-        _track = [_mapView displayTrackData:_trackData];
-        [_track setWidth:5];
-    }
-    
-    // we'll forward location to mapView. I promise.
+    // we'll forward location back to mapView. I promise.
     _locationManager.delegate = self;
 }
 
@@ -1020,10 +1011,19 @@
         point.color = GLMapColorMake(255, 255, 0, 255);
         
         // It copies only references between TrackData objects so it's fast and optimized way to work with tracks up to million points inside.
-        _trackData = [[GLMapTrackData alloc] initWithData:_trackData andNewPoint:&point startNewSegment:NO];
+        if (!_trackData) {
+            _trackData = [[GLMapTrackData alloc] initWithPoints:&point count:1];
+        } else {
+            _trackData = [[GLMapTrackData alloc] initWithData:_trackData andNewPoint:point startNewSegment:NO];
+        }
     }
     
-    [_track setTrackData:_trackData];
+    if (_track) {
+        _track = [_mapView displayTrackData:_trackData];
+        [_track setWidth:5];
+    } else {
+        [_track setTrackData:_trackData];
+    }
 }
 
 @end
