@@ -9,14 +9,13 @@
 #import <UIKit/UIKit.h>
 #import <GLMap/GLMap.h>
 
-@class Pin;
+#import "ImageGroup.h"
 
 @interface MapViewController : UIViewController <CLLocationManagerDelegate>
 
 @property (nonatomic, strong) NSNumber *demoScenario;
 
-@property (readonly) NSArray *imageIDs; // set of images
-@property (readonly) NSMutableArray *pins; // set of locations
+@property (readonly) ImageGroup *pins; // set of locations
 @property (readonly) GLMapImageGroup *mapImageGroup; // object to manage both of them
 @property (strong) Pin *pinToDelete;
 @property (assign) CGPoint menuPos;

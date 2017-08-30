@@ -14,14 +14,6 @@
 #import "ViewController.h"
 #import "OSMTileSource.h"
 
-@interface Pin : NSObject
-@property (assign) GLMapPoint pos;
-@property (assign) int imageID;
-@end
-
-@implementation Pin
-@end
-
 @implementation MapViewController {
     UIButton *_downloadButton;
     
@@ -347,7 +339,7 @@
     
     GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style];
     layer.clusteringEnabled = NO;
-    [_mapView displayMarkerLayer:layer completion:nil];
+    [_mapView displayMarkerLayer:layer];
     
     //Zoom to results
     if(results.count != 0)
@@ -496,58 +488,30 @@
 {
     if(!_mapImageGroup)
     {
-        _mapImageGroup = [_mapView createImageGroup];
-        
-        NSArray *images = @[[UIImage imageNamed:@"pin1.png"],
-                            [UIImage imageNamed:@"pin2.png"],
-                            [UIImage imageNamed:@"pin3.png"]];
-        
-        __weak MapViewController *wself = self;
-        _imageIDs = [_mapImageGroup setImages:images completion:^{
-            for(NSUInteger i=0; i<images.count; i++)
-            {
-                UIImage *img = images[i];
-                [wself.mapImageGroup setImageOffset:CGPointMake(img.size.width/2, 0) forImageWithID:[wself.imageIDs[i] intValue]];
-            }
-        }];
-        
-        [_mapImageGroup setObjectFillBlock:^GLMapImageGroupImageInfo(size_t index)
-         {
-             GLMapImageGroupImageInfo imageInfo;
-             
-             // Make sure you have pins added and initialized at this point
-             Pin *pin = (wself.pins)[index];
-             imageInfo.pos = pin.pos;
-             imageInfo.imageID = pin.imageID;
-             
-             return imageInfo;
-         }];
-        
-        _pins = [[NSMutableArray alloc] initWithCapacity:1];
+        _pins = [[ImageGroup alloc] init];
+        _mapImageGroup = [[GLMapImageGroup alloc] initWithCallback:_pins andDrawOrder:3];
+        [_mapView addImageGroup:_mapImageGroup];
     }
     
     Pin *pin = [[Pin alloc] init];
     pin.pos = [_mapView makeMapPointFromDisplayPoint:_menuPos];
     
     // to iterate over images pin1, pin2, pin3, pin1, pin2, pin3
-    NSUInteger imageIDindex = _pins.count % _imageIDs.count;
-    pin.imageID = [_imageIDs[imageIDindex] intValue];
-    [_pins addObject:pin];
-    
-    [_mapImageGroup setObjectCount:_pins.count];
-    [_mapImageGroup setNeedsUpdate];
+    pin.imageID = _pins.count % 3;
+    [_pins addPin:pin];
+    [_mapImageGroup setNeedsUpdate:NO];
 }
 
 -(void) deletePin:(id)sender
 {
-    [_pins removeObject:_pinToDelete];
-    [_mapImageGroup setObjectCount:_pins.count];
-    [_mapImageGroup setNeedsUpdate];
-    _pinToDelete = nil;
-    
-    if (!_pins.count) {
+    [_pins removePin:_pinToDelete];
+    [_mapImageGroup setNeedsUpdate:NO];
+    _pinToDelete = nil;    
+    if (_pins.count == 0)
+    {
         [_mapView removeImageGroup:_mapImageGroup];
         _mapImageGroup = nil;
+        _pins = nil;
     }
 }
 
@@ -569,21 +533,18 @@
     };
     
     _mapView.tapGestureBlock = ^(CGPoint pt) {
-        CGRect tapRect = CGRectOffset(CGRectMake(-20, -20, 40, 40), pt.x, pt.y);
-        
-        for (Pin *pin in wself.pins) {
-            CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
-            if( CGRectContainsPoint(tapRect, pinPos) )
+        Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
+        if(pin)
+        {
+            UIMenuController *menu = [UIMenuController sharedMenuController];
+            if (!menu.menuVisible)
             {
-                UIMenuController *menu = [UIMenuController sharedMenuController];
-                if (!menu.menuVisible)
-                {
-                    wself.pinToDelete = pin;
-                    [wself becomeFirstResponder];
-                    [menu setTargetRect:CGRectMake(pinPos.x, pinPos.y-20, 1, 1) inView:weakmap];
-                    menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)] ];
-                    [menu setMenuVisible:YES animated:YES];
-                }
+                CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
+                wself.pinToDelete = pin;
+                [wself becomeFirstResponder];
+                [menu setTargetRect:CGRectMake(pinPos.x, pinPos.y-20, 1, 1) inView:weakmap];
+                menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)] ];
+                [menu setMenuVisible:YES animated:YES];
             }
         }
     };
@@ -620,7 +581,7 @@
     layer.clusteringEnabled = NO;
     
     // Add marker layer on map
-    [_mapView displayMarkerLayer:layer completion:nil];
+    [_mapView displayMarkerLayer:layer];
     GLMapBBox bbox = objectArray.bbox;
     [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
 }
@@ -670,7 +631,7 @@
         GLMapBBox bbox = points.bbox;
         GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_mapView displayMarkerLayer:layer completion:nil];
+            [_mapView displayMarkerLayer:layer];
             [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
@@ -735,7 +696,7 @@
         GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_mapView displayMarkerLayer:layer completion:nil];
+            [_mapView displayMarkerLayer:layer];
             [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
