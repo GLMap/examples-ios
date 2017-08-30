@@ -266,7 +266,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
         let layer = GLMapMarkerLayer.init(markers: results, andStyles: styles);
         layer.clusteringEnabled = false;
-        map.display(layer, completion: nil);
+        map.display(layer);
         
         if(results.count != 0){
             var bbox = GLMapBBox.empty();
@@ -336,21 +336,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     var menuPos: CGPoint?
 
-    struct Pin {
-        let position: GLMapPoint
-        let imageID: Int
-        init(position: GLMapPoint, imageID: Int) {
-            self.position = position
-            self.imageID = imageID
-        }
-        static func == (lhs: Pin, rhs: Pin) -> Bool {
-            return lhs.position == rhs.position && lhs.imageID == rhs.imageID
-        }
-    }
-
-    var pins: Array<Pin> = []
+    var pins: ImageGroup?
     var mapImageGroup: GLMapImageGroup?
-    var mapImageIDs: Array<NSNumber> = []
     var pinToDelete: Pin?
 
     func multiImageDemo() {
@@ -371,26 +358,20 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
 
         map.tapGestureBlock = { [weak self] (point: CGPoint) in
-            var rect = CGRect.init(x: -20, y: -20, width: 40, height: 40)
-            rect = rect.offsetBy(dx:point.x, dy: point.y)
-
-            if let pins = self?.pins, let map = self?.map {
-                for pin in pins {
-                    let pinPos = map.makeDisplayPoint(from: pin.position)
-
-                    if rect.contains(pinPos) {
-                        let menu = UIMenuController.shared
-                        if !menu.isMenuVisible {
-                            self?.pinToDelete = pin
-
-                            self?.becomeFirstResponder()
-                            menu.setTargetRect(CGRect.init(origin: CGPoint.init(x: pinPos.x, y: pinPos.y-20.0), size: CGSize.init(width: 1, height: 1)), in: map)
-                            menu.menuItems = [UIMenuItem.init(title: "Delete pin", action: #selector(MapViewController.deletePin))]
-                            menu.setMenuVisible(true, animated: true)
-                        }
+            
+            if let pins = self?.pins, let map = self?.map{
+                if let pin = pins.findPin(point:point, mapView:map) {
+                    let menu = UIMenuController.shared
+                    if !menu.isMenuVisible{
+                        let pinPos = map.makeDisplayPoint(from: pin.position)
+                        self?.pinToDelete = pin
+                        self?.becomeFirstResponder()
+                        menu.setTargetRect(CGRect.init(origin: CGPoint.init(x: pinPos.x, y: pinPos.y-20.0), size: CGSize.init(width: 1, height: 1)), in: map)
+                        menu.menuItems = [UIMenuItem.init(title: "Delete pin", action: #selector(MapViewController.deletePin))]
+                        menu.setMenuVisible(true, animated: true)
                     }
                 }
-            }
+            }                        
         }
     }
 
@@ -401,61 +382,32 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func addPin() {
+        
+        if pins == nil {
+            pins = ImageGroup.init();
+        }
+        
         if mapImageGroup == nil {
-            if let imageGroup = map.createImageGroup() {
-
-                let images = [UIImage.init(named: "pin1.png"),
-                              UIImage.init(named: "pin2.png"),
-                              UIImage.init(named: "pin3.png")]
-
-                mapImageIDs = imageGroup.setImages(images as! [UIImage], completion: { [weak self] in
-                    if let mapImageGroup = self?.mapImageGroup, let mapImageIDs = self?.mapImageIDs {
-                        for i in 0 ... images.count - 1 {
-                            if let image = images[i] {
-                                mapImageGroup.setImageOffset(CGPoint.init(x: image.size.width/2, y: 0), forImageWithID: mapImageIDs[i].int32Value)
-                            }
-                        }
-                    }
-                })
-
-                imageGroup.setObjectFill({ [weak self] (index: Int) -> GLMapImageGroupImageInfo in
-                    if let pins = self?.pins {
-                        if pins.count > 0 {
-                            let pin = pins[index]
-                            return GLMapImageGroupImageInfo.init(imageID: Int32(pin.imageID), pos: pin.position)
-                        }
-                    }
-
-                    return GLMapImageGroupImageInfo()
-                })
-
-                mapImageGroup = imageGroup
-            }
+            mapImageGroup = GLMapImageGroup.init(callback: pins!, andDrawOrder: 3);
+            map.add(mapImageGroup!);
         }
 
         let pinPos = map.makeMapPoint(fromDisplay: menuPos!)
-        let pin = Pin.init(position: pinPos, imageID: mapImageIDs[pins.count % mapImageIDs.count].intValue)
-        pins.append(pin)
-
-        mapImageGroup?.setObjectCount(pins.count)
-        mapImageGroup?.setNeedsUpdate()
+        let pin = Pin.init(position: pinPos, imageID: UInt32(pins!.count() % 3))
+        pins?.append(pin)
+        mapImageGroup?.setNeedsUpdate(false)
     }
 
     func deletePin() {
         if pinToDelete != nil {
-            if let indexToDelete = pins.index(where: { (pin: MapViewController.Pin) -> Bool in
-                return pinToDelete! == pin
-            }) {
-                pins.remove(at: indexToDelete)
-
-                mapImageGroup?.setObjectCount(pins.count)
-                mapImageGroup?.setNeedsUpdate()
-            }
+            pins?.remove(pinToDelete!);
+            mapImageGroup?.setNeedsUpdate(false)
         }
 
-        if mapImageGroup != nil && pins.count == 0 {
+        if mapImageGroup != nil && pins != nil && pins?.count() == 0 {
             map.remove(mapImageGroup!)
             mapImageGroup = nil
+            pins = nil
         }
     }
 
@@ -485,7 +437,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                         markerLayer.clusteringEnabled = false
 
                         // Add marker layer on map
-                        map.display(markerLayer, completion: nil)
+                        map.display(markerLayer)
                         let bbox = objects.bbox
                         map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
                     }
@@ -560,7 +512,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                         DispatchQueue.main.async { [weak self] in
                             if let wself = self {
                                 let map = wself.map;
-                                map.display(markerLayer, completion: nil)
+                                map.display(markerLayer)
                                 map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
                             }
                         }
@@ -618,7 +570,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                             DispatchQueue.main.async { [weak self] in
                                 if let wself = self {
                                     let map = wself.map;
-                                    map.display(markerLayer, completion: nil)
+                                    map.display(markerLayer)
                                     map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
                                 }
                             }

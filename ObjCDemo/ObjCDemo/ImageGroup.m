@@ -44,24 +44,24 @@
     [_lock unlock];
 }
 
--(uint32_t) getVariantsCount
+-(NSInteger) getVariantsCount
 {
     return (uint32_t)_variants.count;
 }
 
--(UIImage *_Nonnull) getVariant:(uint32_t)index offset:(CGPoint *_Nonnull)offset
+-(UIImage *_Nonnull) getVariant:(NSInteger)index offset:(CGPoint *_Nonnull)offset
 {
     UIImage *rv = _variants[index];
     *offset = CGPointMake(rv.size.width/2, 0);
     return rv;
 }
 
--(uint32_t) getImagesCount
+-(NSInteger) getImagesCount
 {
     return (uint32_t)_pins.count;
 }
 
--(void) getImageInfo:(uint32_t)index vairiant:(uint32_t *_Nonnull)variant position:(GLMapPoint *_Nonnull)position
+-(void) getImageInfo:(NSInteger)index vairiant:(uint32_t *_Nonnull)variant position:(GLMapPoint *_Nonnull)position
 {
     Pin *pin = _pins[index];
     *position = pin.pos;
