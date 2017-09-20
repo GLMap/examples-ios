@@ -1018,7 +1018,7 @@
         }
     }
     
-    if (_track) {
+    if (!_track) {
         _track = [_mapView displayTrackData:_trackData];
         [_track setWidth:5];
     } else {

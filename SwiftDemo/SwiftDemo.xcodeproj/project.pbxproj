@@ -247,7 +247,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh",
 				"${PODS_ROOT}/GLMap/GLMap.framework",
-				"${PODS_ROOT}/GLMapSwift/GLMapSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/GLMapSwift/GLMapSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
