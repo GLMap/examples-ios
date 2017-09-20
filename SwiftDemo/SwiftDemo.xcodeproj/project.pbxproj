@@ -22,10 +22,10 @@
 		6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26211DDDF1540060A241 /* pin2@2x.png */; };
 		6C6C262E1DDDF1540060A241 /* pin3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26221DDDF1540060A241 /* pin3.png */; };
 		6C6C262F1DDDF1540060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26231DDDF1540060A241 /* pin3@2x.png */; };
+		6C6CAE561F4C32670078F240 /* icudt59l.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6C6CAE551F4C32670078F240 /* icudt59l.dat */; };
 		6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196A1E0D515500FBCF75 /* cluster_data.json */; };
 		6CB9196D1E0D515500FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196B1E0D515500FBCF75 /* cluster.svgpb */; };
 		6CCEFCD91F30CCF5005BB149 /* categories in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD71F30CCF5005BB149 /* categories */; };
-		6CCEFCDA1F30CCF5005BB149 /* icudt56l.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD81F30CCF5005BB149 /* icudt56l.dat */; };
 		F437D9F2453A898A43665EE5 /* Pods_SwiftDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 638C036C602B69428C6D4223 /* Pods_SwiftDemo.framework */; };
 /* End PBXBuildFile section */
 
@@ -49,10 +49,10 @@
 		6C6C26211DDDF1540060A241 /* pin2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin2@2x.png"; sourceTree = "<group>"; };
 		6C6C26221DDDF1540060A241 /* pin3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin3.png; sourceTree = "<group>"; };
 		6C6C26231DDDF1540060A241 /* pin3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin3@2x.png"; sourceTree = "<group>"; };
+		6C6CAE551F4C32670078F240 /* icudt59l.dat */ = {isa = PBXFileReference; lastKnownFileType = file; name = icudt59l.dat; path = ../../../Resources/icudt59l.dat; sourceTree = "<group>"; };
 		6CB9196A1E0D515500FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196B1E0D515500FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
 		6CCEFCD71F30CCF5005BB149 /* categories */ = {isa = PBXFileReference; lastKnownFileType = file; name = categories; path = ../../../Resources/categories; sourceTree = "<group>"; };
-		6CCEFCD81F30CCF5005BB149 /* icudt56l.dat */ = {isa = PBXFileReference; lastKnownFileType = file; name = icudt56l.dat; path = ../../../Resources/icudt56l.dat; sourceTree = "<group>"; };
 		F2083E390792CB74631D51FD /* Pods-SwiftDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,7 +117,7 @@
 				6CCEFCD71F30CCF5005BB149 /* categories */,
 				6CB9196A1E0D515500FBCF75 /* cluster_data.json */,
 				6CB9196B1E0D515500FBCF75 /* cluster.svgpb */,
-				6CCEFCD81F30CCF5005BB149 /* icudt56l.dat */,
+				6C6CAE551F4C32670078F240 /* icudt59l.dat */,
 				6C6C261D1DDDF1540060A241 /* Montenegro.vm */,
 				6C6C261E1DDDF1540060A241 /* pin1.png */,
 				6C6C261F1DDDF1540060A241 /* pin1@2x.png */,
@@ -203,6 +203,7 @@
 			files = (
 				6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */,
 				6C6C262A1DDDF1540060A241 /* pin1.png in Resources */,
+				6C6CAE561F4C32670078F240 /* icudt59l.dat in Resources */,
 				6C6C25681DD9F5F80060A241 /* LaunchScreen.storyboard in Resources */,
 				6CCEFCD91F30CCF5005BB149 /* categories in Resources */,
 				6CB9196D1E0D515500FBCF75 /* cluster.svgpb in Resources */,
@@ -214,7 +215,6 @@
 				6C6C262B1DDDF1540060A241 /* pin1@2x.png in Resources */,
 				6C6C262F1DDDF1540060A241 /* pin3@2x.png in Resources */,
 				6C6C25631DD9F5F80060A241 /* Main.storyboard in Resources */,
-				6CCEFCDA1F30CCF5005BB149 /* icudt56l.dat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,7 +247,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh",
 				"${PODS_ROOT}/GLMap/GLMap.framework",
-				"${PODS_ROOT}/GLMapSwift/GLMapSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/GLMapSwift/GLMapSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
