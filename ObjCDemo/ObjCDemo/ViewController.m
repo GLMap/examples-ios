@@ -30,7 +30,7 @@
                     @{@"name":@"Zoom to bbox"},
                     @{@"name":@"Offline search"},
                     @{@"name":@"Notification test"},
-                    @{@"name":@"GLMapImage demo", @"descr":@"For one pin or any other image"},
+                    @{@"name":@"GLMapDrawable demo", @"descr":@"For one image, text or vector object"},
                     @{@"name":@"GLMapImageGroup demo", @"descr":@"For large set of pins with smaller set of images"},
                     @{@"name":@"GLMapMarkerLayer demo"},
                     @{@"name":@"GLMapMarkerLayer with clustering"},

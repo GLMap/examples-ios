@@ -18,7 +18,7 @@
     UIButton *_downloadButton;
     
     GLMapView *_mapView;
-    GLMapImage *_mapImage;
+    GLMapDrawable *_mapImage;
     GLMapInfo *_mapToDownload;
     BOOL _flashAdd;
     
@@ -191,7 +191,11 @@
                                        "area{fill-color:white; layer:100;}"
                                        ];
             
-            [_mapView injectVectorObjectArray:objects withStyle:style];
+            for(NSUInteger i=0; i<objects.count; ++i){
+                GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+                [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+                [_mapView add:drawable];
+            }
             
             UIView *testView = [[UIView alloc] initWithFrame:CGRectMake(350, 200, 150, 200)];
             UIView *testView2 = [[UIView alloc] initWithFrame:CGRectMake(200, 200, 150, 200)];
@@ -336,9 +340,8 @@
         }
     }];
     
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style];
-    layer.clusteringEnabled = NO;
-    [_mapView displayMarkerLayer:layer];
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style clusteringEnabled:NO drawOrder:2];
+    [_mapView add:layer];
     
     //Zoom to results
     if(results.count != 0)
@@ -442,13 +445,15 @@
     button.action = @selector(moveImage:);
     
     UIImage *img = [UIImage imageNamed:@"pin1.png"];
-    
-    _mapImage = [_mapView displayImage:img];
-    if (_mapImage) {
+    if (img) {
+        _mapImage = [[GLMapDrawable alloc] initWithDrawOrder:3];
+        //This is optimized version. Sets image that will be draw only at give mapView and does not retain image
+        [_mapImage setImage:img forMapView:_mapView completion:nil];
         _mapImage.position = _mapView.mapCenter;
         _mapImage.offset = CGPointMake(img.size.width/2, 0);
         _mapImage.angle = arc4random_uniform(360);
         _mapImage.rotatesWithMap = YES;
+        [_mapView add:_mapImage];
     }
 }
 
@@ -460,7 +465,10 @@
     
     if(_mapImage)
     {
-        _mapImage.position = _mapView.mapCenter;
+        GLMapAnimation *animation = [[GLMapAnimation alloc] initWithAnimation:GLMapTransitionEaseInOut andDuration:1];
+        [animation setPosition:_mapView.mapCenter forDrawable:_mapImage];
+        [animation setAngle:arc4random_uniform(360) forDrawable:_mapImage];
+        [_mapView startAnimation:animation];
     }
 }
 
@@ -472,7 +480,7 @@
     
     if(_mapImage)
     {
-        [_mapView removeImage:_mapImage];
+        [_mapView remove:_mapImage];
         _mapImage = nil;
     }
 }
@@ -489,7 +497,7 @@
     {
         _pins = [[ImageGroup alloc] init];
         _mapImageGroup = [[GLMapImageGroup alloc] initWithCallback:_pins andDrawOrder:3];
-        [_mapView addImageGroup:_mapImageGroup];
+        [_mapView add:_mapImageGroup];
     }
     
     Pin *pin = [[Pin alloc] init];
@@ -508,7 +516,7 @@
     _pinToDelete = nil;    
     if (_pins.count == 0)
     {
-        [_mapView removeImageGroup:_mapImageGroup];
+        [_mapView remove:_mapImageGroup];
         _mapImageGroup = nil;
         _pins = nil;
     }
@@ -575,12 +583,10 @@
     GLMapVectorObjectArray *objectArray = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
     
     // Put our array of objects into marker layer. It could be any custom array of objects.
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:objectArray andStyles:style];
     // Disable clustering in this demo
-    layer.clusteringEnabled = NO;
-    
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:objectArray andStyles:style clusteringEnabled:NO drawOrder:2];
     // Add marker layer on map
-    [_mapView displayMarkerLayer:layer];
+    [_mapView add:layer];
     GLMapBBox bbox = objectArray.bbox;
     [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
 }
@@ -628,9 +634,9 @@
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection];
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection clusteringEnabled:YES drawOrder:2];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_mapView displayMarkerLayer:layer];
+            [_mapView add:layer];
             [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
@@ -692,10 +698,10 @@
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection];
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection clusteringEnabled:YES drawOrder:2];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_mapView displayMarkerLayer:layer];
+            [_mapView add:layer];
             [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
         });
     });
@@ -741,7 +747,9 @@
     GLMapVectorObject *vectorObject = [[GLMapVectorObject alloc] init];
     [vectorObject loadGeoMultiLine:multilineData];
     
-    [_mapView displayVectorObject:vectorObject withStyle:style drawOrder:0 completion:nil];
+    GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+    [drawable setVectorObject:vectorObject forMapView:_mapView withStyle:style completion:nil];
+    [_mapView add:drawable];
 }
 
 -(void) addPolygon
@@ -780,7 +788,9 @@
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
     [vectorObject loadGeoPolygon:@[outerRings, innerRings]];
     
-    [_mapView displayVectorObject:vectorObject withStyle:style drawOrder:4 completion:nil];
+    GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:4];
+    [drawable setVectorObject:vectorObject forMapView:_mapView withStyle:style completion:nil];
+    [_mapView add:drawable];
     
     [_mapView moveTo:centerPoint];
 }
@@ -811,14 +821,14 @@
 
 #pragma mark GeoJSON
 
--(void) flashObject:(GLMapImage *)image
+-(void) flashObject:(GLMapDrawable *)image
 {
     if (_flashAdd)
     {
-        [_mapView addImage:image];
+        [_mapView add:image];
     }else
     {
-        [_mapView removeImage:image];
+        [_mapView remove:image];
     }
     _flashAdd = !_flashAdd;
     [self performSelector:@selector(flashObject:) withObject:image afterDelay:1.0];
@@ -838,31 +848,46 @@
                                "line{linecap: round; width: 5pt; color:blue;}"
                                "area{fill-color:green; width:1pt; color:red;}"];
     
-    GLMapImage *firstObject = [_mapView injectVectorObject:objects[0] withStyle:style completion:nil];
-    [self flashObject: firstObject];
+    GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+    [drawable setVectorObject:objects[0] forMapView:_mapView withStyle:style completion:nil];
+    [self flashObject:drawable];
+    
     for(NSUInteger i=1; i<objects.count; ++i)
-        [_mapView injectVectorObject:objects[i] withStyle:style completion:nil];
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadPointGeoJSON {
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
-    
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadMultiPointGeoJSON {
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, 55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadLineStringGeoJSON {
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true; width: 4pt; color:green;}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadMultiLineStringGeoJSON {
@@ -870,7 +895,11 @@
                         "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
                         " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:false; linecap: round; width: 5pt; color:blue;}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 
@@ -880,7 +909,11 @@
                         " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadMultiPolygonGeoJSON {
@@ -891,7 +924,11 @@
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
     
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
-    [_mapView injectVectorObjectArray:objects withStyle:style];
+    for(NSUInteger i=0; i<objects.count; ++i){
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
+        [_mapView add:drawable];
+    }
 }
 
 - (void) loadGeoJSON
@@ -977,9 +1014,10 @@
         }
     }
     
-    if (_track) {
-        _track = [_mapView displayTrackData:_trackData];
+    if (_track == nil) {
+        _track = [[GLMapTrack alloc] initWithDrawOrder:0 andTrackData:_trackData];
         [_track setWidth:5];
+        [_mapView add:_track];
     } else {
         [_track setTrackData:_trackData];
     }
