@@ -331,16 +331,23 @@
 {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
     [style addMarkerImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000]];
-    [style setMarkerDataFillBlock:^(NSObject * _Nonnull marker, GLMapMarkerData  _Nonnull data) {
+
+    //If marker layer constructed using NSArray with object of any type you need to set markerLocationBlock
+    [style setMarkerLocationBlock:^(NSObject * _Nonnull marker) {
         if([marker isKindOfClass:[GLMapVectorObject class]])
         {
             GLMapVectorObject *obj = (GLMapVectorObject *)marker;
-            GLMapMarkerSetLocation(data, obj.point);
-            GLMapMarkerSetStyle(data, 0);
+            return obj.point;
         }
+        return GLMapPointMake(0, 0);
+    }];
+
+    //Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
+    [style setMarkerDataFillBlock:^(NSObject * _Nonnull marker, GLMapMarkerData  _Nonnull data) {
+        GLMapMarkerSetStyle(data, 0);
     }];
     
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style clusteringEnabled:NO drawOrder:2];
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style clusteringRadius:0 drawOrder:2];
     [_mapView add:layer];
     
     //Zoom to results
@@ -566,25 +573,25 @@
     // Create style collection - it's storage for all images possible to use for markers
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
     [style addMarkerImage:img];
-    
-    // Data fill block used to set location for marker and it's style
-    // It could work with any user defined object type. GLMapVectorObject in our case.
+
+    //If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
+    //[GLMapVectorObject point]. So you don't need to set markerLocationBlock.
+    //[style setMarkerLocationBlock:...];
+
+    // Data fill block used to set marker style and text
+    // It could work with any user defined object type.
+    // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
     [style setMarkerDataFillBlock:^(NSObject *marker, GLMapMarkerData data) {
-        // marker - is an object from markers array.
-        if ([marker isKindOfClass:[GLMapVectorObject class]]) {
-            GLMapVectorObject *obj = (GLMapVectorObject *)marker;
-            GLMapMarkerSetLocation(data, obj.point);
-            GLMapMarkerSetStyle(data, 0);
-        }
+        GLMapMarkerSetStyle(data, 0);
     }];
-    
+
     // Load UK postal codes from GeoJSON
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
     GLMapVectorObjectArray *objectArray = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
     
     // Put our array of objects into marker layer. It could be any custom array of objects.
     // Disable clustering in this demo
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:objectArray andStyles:style clusteringEnabled:NO drawOrder:2];
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:objectArray andStyles:style clusteringRadius:0 drawOrder:2];
     // Add marker layer on map
     [_mapView add:layer];
     GLMapBBox bbox = objectArray.bbox;
@@ -609,9 +616,12 @@
     GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
     // Render possible images from svgpb
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
+    double maxSize = 0;
     for (int i=0; i<unionCount; i++){
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
+        if(maxSize < img.size.width)
+            maxSize = img.size.width;
         uint32_t styleIndex = [styleCollection addMarkerImage:img];
         
         //set name of style that can be refrenced from mapcss
@@ -634,7 +644,8 @@
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection clusteringEnabled:YES drawOrder:2];
+        //Create layer with clusteringRadius equal to maxWidht/2. In this case two clusters can overlap half of it's size.
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection clusteringRadius:maxSize/2 drawOrder:2];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView add:layer];
             [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
@@ -660,10 +671,13 @@
     GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
     
     // Render possible images from svgpb
+    double maxWidth = 0;
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
     for (int i=0; i<unionCount; i++) {
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
+        if(maxWidth<img.size.width)
+            maxWidth = img.size.width;
         
         [styleCollection addMarkerImage:img];
     }
@@ -698,7 +712,8 @@
         NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
         GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
         GLMapBBox bbox = points.bbox;
-        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection clusteringEnabled:YES drawOrder:2];
+        //Create layer with clusteringRadius equal to maxWidht/2. In this case two clusters can overlap half of it's size.
+        GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection clusteringRadius:maxWidth/2 drawOrder:2];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView add:layer];
