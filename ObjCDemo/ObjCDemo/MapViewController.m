@@ -93,7 +93,7 @@
             break;
         case Test_RasterOnlineMap:
         {
-            [_mapView setRasterSources:@[[[OSMTileSource alloc] init]]];
+            _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
             break;
         }
         case Test_ZoomToBBox: // zoom to bbox
@@ -330,8 +330,8 @@
 -(void) displaySearchResults:(NSArray<GLMapVectorObject *> *)results
 {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addMarkerImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000]];
-
+    [style addStyleWithImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000] ];
+    
     //If marker layer constructed using NSArray with object of any type you need to set markerLocationBlock
     [style setMarkerLocationBlock:^(NSObject * _Nonnull marker) {
         if([marker isKindOfClass:[GLMapVectorObject class]])
@@ -341,6 +341,7 @@
         }
         return GLMapPointMake(0, 0);
     }];
+    
 
     //Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
     [style setMarkerDataFillBlock:^(NSObject * _Nonnull marker, GLMapMarkerData  _Nonnull data) {
@@ -572,7 +573,7 @@
     
     // Create style collection - it's storage for all images possible to use for markers
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addMarkerImage:img];
+    [style addStyleWithImage:img];
 
     //If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
     //[GLMapVectorObject point]. So you don't need to set markerLocationBlock.
@@ -622,7 +623,7 @@
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
         if(maxSize < img.size.width)
             maxSize = img.size.width;
-        uint32_t styleIndex = [styleCollection addMarkerImage:img];
+        uint32_t styleIndex = [styleCollection addStyleWithImage:img];
         
         //set name of style that can be refrenced from mapcss
         [styleCollection setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex];
@@ -679,7 +680,7 @@
         if(maxWidth<img.size.width)
             maxWidth = img.size.width;
         
-        [styleCollection addMarkerImage:img];
+        [styleCollection addStyleWithImage:img];
     }
     
     // Create style for text
