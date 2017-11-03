@@ -102,7 +102,7 @@
             break;
         case Test_RasterOnlineMap:
         {
-            [_mapView setRasterSources:@[[[OSMTileSource alloc] init]]];
+            _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
             break;
         }
         case Test_ZoomToBBox: // zoom to bbox
@@ -335,7 +335,7 @@
 -(void) displaySearchResults:(NSArray<GLMapVectorObject *> *)results
 {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addMarkerImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000]];
+    [style addStyleWithImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000] ];
     [style setMarkerDataFillBlock:^(NSObject * _Nonnull marker, GLMapMarkerData  _Nonnull data) {
         if([marker isKindOfClass:[GLMapVectorObject class]])
         {
@@ -597,7 +597,7 @@
     
     // Create style collection - it's storage for all images possible to use for markers
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addMarkerImage:img];
+    [style addStyleWithImage: img];
     
     // Data fill block used to set location for marker and it's style
     // It could work with any user defined object type. GLMapVectorObject in our case.
@@ -646,7 +646,7 @@
     for (int i=0; i<unionCount; i++){
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
-        uint32_t styleIndex = [styleCollection addMarkerImage:img];
+        uint32_t styleIndex = [styleCollection addStyleWithImage: img];
         
         //set name of style that can be refrenced from mapcss
         [styleCollection setStyleName:[NSString stringWithFormat:@"uni%d", i] forStyleIndex:styleIndex];
@@ -698,8 +698,7 @@
     for (int i=0; i<unionCount; i++) {
         float scale = 0.2 + 0.1 * i;
         UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
-        
-        [styleCollection addMarkerImage:img];
+        [styleCollection addStyleWithImage: img];
     }
     
     // Create style for text
