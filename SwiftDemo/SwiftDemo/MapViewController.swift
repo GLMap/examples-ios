@@ -190,7 +190,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func showRasterOnlineMap() {
         if let osmTileSource = OSMTileSource(cachePath:"/osm.sqlite") {
-            map.setRasterSources([osmTileSource])
+            map.rasterTileSources = [osmTileSource];
         }
     }
 
@@ -257,7 +257,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     
     func displaySearchResults(results : [GLMapVectorObject]) {
         let styles = GLMapMarkerStyleCollection.init()
-        styles.addMarkerImage(GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
+        styles.addStyle(with:GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
         styles.setMarkerDataFill { (marker, data) in
             if let obj = marker as? GLMapVectorObject {
                 data.setLocation(obj.point)
@@ -465,7 +465,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: 0.2) {
                 // Create style collection - it's storage for all images possible to use for markers
                 let style = GLMapMarkerStyleCollection.init()
-                style.addMarkerImage(image)
+                style.addStyle(with: image)
 
                 // Data fill block used to set location for marker and it's style
                 // It could work with any user defined object type. GLMapVectorObject in our case.
@@ -517,7 +517,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 let scale = 0.2 + 0.1 * Double(i)
                 if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
 
-                    styleCollection.addMarkerImage(image)
+                    styleCollection.addStyle(with: image)
                 }
             }
 
@@ -592,7 +592,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 let scale = 0.2 + 0.1 * Double(i)
                 if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
                     
-                    let styleIndex = styleCollection.addMarkerImage(image)
+                    let styleIndex = styleCollection.addStyle(with: image)
                     styleCollection.setStyleName("uni\(styleIndex)", forStyleIndex: styleIndex)
                 }
             }
