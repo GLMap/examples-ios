@@ -43,15 +43,12 @@
                     @{@"name":@"Take screenshot"},
                     @{@"name":@"Fonts"},
                     @{@"name":@"Fly to"},
-                    
+
+                    @{@"name":@"Bulk tiles download"},
+
                     @{@"name":@"Style live reload"},
                     @{@"name":@"Download offline map"}
                     ];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)viewWillAppear:(BOOL)animated

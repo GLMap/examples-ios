@@ -230,6 +230,14 @@
             
             break;
         }
+
+        case Test_TilesBulkDownload: {
+            UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
+            self.navigationItem.rightBarButtonItem = barButton;
+            _mapView.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27);
+            _mapView.mapZoom = pow(2,12.5);
+            break;
+        }
         case Test_StyleReload: {
             UITextField *textField = [[UITextField alloc]initWithFrame:CGRectMake(0, 0, self.navigationController.navigationBar.frame.size.width, 21.0)];
             textField.placeholder = @"Enter style URL";
@@ -980,7 +988,55 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)reloadStyle {
+- (void) bulkDownload
+{
+    GLMapManager *manager = [GLMapManager sharedManager];
+    NSArray *allTiles = [manager vectorTilesAtBBox:_mapView.bbox];
+    /*if(allTiles.count > 100000)
+    {
+        NSLog(@"Too many tiles");
+        return;
+    }
+    NSArray *notCachedTiles = [manager notCachedVectorTilesAtBBox:_mapView.bbox];
+    NSLog(@"Total tiles %d tiles to cache: %d", (int)allTiles.count, (int)notCachedTiles.count);
+
+    GLMapVectorObject *notDownloadedTiles = [[GLMapVectorObject alloc] init];
+    GLMapVectorObject *downloadedTiles = [[GLMapVectorObject alloc] init];
+
+    for(NSNumber *tile in allTiles)
+    {
+        GLMapBBox tileBBox = [manager bboxForTile:tile.unsignedLongLongValue];
+        GLMapPoint pts[5];
+        pts[0] = tileBBox.origin;
+        pts[1] = GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y);
+        pts[2] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y);
+        pts[3] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y);
+        pts[4] = tileBBox.origin;
+
+        if([notCachedTiles containsObject:tile])
+        {
+            [notDownloadedTiles addPolygonOuterRing:pts pointCount:5];
+        }else
+        {
+            [downloadedTiles addPolygonOuterRing:pts pointCount:5];
+        }
+    }
+
+    GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
+    [downloaded setVectorObject:downloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:green;}"] completion:nil];
+    [_mapView add:downloaded];
+
+    GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
+    [notDownloaded setVectorObject:notDownloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"] completion:nil];
+    [_mapView add:notDownloaded];*/
+    
+    [manager cacheTiles:allTiles progressBlock:^BOOL(uint64_t tile, NSError *error){
+        NSLog(@"Tile downloaded:%llu error:%@", tile, error);
+        return YES;
+    }];
+}
+
+- (void) reloadStyle {
     UITextField *urlField = (UITextField *)self.navigationItem.titleView;
     
     NSError *error = nil;
