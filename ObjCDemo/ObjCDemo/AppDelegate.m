@@ -19,8 +19,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     GLMapLogMask = /* VERBOSE_FLAG |*/ ERROR_FLAG | FATAL_FLAG;
     
-#   warning replace <apikey> with your apikey from http://getyourmap.com/account/
-    [GLMapManager sharedManager].apiKey = @"<apikey>";
+#   warning set apiKey with your apikey from https://user.getyourmap.com/apps
+    [GLMapManager sharedManager].apiKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"apiKey"];
 
     return YES;
 }
