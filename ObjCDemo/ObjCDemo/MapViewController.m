@@ -1088,7 +1088,7 @@
     
     if (_track == nil) {
         _track = [[GLMapTrack alloc] initWithDrawOrder:0 andTrackData:_trackData];
-        [_track setWidth:5];
+        [_track setStyle:[GLMapVectorStyle createStyle:@"{width:5pt;}"]];
         [_mapView add:_track];
     } else {
         [_track setTrackData:_trackData];
