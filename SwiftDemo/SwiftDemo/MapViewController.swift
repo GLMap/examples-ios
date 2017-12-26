@@ -190,7 +190,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func showRasterOnlineMap() {
         if let osmTileSource = OSMTileSource(cachePath:"/osm.sqlite") {
-            map.setRasterSources([osmTileSource])
+            map.rasterTileSources = [osmTileSource]
         }
     }
 
@@ -257,7 +257,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     
     func displaySearchResults(results : [GLMapVectorObject]) {
         let styles = GLMapMarkerStyleCollection.init()
-        styles.addMarkerImage(GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
+        styles.addStyle(with: GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
 
         //If marker layer constructed using array with object of any type you need to set markerLocationBlock
         styles.setMarkerLocationBlock { (marker) -> GLMapPoint in
@@ -428,7 +428,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: 0.2) {
                 // Create style collection - it's storage for all images possible to use for markers
                 let style = GLMapMarkerStyleCollection.init()
-                style.addMarkerImage(image)
+                style.addStyle(with: image)
 
                 //If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
                 //[GLMapVectorObject point]. So you don't need to set markerLocationBlock.
@@ -483,7 +483,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                     if(maxWidth < (Double)(image.size.width)){
                         maxWidth = (Double)(image.size.width)
                     }
-                    styleCollection.addMarkerImage(image)
+                    styleCollection.addStyle(with: image)
                 }
             }
 
@@ -562,7 +562,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                     if(maxWidth<(Double)(image.size.width)){
                         maxWidth = (Double)(image.size.width)
                     }
-                    let styleIndex = styleCollection.addMarkerImage(image)
+                    let styleIndex = styleCollection.addStyle(with: image)
                     styleCollection.setStyleName("uni\(styleIndex)", forStyleIndex: styleIndex)
                 }
             }
@@ -839,7 +839,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         
         if track == nil {
             track = GLMapTrack.init(drawOrder: 2, andTrackData: trackData)
-            track?.setWidth(5)
+            track?.setStyle(GLMapVectorStyle.createStyle("{width:5pt;}"))
             map.add(track!)
         } else {
             track?.setTrackData(trackData!)
