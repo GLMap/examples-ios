@@ -62,7 +62,7 @@ class ViewController: UITableViewController {
                      TableRow(.ZoomToBBox, name:"Zoom to bbox"),
                      TableRow(.OfflineSearch, name:"Offline search"),
                      TableRow(.Notifications, name:"Notification test"),
-                     TableRow(.SingleImage, name:"GLMapImage demo", description:"For one pin or any other image"),
+                     TableRow(.SingleImage, name:"GLMapDrawable demo", description:"For one pin or any other image"),
                      TableRow(.MultiImage, name:"GLMapImageGroup demo", description:"For large set of pins with smaller set of images"),
 
                      TableRow(.MarkerLayer, name:"GLMapMarkerLayer demo"),

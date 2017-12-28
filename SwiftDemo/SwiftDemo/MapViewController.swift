@@ -299,18 +299,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    var mapImage: GLMapDrawable?
+    var mapDrawable: GLMapDrawable = GLMapDrawable.init(drawOrder: 3)
 
     func singleImageDemo() {
         if let image = UIImage.init(named: "pin1.png", in: nil, compatibleWith: nil) {
-            mapImage = GLMapDrawable.init(drawOrder: 3)
-            mapImage?.setImage(image, for: map, completion: nil);
-            mapImage?.hidden = true
-            map.add(mapImage!)
-        }
-
-        if mapImage == nil {
-            return
+            mapDrawable.setImage(image, for: map, completion: nil);
+            mapDrawable.hidden = true
+            map.add(mapDrawable)
         }
 
         // we'll just add button for this demo
@@ -326,17 +321,17 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let title = button.title {
                 switch title {
                 case "Add image":
-                    mapImage?.hidden = false;
-                    mapImage?.position = map.mapCenter;
-                    mapImage?.angle = Float(arc4random_uniform(360));
+                    mapDrawable.hidden = false;
+                    mapDrawable.position = map.mapCenter;
+                    mapDrawable.angle = Float(arc4random_uniform(360));
 
                     button.title = "Move image"
                 case "Move image":
-                    mapImage?.position = map.mapCenter
+                    mapDrawable.position = map.mapCenter
 
                     button.title = "Remove image"
                 case "Remove image":
-                    mapImage?.hidden = true
+                    mapDrawable.hidden = true
 
                     button.title = "Add image"
                 default: break

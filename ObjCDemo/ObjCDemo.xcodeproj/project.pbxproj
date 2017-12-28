@@ -28,6 +28,7 @@
 		6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196E1E0D516100FBCF75 /* cluster_data.json */; };
 		6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196F1E0D516100FBCF75 /* cluster.svgpb */; };
 		6CCEFCD51F30CCBB005BB149 /* categories in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD31F30CCBB005BB149 /* categories */; };
+		6CD8B21C1FF4D27D00321F9B /* ImageGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD8B21A1FF4D27D00321F9B /* ImageGroup.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +61,8 @@
 		6CB9196E1E0D516100FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196F1E0D516100FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
 		6CCEFCD31F30CCBB005BB149 /* categories */ = {isa = PBXFileReference; lastKnownFileType = file; name = categories; path = ../../../Resources/categories; sourceTree = "<group>"; };
+		6CD8B21A1FF4D27D00321F9B /* ImageGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageGroup.m; sourceTree = "<group>"; };
+		6CD8B21B1FF4D27D00321F9B /* ImageGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageGroup.h; sourceTree = "<group>"; };
 		E439A1F90C707DA765D3D5E8 /* Pods-ObjCDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -100,18 +103,20 @@
 				6C6C25BE1DDA04840060A241 /* AppDelegate.m */,
 				6C6C25D41DDB4BE20060A241 /* DownloadMapsViewController.h */,
 				6C6C25D51DDB4BE20060A241 /* DownloadMapsViewController.m */,
+				6CD8B21B1FF4D27D00321F9B /* ImageGroup.h */,
+				6CD8B21A1FF4D27D00321F9B /* ImageGroup.m */,
 				6C6C25D11DDB48DA0060A241 /* MapViewController.h */,
 				6C6C25D21DDB48DA0060A241 /* MapViewController.m */,
 				6C6C25D71DDB4C640060A241 /* OSMTileSource.h */,
 				6C6C25D81DDB4C640060A241 /* OSMTileSource.m */,
-				6C6C25C01DDA04840060A241 /* ViewController.h */,
-				6C6C25C11DDA04840060A241 /* ViewController.m */,
+				6C6C25C61DDA04840060A241 /* Assets.xcassets */,
 				6C6C25CB1DDA04840060A241 /* Info.plist */,
 				6C6C25C81DDA04840060A241 /* LaunchScreen.storyboard */,
 				6C6C25C31DDA04840060A241 /* Main.storyboard */,
-				6C6C25C61DDA04840060A241 /* Assets.xcassets */,
 				6C6C25FE1DDDF0520060A241 /* Resources */,
 				6C6C25BA1DDA04840060A241 /* Supporting Files */,
+				6C6C25C01DDA04840060A241 /* ViewController.h */,
+				6C6C25C11DDA04840060A241 /* ViewController.m */,
 			);
 			path = ObjCDemo;
 			sourceTree = "<group>";
@@ -248,7 +253,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh",
-				"${PODS_ROOT}/GLMap/GLMap.framework",
+				"${PODS_ROOT}/GLMap+DynamicLib/GLMap.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -284,8 +289,9 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-resources.sh",
-				"${PODS_ROOT}/GLMap/DefaultStyle.bundle",
-				"${PODS_ROOT}/GLMap/world.vm",
+				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
+				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
+				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -304,6 +310,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C6C25C21DDA04840060A241 /* ViewController.m in Sources */,
+				6CD8B21C1FF4D27D00321F9B /* ImageGroup.m in Sources */,
 				6C6C25D61DDB4BE20060A241 /* DownloadMapsViewController.m in Sources */,
 				6C6C25D91DDB4C640060A241 /* OSMTileSource.m in Sources */,
 				6C6C25BF1DDA04840060A241 /* AppDelegate.m in Sources */,
