@@ -30,7 +30,7 @@
                     @{@"name":@"Zoom to bbox"},
                     @{@"name":@"Offline search"},
                     @{@"name":@"Notification test"},
-                    @{@"name":@"GLMapImage demo", @"descr":@"For one pin or any other image"},
+                    @{@"name":@"GLMapDrawable demo", @"descr":@"For one image, text or vector object"},
                     @{@"name":@"GLMapImageGroup demo", @"descr":@"For large set of pins with smaller set of images"},
                     @{@"name":@"GLMapMarkerLayer demo"},
                     @{@"name":@"GLMapMarkerLayer with clustering"},
@@ -43,15 +43,12 @@
                     @{@"name":@"Take screenshot"},
                     @{@"name":@"Fonts"},
                     @{@"name":@"Fly to"},
-                    
+
+                    @{@"name":@"Bulk tiles download"},
+
                     @{@"name":@"Style live reload"},
                     @{@"name":@"Download offline map"}
                     ];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)viewWillAppear:(BOOL)animated
