@@ -1029,9 +1029,17 @@
     GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
     [notDownloaded setVectorObject:notDownloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"] completion:nil];
     [_mapView add:notDownloaded];*/
-    
+
+    __block NSUInteger count = allTiles.count;
     [manager cacheTiles:allTiles progressBlock:^BOOL(uint64_t tile, NSError *error){
         NSLog(@"Tile downloaded:%llu error:%@", tile, error);
+        count--;
+        if(count==0)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_mapView reloadTiles];
+            });
+        }
         return YES;
     }];
 }
