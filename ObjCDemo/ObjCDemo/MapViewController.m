@@ -992,44 +992,48 @@
 {
     GLMapManager *manager = [GLMapManager sharedManager];
     NSArray *allTiles = [manager vectorTilesAtBBox:_mapView.bbox];
-    /*if(allTiles.count > 100000)
-    {
-        NSLog(@"Too many tiles");
-        return;
-    }
-    NSArray *notCachedTiles = [manager notCachedVectorTilesAtBBox:_mapView.bbox];
-    NSLog(@"Total tiles %d tiles to cache: %d", (int)allTiles.count, (int)notCachedTiles.count);
-
-    GLMapVectorObject *notDownloadedTiles = [[GLMapVectorObject alloc] init];
-    GLMapVectorObject *downloadedTiles = [[GLMapVectorObject alloc] init];
-
-    for(NSNumber *tile in allTiles)
-    {
-        GLMapBBox tileBBox = [manager bboxForTile:tile.unsignedLongLongValue];
-        GLMapPoint pts[5];
-        pts[0] = tileBBox.origin;
-        pts[1] = GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y);
-        pts[2] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y);
-        pts[3] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y);
-        pts[4] = tileBBox.origin;
-
-        if([notCachedTiles containsObject:tile])
+    
+    BOOL niceTileGridVisualization = YES;
+    if (niceTileGridVisualization) {
+        if(allTiles.count > 100000)
         {
-            [notDownloadedTiles addPolygonOuterRing:pts pointCount:5];
-        }else
-        {
-            [downloadedTiles addPolygonOuterRing:pts pointCount:5];
+            NSLog(@"Too many tiles");
+            return;
         }
+        NSArray *notCachedTiles = [manager notCachedVectorTilesAtBBox:_mapView.bbox];
+        NSLog(@"Total tiles %d tiles to cache: %d", (int)allTiles.count, (int)notCachedTiles.count);
+        
+        GLMapVectorObject *notDownloadedTiles = [[GLMapVectorObject alloc] init];
+        GLMapVectorObject *downloadedTiles = [[GLMapVectorObject alloc] init];
+        
+        for(NSNumber *tile in allTiles)
+        {
+            GLMapBBox tileBBox = [manager bboxForTile:tile.unsignedLongLongValue];
+            GLMapPoint pts[5];
+            pts[0] = tileBBox.origin;
+            pts[1] = GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y);
+            pts[2] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y);
+            pts[3] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y);
+            pts[4] = tileBBox.origin;
+            
+            if([notCachedTiles containsObject:tile])
+            {
+                [notDownloadedTiles addPolygonOuterRing:pts pointCount:5];
+            }else
+            {
+                [downloadedTiles addPolygonOuterRing:pts pointCount:5];
+            }
+        }
+        
+        GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
+        [downloaded setVectorObject:downloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:green;}"] completion:nil];
+        [_mapView add:downloaded];
+        
+        GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
+        [notDownloaded setVectorObject:notDownloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"] completion:nil];
+        [_mapView add:notDownloaded];
     }
-
-    GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
-    [downloaded setVectorObject:downloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:green;}"] completion:nil];
-    [_mapView add:downloaded];
-
-    GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
-    [notDownloaded setVectorObject:notDownloadedTiles forMapView:_mapView withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"] completion:nil];
-    [_mapView add:notDownloaded];*/
-
+        
     __block NSUInteger count = allTiles.count;
     [manager cacheTiles:allTiles progressBlock:^BOOL(uint64_t tile, NSError *error){
         NSLog(@"Tile downloaded:%llu error:%@", tile, error);
