@@ -177,15 +177,15 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     func showEmbedMap() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
             GLMapManager.shared().addMap(mapPath)
-
-            map.move(to: GLMapGeoPoint.init(lat: 42.4341, lon: 19.26), zoomLevel: 14)
+            map.mapGeoCenter = GLMapGeoPoint.init(lat: 42.4341, lon: 19.26);
+            map.mapZoomLevel = 14;
         }
     }
 
     func showOnlineMap() {
         GLMapManager.shared().tileDownloadingAllowed = true
-
-        map.move(to: GLMapGeoPoint.init(lat: 37.3257, lon: -122.0353), zoomLevel: 14)
+        map.mapGeoCenter = GLMapGeoPoint.init(lat: 37.3257, lon: -122.0353);
+        map.mapZoomLevel = 14;
     }
 
     func showRasterOnlineMap() {
@@ -202,7 +202,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         bbox.addPoint(GLMapView.makeMapPoint(from: GLMapGeoPoint(lat:53.9024, lon:27.5618)))
         
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
-        map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox, viewSize: map.bounds.size))
+        map.mapCenter = bbox.center;
+        map.mapZoom = map.mapZoom(for: bbox);
     }
     
     var _categories: GLSearchCategories?
@@ -222,9 +223,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
             GLMapManager.shared().addMap(mapPath)
             let center = GLMapGeoPoint.init(lat: 42.4341, lon: 19.26)
-            map.move(to: center, zoomLevel: 14)
-            
-            
+            map.mapGeoCenter = center;
+            map.mapZoomLevel  = 14;
+
             let categories = getCategories();
             
             //Create new offline search request
@@ -327,12 +328,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
                     button.title = "Move image"
                 case "Move image":
-                    mapDrawable.position = map.mapCenter
-
+                    map.animate({ (animation) in
+                        self.mapDrawable.position = self.map.mapCenter;
+                        self.mapDrawable.angle = Float(arc4random_uniform(360));
+                    })
                     button.title = "Remove image"
                 case "Remove image":
                     mapDrawable.hidden = true
-
                     button.title = "Add image"
                 default: break
                 }
@@ -445,7 +447,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                         // Add marker layer on map
                         map.add(markerLayer)
                         let bbox = objects.bbox
-                        map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
+                        map.mapCenter = bbox.center;
+                        map.mapZoom = map.mapZoom(for: bbox);
                     }
                 }
 
@@ -523,7 +526,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                             if let wself = self {
                                 let map = wself.map;
                                 map.add(markerLayer)
-                                map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
+                                map.mapCenter = bbox.center;
+                                map.mapZoom = map.mapZoom(for: bbox);
                             }
                         }
                     }
@@ -582,7 +586,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                                 if let wself = self {
                                     let map = wself.map
                                     map.add(markerLayer)
-                                    map.setMapCenter(bbox.center, zoom: map.mapZoom(for: bbox))
+                                    map.mapCenter = bbox.center;
+                                    map.mapZoom = map.mapZoom(for: bbox);
                                 }
                             }
                         }
@@ -642,8 +647,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             drawable.setVectorObject(polygon, for: map, with: style, completion: nil)
             map.add(drawable)
         }
-
-        map.move(to: centerPoint)
+        map.mapGeoCenter = centerPoint;
     }
 
     func geoJsonDemo() {
@@ -761,16 +765,21 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         self.navigationItem.rightBarButtonItem = barButton
 
         GLMapManager.shared().tileDownloadingAllowed = true
-        map.fly(to: GLMapGeoPoint.init(lat: 37.3257, lon: -122.0353), zoomLevel:14)
+
+        map.animate { (animation) in
+            self.map.mapZoomLevel = 14;
+            animation.fly(to: GLMapGeoPoint.init(lat: 37.3257, lon: -122.0353));
+        }
     }
 
     func flyTo() {
-        let minPt = GLMapGeoPoint.init(lat: 33, lon: -118)
-        let maxPt = GLMapGeoPoint.init(lat: 48, lon: -85)
-
-        map.fly(to: GLMapGeoPoint.init(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
-                                       lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()),
-                zoomLevel:14)
+        map.animate { (animation) in
+            self.map.mapZoomLevel = 14;
+            let minPt = GLMapGeoPoint.init(lat: 33, lon: -118)
+            let maxPt = GLMapGeoPoint.init(lat: 48, lon: -85)
+            animation.fly(to: GLMapGeoPoint.init(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
+                                                 lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()));
+        }
     }
 
     func styleReloadDemo() {
