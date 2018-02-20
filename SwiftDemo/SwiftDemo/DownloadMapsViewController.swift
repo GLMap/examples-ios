@@ -16,7 +16,7 @@ class DownloadMapsViewController: UITableViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         if allMaps.count == 0 { // map data could be set during preparing for segue
-            if let cachedMapList = GLMapManager.shared().cachedMapList() {
+            if let cachedMapList = GLMapManager.shared.cachedMapList() {
                 setMaps(cachedMapList)
             }
             updateMaps()
@@ -27,7 +27,7 @@ class DownloadMapsViewController: UITableViewController {
     }
 
     func updateMaps() {
-        GLMapManager.shared().updateMapList { (fetchedMaps: [GLMapInfo]?, _, error: Error?) in
+        GLMapManager.shared.updateMapList { (fetchedMaps: [GLMapInfo]?, _, error: Error?) in
             if error != nil {
                 NSLog("Map downloading error \(error!.localizedDescription)")
             } else {
@@ -208,7 +208,7 @@ class DownloadMapsViewController: UITableViewController {
             performSegue(withIdentifier: "OpenSubmap", sender: mapInfo)
         } else {
             if mapInfo.state != .downloaded {
-                if let downloadTask = GLMapManager.shared().downloadTask(forMap: mapInfo) {
+                if let downloadTask = GLMapManager.shared.downloadTask(forMap: mapInfo) {
                     downloadTask.cancel()
                 } else {
                     startDownloadingMap(mapInfo, retryCount: 3)
@@ -221,7 +221,7 @@ class DownloadMapsViewController: UITableViewController {
 
     func startDownloadingMap(_ map: GLMapInfo, retryCount: Int) {
         if retryCount > 0 {
-            GLMapManager.shared().downloadMap(map, withCompletionBlock: { (task: GLMapDownloadTask) in
+            GLMapManager.shared.downloadMap(map, withCompletionBlock: { (task: GLMapDownloadTask) in
                 if let error = task.error as NSError? {
                     NSLog("Map downloading error: \(error)")
                     //CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
@@ -270,7 +270,7 @@ class DownloadMapsViewController: UITableViewController {
         if editingStyle == .delete {
             let map = mapsOnDevice[indexPath.row]
 
-            GLMapManager.shared().deleteMap(map)
+            GLMapManager.shared.deleteMap(map)
             setMaps(allMaps)
         }
     }

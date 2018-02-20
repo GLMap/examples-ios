@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
 
         // FIXME: set apikey from https://user.getyourmap.com/apps
-        GLMapManager.shared().apiKey = UserDefaults.standard.string(forKey: "apiKey")
+        GLMapManager.shared.apiKey = UserDefaults.standard.string(forKey: "apiKey")
         return true
     }
 

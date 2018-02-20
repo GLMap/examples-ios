@@ -30,10 +30,10 @@ class ImageGroup : GLMapImageGroupCallback {
     
     init()
     {
-        lock = NSRecursiveLock.init();
-        vairants = [UIImage.init(named: "pin1.png")!,
-                    UIImage.init(named: "pin2.png")!,
-                    UIImage.init(named: "pin3.png")!]
+        lock = NSRecursiveLock();
+        vairants = [UIImage(named: "pin1.png")!,
+                    UIImage(named: "pin2.png")!,
+                    UIImage(named: "pin3.png")!]
         pins = [];
     }
     
@@ -50,7 +50,7 @@ class ImageGroup : GLMapImageGroupCallback {
     public func getVariant(_ index: Int, offset: UnsafeMutablePointer<CGPoint>) -> UIImage
     {
         let rv = vairants[index];
-        offset.pointee = CGPoint.init(x: rv.size.width/2, y: 0);
+        offset.pointee = CGPoint(x: rv.size.width/2, y: 0);
         return rv;
     }
     
@@ -99,7 +99,7 @@ class ImageGroup : GLMapImageGroupCallback {
         var rv : Pin?
         lock.lock();
         
-        let rect = CGRect.init(x: -20, y: -20, width: 40, height: 40).offsetBy(dx: point.x, dy: point.y)
+        let rect = CGRect(x: -20, y: -20, width: 40, height: 40).offsetBy(dx: point.x, dy: point.y)
         for pin in pins {
             if rect.contains(mapView.makeDisplayPoint(from: pin.position)) {
                 rv = pin;
