@@ -473,6 +473,26 @@
         [drawable setImage:img forMapView:_mapView completion:nil];
         [_mapView add:drawable];
     }
+
+    // Drawable also can draw a text
+    if(true)
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:1];
+        [drawable setText:@"Text1" withStyle:[GLMapVectorStyle createStyle:@"{text-color:red;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
+        drawable.position = GLMapPointMakeFromGeoCoordinates(60, 0);
+        [_mapView add:drawable];
+    }
+
+    // If no draw order set to drawable - it will be drawn with tiles of map. With same sorting as used in mapcss
+    // Note that "Text2" label is "under" text from map
+    if(true)
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setText:@"Text2" withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
+        drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
+        [_mapView add:drawable];
+    }
+
 }
 
 -(void) addImage:(id)sender
