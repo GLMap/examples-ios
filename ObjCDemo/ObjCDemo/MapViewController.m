@@ -108,11 +108,7 @@
             break;
         case Test_SingleImage: // add/remove image
         {
-            // we'll just add button for this demo
-            UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
-            self.navigationItem.rightBarButtonItem = barButton;
-            
-            [self addImage:barButton];
+            [self singleImage];
             break;
         }
         case Test_MultiImage: // add pin from navigation item, remove by tap on pin
@@ -459,6 +455,25 @@
 
 
 #pragma mark Add/move/remove image
+- (void)singleImage
+{
+    // we'll just add button for this demo
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
+    self.navigationItem.rightBarButtonItem = barButton;
+    [self addImage:barButton];
+
+    // If you need to draw image that is bound to map use transform mode.
+    UIImage *img = [UIImage imageNamed:@"tile_2_2_1.png"];
+    if (img)
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        drawable.useTransform = YES;
+        drawable.position = GLMapPointMake(GLMapPointMax/2, GLMapPointMax/2);
+        drawable.scale = GLMapPointMax/(4*img.size.width);
+        [drawable setImage:img forMapView:_mapView completion:nil];
+        [_mapView add:drawable];
+    }
+}
 
 -(void) addImage:(id)sender
 {
