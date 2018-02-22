@@ -453,6 +453,18 @@
     }
 }
 
+- (void)loadImageAtURL:(NSURL *)url intoDrawable:(GLMapDrawable *)drawable {
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * response, NSData * data, NSError * connectionError) {
+        
+        if (data) {
+            UIImage *img = [UIImage imageWithData:data];
+            if (img) {
+                [drawable setImage:img forMapView:_mapView completion:nil];
+            }
+        }
+    }];
+}
 
 #pragma mark Add/move/remove image
 - (void)singleImage
@@ -462,37 +474,57 @@
     self.navigationItem.rightBarButtonItem = barButton;
     [self addImage:barButton];
 
-    // If you need to draw image that is bound to map use transform mode.
-    UIImage *img = [UIImage imageNamed:@"tile_2_2_1.png"];
-    if (img)
+    // Drawables created using default constructor is added on map as polygon with layer:0; and z-index:0;
     {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        // original tile url is https://tile.openstreetmap.org/3/4/2.png
+        // we'll show how to calculate it's position on map in GLMapPoints
+        int tilePosZ = 3, tilePosX = 4, tilePosY = 2;
+        
+        // world size divided to number of tiles at this zoom level
+        int tilesForZoom = (1 << tilePosZ);
+        int32_t tileSize = GLMapPointMax / tilesForZoom;
+        
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         drawable.useTransform = YES;
-        drawable.position = GLMapPointMake(GLMapPointMax/2, GLMapPointMax/2);
-        drawable.scale = GLMapPointMax/(4*img.size.width);
-        [drawable setImage:img forMapView:_mapView completion:nil];
+        drawable.scale = GLMapPointMax/(tilesForZoom * 256);
+        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
         [_mapView add:drawable];
+        
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/2.png"] intoDrawable:drawable];
     }
 
-    // Drawable also can draw a text
-    if(true)
-    {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:1];
-        [drawable setText:@"Text1" withStyle:[GLMapVectorStyle createStyle:@"{text-color:red;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
-        drawable.position = GLMapPointMakeFromGeoCoordinates(60, 0);
-        [_mapView add:drawable];
-    }
-
-    // If no draw order set to drawable - it will be drawn with tiles of map. With same sorting as used in mapcss
-    // Note that "Text2" label is "under" text from map
-    if(true)
+    // Drawable can draw a text
     {
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         [drawable setText:@"Text2" withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
         drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
         [_mapView add:drawable];
     }
-
+    
+    
+    // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
+    {
+        int tilePosZ = 3, tilePosX = 4, tilePosY = 3;
+        
+        // world size divided to number of tiles at this zoom level
+        int tilesForZoom = (1 << tilePosZ);
+        int32_t tileSize = GLMapPointMax / tilesForZoom;
+        
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        drawable.useTransform = YES;
+        drawable.scale = GLMapPointMax/(tilesForZoom * 256);
+        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
+        [_mapView add:drawable];
+        
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/3.png"] intoDrawable:drawable];
+    }
+    
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        [drawable setText:@"Text1" withStyle:[GLMapVectorStyle createStyle:@"{text-color:red;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
+        drawable.position = GLMapPointMakeFromGeoCoordinates(60, 0);
+        [_mapView add:drawable];
+    }
 }
 
 -(void) addImage:(id)sender
