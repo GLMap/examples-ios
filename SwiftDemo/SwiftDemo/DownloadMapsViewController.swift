@@ -38,11 +38,11 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    func mapUpdated(notification: Notification) {
+    @objc func mapUpdated(notification: Notification) {
         setMaps(allMaps)
     }
 
-    func progressUpdated(notification: Notification) {
+    @objc func progressUpdated(notification: Notification) {
         if let map = notification.object as? GLMapInfo {
             updateCellForMap(map)
         }

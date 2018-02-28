@@ -156,7 +156,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    func downloadButtonTap() {
+    @objc func downloadButtonTap() {
         if let map = mapToDownload {
             let downloadTask = GLMapManager.shared.downloadTask(forMap: map)
             if let task = downloadTask {
@@ -317,7 +317,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         addImageButtonTap(barButton)
     }
 
-    func addImageButtonTap(_ sender: Any) {
+    @objc func addImageButtonTap(_ sender: Any) {
         if let button = sender as? UIBarButtonItem {
             if let title = button.title {
                 switch title {
@@ -389,7 +389,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    func addPin() {
+    @objc func addPin() {
         
         if pins == nil {
             pins = ImageGroup();
@@ -406,7 +406,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         mapImageGroup?.setNeedsUpdate(false)
     }
 
-    func deletePin() {
+    @objc func deletePin() {
         if pinToDelete != nil {
             pins?.remove(pinToDelete!);
             mapImageGroup?.setNeedsUpdate(false)
@@ -675,7 +675,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     var flashAdd: Bool = false
-    func flashObject(object: GLMapDrawable) {
+    @objc func flashObject(object: GLMapDrawable) {
         if (flashAdd) {
             map.add(object)
         } else {
@@ -772,7 +772,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    func flyTo() {
+    @objc func flyTo() {
         map.animate { (animation) in
             self.map.mapZoomLevel = 14;
             let minPt = GLMapGeoPoint(lat: 33, lon: -118)
@@ -793,7 +793,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         self.navigationItem.rightBarButtonItem = barButton
     }
 
-    func styleReload() {
+    @objc func styleReload() {
         let urlField = self.navigationItem.titleView as! UITextField
 
         do {
