@@ -210,7 +210,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     // Return search categories that used to sort search results.
     func getCategories() -> GLSearchCategories{
         if(_categories == nil){
-            //To compare string GLMap use ICU v56. It needs collation data (icudt56l.dat). You can place this line in main.m
+            //To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
             GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath);
             
             //Load preapred categories from biary file.
