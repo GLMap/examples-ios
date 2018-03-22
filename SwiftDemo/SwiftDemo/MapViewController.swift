@@ -26,6 +26,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.OfflineMap: showOfflineMap,
         Demo.EmbeddMap: showEmbedMap,
         Demo.OnlineMap: showOnlineMap,
+        Demo.OnlineRouting: onlineRouting,
         Demo.RasterOnlineMap: showRasterOnlineMap,
         Demo.ZoomToBBox: zoomToBBox,
         Demo.OfflineSearch: offlineSearch,
@@ -184,6 +185,28 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             map.mapZoomLevel = 14;
         }
     }
+
+    func onlineRouting() {
+        showEmbedMap()
+
+        let pts = [GLRoutePoint(pt: map.mapGeoCenter, heading: Double.nan, isStop: true),
+                   GLRoutePoint(pt: GLMapGeoPointMake(43, 20), heading: Double.nan, isStop: true)]
+
+        GLMapRouteData.requestRoute(withPoints: pts, count: pts.count, mode: .drive, locale: "en", units: .international) { (result, error) in
+            if let routeData = result
+            {
+                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255))
+                {
+                    let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                    self.map.add(track)
+                    let bbox = trackData.bbox()
+                    self.map.mapCenter = bbox.center
+                    self.map.mapZoom = self.map.mapZoom(for: bbox)
+                }
+            }
+        }
+    }
+
 
     func showOnlineMap() {
         GLMapManager.shared.tileDownloadingAllowed = true

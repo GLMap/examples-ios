@@ -92,6 +92,9 @@
             _mapView.mapGeoCenter = GLMapGeoPointMake(37.3257, -122.0353);
             _mapView.mapZoomLevel = 14;
             break;
+        case Test_OnlineRouting:
+            [self onlineRouting];
+            break;
         case Test_RasterOnlineMap:
         {
             _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
@@ -268,6 +271,24 @@
     // Move map to the Montenegro capital
     _mapView.mapGeoCenter = GLMapGeoPointMake(42.4341, 19.26);
     _mapView.mapZoomLevel = 14;
+}
+
+- (void) onlineRouting{
+    [self loadEmbedMap];
+    GLRoutePoint pts[2] = {
+        GLRoutePointMake(_mapView.mapGeoCenter, NAN, YES),
+        GLRoutePointMake(GLMapGeoPointMake(43, 20), NAN, YES)
+    };
+    [GLMapRouteData requestRouteWithPoints:pts count:2 mode:GLMapRouteMode_Drive locale:@"en" units:GLUnitSystem_International completionBlock:^(GLMapRouteData *result, NSError *error) {
+        if(result){
+            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(255, 0, 0, 255)];
+            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+            [_mapView add:track];
+            GLMapBBox bbox = trackData.bbox;
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
+        }
+    }];
 }
 
 // Example how to calcludate zoom level for some bbox

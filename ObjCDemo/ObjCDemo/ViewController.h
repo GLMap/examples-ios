@@ -12,6 +12,7 @@ enum Test{
     Test_OfflineMap,
     Test_EmbeddMap,
     Test_OnlineMap,
+    Test_OnlineRouting,
     Test_RasterOnlineMap,
     Test_ZoomToBBox,
     Test_OfflineSearch,
