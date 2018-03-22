@@ -89,7 +89,8 @@
             [GLMapManager sharedManager].tileDownloadingAllowed = YES;
             
             // Move map to the San Francisco
-            [_mapView moveTo:GLMapGeoPointMake(37.3257, -122.0353) zoomLevel:14];
+            _mapView.mapGeoCenter = GLMapGeoPointMake(37.3257, -122.0353);
+            _mapView.mapZoomLevel = 14;
             break;
         case Test_RasterOnlineMap:
         {
@@ -107,11 +108,7 @@
             break;
         case Test_SingleImage: // add/remove image
         {
-            // we'll just add button for this demo
-            UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
-            self.navigationItem.rightBarButtonItem = barButton;
-            
-            [self addImage:barButton];
+            [self singleImage];
             break;
         }
         case Test_MultiImage: // add pin from navigation item, remove by tap on pin
@@ -163,9 +160,11 @@
             self.navigationItem.rightBarButtonItem = barButton;
             
             // Move map to the San Francisco
-            [_mapView flyTo:GLMapGeoPointMake(37.3257, -122.0353) zoomLevel:14];
+            [_mapView animate:^(GLMapAnimation * _Nonnull animation) {
+                _mapView.mapZoomLevel = 14;
+                [animation flyToGeoPoint:GLMapGeoPointMake(37.3257, -122.0353)];
+            }];
             [GLMapManager sharedManager].tileDownloadingAllowed = YES;
-            
             break;
         }
         case Test_Fonts:
@@ -266,9 +265,9 @@
 - (void) loadEmbedMap {
     [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
     //[[GLMapManager manager] addMapWithPath:[[NSBundle mainBundle] pathForResource:@"Belarus" ofType:@"vm"]];
-    
     // Move map to the Montenegro capital
-    [_mapView moveTo:GLMapGeoPointMake(42.4341, 19.26) zoomLevel:14];
+    _mapView.mapGeoCenter = GLMapGeoPointMake(42.4341, 19.26);
+    _mapView.mapZoomLevel = 14;
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -279,7 +278,8 @@
     // Minsk
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.9024, 27.5618));
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
-    [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
 }
 
 // Return search categories that used to sort search results.
@@ -296,16 +296,18 @@
     return _categories;
 }
 
-- (void) offlineSearch{
+- (void) offlineSearch
+{
     //Offline search works only with offline maps. Online tiles does not contains search index
     [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
     
     // Move map to the Montenegro capital
     GLMapGeoPoint center = GLMapGeoPointMake(42.4341, 19.26);
-    [_mapView moveTo:center zoomLevel:14];
-    
+
+    _mapView.mapGeoCenter = center;
+    _mapView.mapZoomLevel = 14;
+
     GLSearchCategories *categories = [self getCategories];
-    
     //Create new offline search request
     GLSearchOffline *searchOffline = [[GLSearchOffline alloc] init];
     //Set search categories
@@ -451,8 +453,79 @@
     }
 }
 
+- (void)loadImageAtURL:(NSURL *)url intoDrawable:(GLMapDrawable *)drawable {
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * response, NSData * data, NSError * connectionError) {
+        
+        if (data) {
+            UIImage *img = [UIImage imageWithData:data];
+            if (img) {
+                [drawable setImage:img forMapView:_mapView completion:nil];
+            }
+        }
+    }];
+}
 
 #pragma mark Add/move/remove image
+- (void)singleImage
+{
+    // we'll just add button for this demo
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
+    self.navigationItem.rightBarButtonItem = barButton;
+    [self addImage:barButton];
+
+    // Drawables created using default constructor is added on map as polygon with layer:0; and z-index:0;
+    {
+        // original tile url is https://tile.openstreetmap.org/3/4/2.png
+        // we'll show how to calculate it's position on map in GLMapPoints
+        int tilePosZ = 3, tilePosX = 4, tilePosY = 2;
+        
+        // world size divided to number of tiles at this zoom level
+        int tilesForZoom = (1 << tilePosZ);
+        int32_t tileSize = GLMapPointMax / tilesForZoom;
+        
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        drawable.useTransform = YES;
+        drawable.scale = GLMapPointMax/(tilesForZoom * 256);
+        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
+        [_mapView add:drawable];
+        
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/2.png"] intoDrawable:drawable];
+    }
+
+    // Drawable can draw a text
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        [drawable setText:@"Text2" withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
+        drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
+        [_mapView add:drawable];
+    }
+    
+    
+    // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
+    {
+        int tilePosZ = 3, tilePosX = 4, tilePosY = 3;
+        
+        // world size divided to number of tiles at this zoom level
+        int tilesForZoom = (1 << tilePosZ);
+        int32_t tileSize = GLMapPointMax / tilesForZoom;
+        
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        drawable.useTransform = YES;
+        drawable.scale = GLMapPointMax/(tilesForZoom * 256);
+        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
+        [_mapView add:drawable];
+        
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/3.png"] intoDrawable:drawable];
+    }
+    
+    {
+        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+        [drawable setText:@"Text1" withStyle:[GLMapVectorStyle createStyle:@"{text-color:red;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"] completion:nil];
+        drawable.position = GLMapPointMakeFromGeoCoordinates(60, 0);
+        [_mapView add:drawable];
+    }
+}
 
 -(void) addImage:(id)sender
 {
@@ -481,10 +554,12 @@
     
     if(_mapImage)
     {
-        GLMapAnimation *animation = [[GLMapAnimation alloc] initWithAnimation:GLMapTransitionEaseInOut andDuration:1];
-        [animation setPosition:_mapView.mapCenter forDrawable:_mapImage];
-        [animation setAngle:arc4random_uniform(360) forDrawable:_mapImage];
-        [_mapView startAnimation:animation];
+        [_mapView animate:^(GLMapAnimation *animation) {
+            [animation setTransition:GLMapTransitionEaseInOut];
+            [animation setDuration:1];
+            _mapImage.position = _mapView.mapCenter;
+            _mapImage.angle = arc4random_uniform(360);
+        }];
     }
 }
 
@@ -604,7 +679,8 @@
     // Add marker layer on map
     [_mapView add:layer];
     GLMapBBox bbox = objectArray.bbox;
-    [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
 }
 
 - (void)addMarkersWithMapCSSClustering {
@@ -657,7 +733,8 @@
         GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points cascadeStyle:cascadeStyle styleCollection:styleCollection clusteringRadius:maxSize/2 drawOrder:2];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView add:layer];
-            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
         });
     });
 }
@@ -726,7 +803,8 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [_mapView add:layer];
-            [_mapView setMapCenter:GLMapBBoxCenter(bbox) zoom:[_mapView mapZoomForBBox:bbox]];
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
         });
     });
 }
@@ -815,8 +893,8 @@
     GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:4];
     [drawable setVectorObject:vectorObject forMapView:_mapView withStyle:style completion:nil];
     [_mapView add:drawable];
-    
-    [_mapView moveTo:centerPoint];
+
+    _mapView.mapGeoCenter = centerPoint;
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -826,12 +904,10 @@
     bbox = GLMapBBoxAddPoint(bbox, [GLMapView makeMapPointFromGeoPoint:GLMapGeoPointMake(52.5037, 13.4102)]);
     // Paris
     bbox = GLMapBBoxAddPoint(bbox, [GLMapView makeMapPointFromGeoPoint:GLMapGeoPointMake(48.8505, 2.3343)]);
-    
-    GLMapPoint center = GLMapPointMake(bbox.origin.x + bbox.size.x/2, bbox.origin.y + bbox.size.y/2);
-    
+
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
-    [_mapView setMapCenter:center
-                      zoom:[_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size]];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
 }
 
 - (void) testNotifications {
@@ -969,13 +1045,16 @@
      [self loadMultiPolygonGeoJSON];*/
 }
 
-- (void) flyTo:(id)sender {
-    GLMapGeoPoint minPt = GLMapGeoPointMake(33, -118), maxPt = GLMapGeoPointMake(48, -85);
-    [_mapView flyTo:GLMapGeoPointMake(minPt.lat + (maxPt.lat - minPt.lat)*drand48(), minPt.lon + (maxPt.lon - minPt.lon)*drand48()) zoomLevel:14];
+- (void) flyTo:(id)sender
+{
+    [_mapView animate:^(GLMapAnimation *animation) {
+        _mapView.mapZoomLevel = 14;
+        GLMapGeoPoint minPt = GLMapGeoPointMake(33, -118), maxPt = GLMapGeoPointMake(48, -85);
+        [animation flyToGeoPoint:GLMapGeoPointMake(minPt.lat + (maxPt.lat - minPt.lat)*drand48(), minPt.lon + (maxPt.lon - minPt.lon)*drand48())];
+    }];
 }
 
 #pragma mark Style Reload
-
 - (void) displayAlertWithTitle:(NSString *)title message:(NSString *)message {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                    message:message
