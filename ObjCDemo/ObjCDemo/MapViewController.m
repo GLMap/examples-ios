@@ -37,7 +37,7 @@
     self.title = @"Demo map";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButtonText:) name:kGLMapInfoDownloadProgress object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mapDownloaded:) name:kGLMapInfoDownloadFinished object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButton) name:kGLMapInfoDownloadFinished object:nil];
     
     _mapView = [[GLMapView alloc] initWithFrame:self.view.bounds];
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -375,12 +375,6 @@
 }
 
 #pragma mark Download button
--(void) mapDownloaded:(NSNotification *)aNotify
-{
-    [_mapView reloadTiles];
-    [self updateDownloadButton];
-}
-
 -(void) updateDownloadButtonText:(NSNotification *)aNotify
 {
     if(_mapView.centerTileState == GLMapTileState_NoData)
