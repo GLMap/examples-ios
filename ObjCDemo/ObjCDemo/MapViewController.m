@@ -237,7 +237,7 @@
             UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
             self.navigationItem.rightBarButtonItem = barButton;
             _mapView.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27);
-            _mapView.mapZoom = pow(2,12.5);
+            _mapView.mapZoomLevel = 12.5;
             break;
         }
         case Test_StyleReload: {
