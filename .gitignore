@@ -6,6 +6,6 @@ build
 *.o
 profile
 xcuserdata
-project.xcworkspace
+*.xcworkspace
 
 Pods
