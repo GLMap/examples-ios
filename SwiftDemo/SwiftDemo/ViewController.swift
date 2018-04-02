@@ -15,6 +15,7 @@ class ViewController: UITableViewController {
         case OfflineMap
         case EmbeddMap
         case OnlineMap
+        case OnlineRouting
         case RasterOnlineMap
         case ZoomToBBox
         case OfflineSearch
@@ -31,6 +32,7 @@ class ViewController: UITableViewController {
         case Screenshot
         case Fonts
         case FlyTo
+        case TilesBulkDownload
         case StyleReload
 
         case DownloadMap
@@ -57,6 +59,7 @@ class ViewController: UITableViewController {
     var tableRows = [TableRow(.OfflineMap, name:"Open offline map"),
                      TableRow(.EmbeddMap, name:"Open embedd map"),
                      TableRow(.OnlineMap, name:"Open online map", description:"Downloads tiles one by one"),
+                     TableRow(.OnlineRouting, name:"Online routing"),
                      TableRow(.RasterOnlineMap, name:"Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
 
                      TableRow(.ZoomToBBox, name:"Zoom to bbox"),
@@ -78,6 +81,7 @@ class ViewController: UITableViewController {
                      TableRow(.Fonts, name:"Fonts"),
                      TableRow(.FlyTo, name:"Fly to"),
 
+                     TableRow(.TilesBulkDownload, name:"Tiles bulk download"),
                      TableRow(.StyleReload, name:"Style live reload"),
 
                      TableRow(.DownloadMap, name:"Download offline map")

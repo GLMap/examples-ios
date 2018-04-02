@@ -37,7 +37,7 @@
     self.title = @"Demo map";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButtonText:) name:kGLMapInfoDownloadProgress object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mapDownloaded:) name:kGLMapInfoDownloadFinished object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButton) name:kGLMapInfoDownloadFinished object:nil];
     
     _mapView = [[GLMapView alloc] initWithFrame:self.view.bounds];
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -91,6 +91,9 @@
             // Move map to the San Francisco
             _mapView.mapGeoCenter = GLMapGeoPointMake(37.3257, -122.0353);
             _mapView.mapZoomLevel = 14;
+            break;
+        case Test_OnlineRouting:
+            [self onlineRouting];
             break;
         case Test_RasterOnlineMap:
         {
@@ -234,7 +237,7 @@
             UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
             self.navigationItem.rightBarButtonItem = barButton;
             _mapView.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27);
-            _mapView.mapZoom = pow(2,12.5);
+            _mapView.mapZoomLevel = 12.5;
             break;
         }
         case Test_StyleReload: {
@@ -270,6 +273,24 @@
     _mapView.mapZoomLevel = 14;
 }
 
+- (void) onlineRouting{
+    [self loadEmbedMap];
+    GLRoutePoint pts[2] = {
+        GLRoutePointMake(_mapView.mapGeoCenter, NAN, YES),
+        GLRoutePointMake(GLMapGeoPointMake(43, 20), NAN, YES)
+    };
+    [GLMapRouteData requestRouteWithPoints:pts count:2 mode:GLMapRouteMode_Drive locale:@"en" units:GLUnitSystem_International completionBlock:^(GLMapRouteData *result, NSError *error) {
+        if(result){
+            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(255, 0, 0, 255)];
+            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+            [_mapView add:track];
+            GLMapBBox bbox = trackData.bbox;
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
+        }
+    }];
+}
+
 // Example how to calcludate zoom level for some bbox
 - (void) zoomToBBox {
     GLMapBBox bbox = GLMapBBoxEmpty();
@@ -287,7 +308,7 @@
 {
     if(_categories == nil)
     {
-        //To compare string GLMap use ICU v56. It needs collation data (icudt56l.dat). You can place this line in main.m
+        //To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
         [GLSearchCategories setCollationDataLocation:[NSBundle mainBundle].bundlePath];
         
         //Load preapred categories from biary file.
@@ -375,12 +396,6 @@
 }
 
 #pragma mark Download button
--(void) mapDownloaded:(NSNotification *)aNotify
-{
-    [_mapView reloadTiles];
-    [self updateDownloadButton];
-}
-
 -(void) updateDownloadButtonText:(NSNotification *)aNotify
 {
     if(_mapView.centerTileState == GLMapTileState_NoData)

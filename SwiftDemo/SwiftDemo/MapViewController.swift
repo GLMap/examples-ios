@@ -26,6 +26,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.OfflineMap: showOfflineMap,
         Demo.EmbeddMap: showEmbedMap,
         Demo.OnlineMap: showOnlineMap,
+        Demo.OnlineRouting: onlineRouting,
         Demo.RasterOnlineMap: showRasterOnlineMap,
         Demo.ZoomToBBox: zoomToBBox,
         Demo.OfflineSearch: offlineSearch,
@@ -42,8 +43,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
         Demo.FlyTo: flyToDemo,
+        Demo.TilesBulkDownload : tilesBulkDownload,
         Demo.StyleReload: styleReloadDemo,
     ]
+
+    var tilesToDownload : Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -182,6 +186,28 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
+    func onlineRouting() {
+        showEmbedMap()
+
+        let pts = [GLRoutePoint(pt: map.mapGeoCenter, heading: Double.nan, isStop: true),
+                   GLRoutePoint(pt: GLMapGeoPointMake(43, 20), heading: Double.nan, isStop: true)]
+
+        GLMapRouteData.requestRoute(withPoints: pts, count: pts.count, mode: .drive, locale: "en", units: .international) { (result, error) in
+            if let routeData = result
+            {
+                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255))
+                {
+                    let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                    self.map.add(track)
+                    let bbox = trackData.bbox()
+                    self.map.mapCenter = bbox.center
+                    self.map.mapZoom = self.map.mapZoom(for: bbox)
+                }
+            }
+        }
+    }
+
+
     func showOnlineMap() {
         GLMapManager.shared.tileDownloadingAllowed = true
         map.mapGeoCenter = GLMapGeoPoint(lat: 37.3257, lon: -122.0353);
@@ -210,7 +236,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     // Return search categories that used to sort search results.
     func getCategories() -> GLSearchCategories{
         if(_categories == nil){
-            //To compare string GLMap use ICU v56. It needs collation data (icudt56l.dat). You can place this line in main.m
+            //To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
             GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath);
             
             //Load preapred categories from biary file.
@@ -258,7 +284,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     
     func displaySearchResults(results : [GLMapVectorObject]) {
         let styles = GLMapMarkerStyleCollection()
-        styles.addStyle(with: GLMapVectorImageFactory.shared().image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
+        styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: 0xFFFF0000)!)
 
         //If marker layer constructed using array with object of any type you need to set markerLocationBlock
         styles.setMarkerLocationBlock { (marker) -> GLMapPoint in
@@ -422,7 +448,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     func markerLayer() {
         // Create marker image
         if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
-            if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: 0.2) {
+            if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: 0.2) {
                 // Create style collection - it's storage for all images possible to use for markers
                 let style = GLMapMarkerStyleCollection()
                 style.addStyle(with: image)
@@ -477,7 +503,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             var maxWidth = 0.0;
             for i in 0..<tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
+                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
                     if(maxWidth < (Double)(image.size.width)){
                         maxWidth = (Double)(image.size.width)
                     }
@@ -557,7 +583,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             var maxWidth = 0.0
             for i in 0..<tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared().image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
+                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
                     if(maxWidth<(Double)(image.size.width)){
                         maxWidth = (Double)(image.size.width)
                     }
@@ -789,8 +815,77 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         textField.becomeFirstResponder()
 
-        let barButton = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(MapViewController.styleReload))
-        self.navigationItem.rightBarButtonItem = barButton
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(styleReload))
+    }
+
+    func tilesBulkDownload()
+    {
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(startBulkDownload))
+        map.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27)
+        map.mapZoom = pow(2,12.5);
+    }
+
+    @objc func startBulkDownload()
+    {
+        let bbox = map.bbox;
+        let manager = GLMapManager.shared
+        let allTiles = manager.vectorTiles(at: bbox)
+
+        let niceTileGridVisualization = true
+        if (niceTileGridVisualization)
+        {
+            if(allTiles.count > 100000)
+            {
+                NSLog("Too many tiles");
+                return;
+            }
+
+            let notCachedTiles = manager.notCachedVectorTiles(at: bbox)
+            NSLog("Total tiles %d tiles to cache: %d", allTiles.count, notCachedTiles.count)
+
+            let notDownloadedTiles = GLMapVectorObject()
+            let downloadedTiles = GLMapVectorObject()
+
+            for tile in allTiles
+            {
+                let tileBBox = manager.bbox(forTile: tile.uint64Value)
+
+                let pts = [tileBBox.origin,
+                           GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y),
+                           GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y),
+                           GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y),
+                           tileBBox.origin]
+
+                if notCachedTiles.contains(tile)
+                {
+                    notDownloadedTiles.addPolygonOuterRing(pts)
+                }else
+                {
+                    downloadedTiles.addPolygonOuterRing(pts)
+                }
+            }
+
+            let downloaded = GLMapDrawable(drawOrder: 4)
+            downloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{galileo-fast-draw:true;width: 2pt; color:green;}")!, completion: nil)
+            map.add(downloaded)
+
+            let notDownloaded = GLMapDrawable(drawOrder: 5)
+            notDownloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{galileo-fast-draw:true;width: 2pt; color:red;}")!, completion: nil)
+            map.add(notDownloaded)
+        }
+
+        tilesToDownload = allTiles.count
+        manager.cacheTiles(allTiles) { (tile, error) -> Bool in
+            NSLog("Tile downloaded:%llu error:%@", tile, error?.localizedDescription ?? "no error");
+            self.tilesToDownload -= 1;
+            if(self.tilesToDownload==0)
+            {
+                DispatchQueue.main.async {
+                    self.map.reloadTiles()
+                }
+            }
+            return true;
+        }
     }
 
     @objc func styleReload() {
