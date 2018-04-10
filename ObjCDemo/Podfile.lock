@@ -1,19 +1,19 @@
 PODS:
-  - GLMap (0.9.5):
+  - GLMap (0.9.6):
     - GLMap+DefaultStyle
-    - GLMap+DynamicLib (= 0.9.5)
+    - GLMap+DynamicLib (= 0.9.6)
     - GLMap+WorldMap
   - GLMap+DefaultStyle (1.0.1)
-  - GLMap+DynamicLib (0.9.5)
+  - GLMap+DynamicLib (0.9.6)
   - GLMap+WorldMap (18.01)
 
 DEPENDENCIES:
   - GLMap
 
 SPEC CHECKSUMS:
-  GLMap: 9e5f0929eeaeb7911a32d78285c2104a54bfb31c
+  GLMap: 5819179b95288285e2be645405c581838bf1c326
   GLMap+DefaultStyle: 9ef0a9e75ac251dca2b2c1b34d847a7e90d9deb4
-  GLMap+DynamicLib: 17721d6756f4bdde8da43a93e2deaa2bb1575e29
+  GLMap+DynamicLib: 04f50de09e5125b1c57618b09f5a87c014c35af3
   GLMap+WorldMap: 1114e69ca800a1ca6f911599331462ef29419c86
 
 PODFILE CHECKSUM: efb7c0d913964b73980cdc2f8409108180e1d812
