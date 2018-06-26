@@ -35,14 +35,14 @@
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mapUpdated:) name:kGLMapInfoStateChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(progressUpdated:) name:kGLMapInfoDownloadProgress object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(progressUpdated:) name:kGLMapDownloadTaskProgress object:nil];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kGLMapInfoStateChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kGLMapInfoDownloadProgress object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kGLMapDownloadTaskProgress object:nil];
 }
 
 - (NSArray *) unrollMapArray:(NSArray *)maps {
@@ -128,8 +128,8 @@
 
 -(void)progressUpdated:(NSNotification *)aNotify
 {
-    GLMapInfo *map = aNotify.object;
-    [self updateCellForMap:map];
+    GLMapDownloadTask *task = aNotify.object;
+    [self updateCellForMap:task.map];
 }
 
 -(void) updateCellForMap:(GLMapInfo *)map
@@ -205,8 +205,12 @@
                     }
                 }
                 case GLMapInfoState_InProgress:
-                    cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", map.downloadProgress*100];
+                {
+                    GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map];
+                    double progress = task ? task.downloaded * 100 / task.total : 0;
+                    cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
                     break;
+                }
                 case GLMapInfoState_NotDownloaded:
                 default:
                     cell.detailTextLabel.text = nil;

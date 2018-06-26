@@ -36,8 +36,8 @@
     
     self.title = @"Demo map";
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButtonText:) name:kGLMapInfoDownloadProgress object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButton) name:kGLMapInfoDownloadFinished object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButtonText:) name:kGLMapDownloadTaskProgress object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDownloadButton) name:kGLMapDownloadTaskFinished object:nil];
     
     _mapView = [[GLMapView alloc] initWithFrame:self.view.bounds];
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -415,7 +415,7 @@
             NSString *title;
             if(task && _mapToDownload.state == GLMapInfoState_InProgress)
             {
-                title = [NSString stringWithFormat:@"Downloading %@ \u202A%d%%\u202C", [_mapToDownload name] , (int)(_mapToDownload.downloadProgress*100)];
+                title = [NSString stringWithFormat:@"Downloading %@ \u202A%d%%\u202C", [_mapToDownload name] , (int)(task.downloaded * 100 / task.total)];
             }else
             {
                 title = [NSString stringWithFormat:@"Download %@", [_mapToDownload name]];
@@ -501,6 +501,7 @@
         
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         drawable.useTransform = YES;
+        drawable.rotatesWithMap = YES;
         drawable.scale = GLMapPointMax/(tilesForZoom * 256);
         drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
         [_mapView add:drawable];
@@ -515,8 +516,7 @@
         drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
         [_mapView add:drawable];
     }
-    
-    
+
     // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
     {
         int tilePosZ = 3, tilePosX = 4, tilePosY = 3;
@@ -527,8 +527,9 @@
         
         GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
         drawable.useTransform = YES;
+        drawable.rotatesWithMap = YES;
         drawable.scale = GLMapPointMax/(tilesForZoom * 256);
-        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize );
+        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
         [_mapView add:drawable];
         
         [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/3.png"] intoDrawable:drawable];
@@ -1032,23 +1033,42 @@
 }
 
 - (void) loadMultiPolygonGeoJSON {
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
+    /*GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
                         "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
                         "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
     
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
     for(NSUInteger i=0; i<objects.count; ++i){
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
         [_mapView add:drawable];
-    }
+    }*/
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
+
+    GLMapVectorObject *object = [[GLMapVectorObject alloc] init];
+    GLMapPoint pts[] = {
+        GLMapPointMake(243035994, 647535200),
+        GLMapPointMake(243083218, 647435388),
+        GLMapPointMake(242801528, 647435388),
+        GLMapPointMake(242560431, 647526125),
+        GLMapPointMake(242241458, 647414221),
+        GLMapPointMake(242274598, 647493859),
+    };
+    [object addPolygonOuterRing:pts pointCount:6];
+
+    GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+    [drawable setVectorObject:object forMapView:_mapView withStyle:style completion:nil];
+    [_mapView add:drawable];
+
+    GLMapBBox bbox = [object bbox];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
 }
 
 - (void) loadGeoJSON
 {
-    [self loadGeoJSONWithCSSStyle];
+    //[self loadGeoJSONWithCSSStyle];
     
     /*[self loadPointGeoJSON];
      [self loadMultiPointGeoJSON];
@@ -1057,7 +1077,8 @@
      [self loadMultiLineStringGeoJSON];
      
      [self loadPolygonGeoJSON];
-     [self loadMultiPolygonGeoJSON];*/
+     */
+    [self loadMultiPolygonGeoJSON];
 }
 
 - (void) flyTo:(id)sender
