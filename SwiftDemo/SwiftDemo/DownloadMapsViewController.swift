@@ -23,7 +23,7 @@ class DownloadMapsViewController: UITableViewController {
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(DownloadMapsViewController.mapUpdated), name: GLMapInfo.stateChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(DownloadMapsViewController.progressUpdated), name: GLMapInfo.downloadProgress, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(DownloadMapsViewController.progressUpdated), name: GLMapDownloadTask.downloadProgress, object: nil)
     }
 
     func updateMaps() {
@@ -43,8 +43,8 @@ class DownloadMapsViewController: UITableViewController {
     }
 
     @objc func progressUpdated(notification: Notification) {
-        if let map = notification.object as? GLMapInfo {
-            updateCellForMap(map)
+        if let task = notification.object as? GLMapDownloadTask {
+            updateCellForMap(task.map)
         }
     }
 
@@ -154,14 +154,17 @@ class DownloadMapsViewController: UITableViewController {
 
         let mapInfo: GLMapInfo
         if indexPath.section == 0 {
-            mapInfo = mapsOnDevice[indexPath.row]
 
+            mapInfo = mapsOnDevice[indexPath.row]
             if mapInfo.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
+            } else if let task = GLMapManager.shared.downloadTask(forMap: mapInfo) {
+                let progress = Float(task.downloaded) * 100 / Float(task.total);
+                cell.detailTextLabel?.text = String.init(format: "Downloading %.2f%%", progress)
+                cell.accessoryType = .none
             } else {
                 cell.accessoryType = .none
-
                 switch mapInfo.state {
                 case .needUpdate:
                     cell.detailTextLabel?.text = "Update"
@@ -170,8 +173,6 @@ class DownloadMapsViewController: UITableViewController {
                 case .downloaded:
                     cell.accessoryView = nil
                     cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnDisk) / 1000000)
-                case .inProgress:
-                    cell.detailTextLabel?.text = String.init(format: "Downloading %.2f%%", mapInfo.downloadProgress*100)
                 case .notDownloaded:
                     cell.detailTextLabel?.text = nil
                 default:

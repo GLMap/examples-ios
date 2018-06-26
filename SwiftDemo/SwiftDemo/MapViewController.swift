@@ -84,11 +84,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             self?.updateDownloadButtonText()
         }
 
-        NotificationCenter.default.addObserver(forName: GLMapInfo.downloadProgress, object: nil, queue: OperationQueue.main) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: GLMapDownloadTask.downloadProgress, object: nil, queue: OperationQueue.main) { [weak self] _ in
             self?.updateDownloadButtonText()
         }
 
-        NotificationCenter.default.addObserver(forName: GLMapInfo.downloadFinished, object: nil, queue: OperationQueue.main) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: GLMapDownloadTask.downloadFinished, object: nil, queue: OperationQueue.main) { [weak self] _ in
             self?.map.reloadTiles()
             self?.updateDownloadButton()
         }
@@ -144,11 +144,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
 
             if let map = mapToDownload {
-                let downloadTask = GLMapManager.shared.downloadTask(forMap: map)
 
                 let title: String
-                if downloadTask != nil && map.state == .inProgress {
-                    title = String(format:"Downloading %@ %d%%", map.name(), Int(map.downloadProgress * 100.0))
+                if let task = GLMapManager.shared.downloadTask(forMap: map) {
+                    let progress = task.downloaded * 100 / task.total;
+                    title = String(format:"Downloading %@ %d%%", map.name(), progress)
                 } else {
                     title = "Download \(map.name())"
                 }
