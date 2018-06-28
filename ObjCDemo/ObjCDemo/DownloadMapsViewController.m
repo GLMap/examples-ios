@@ -83,6 +83,25 @@
     }];
 }
 
+static bool anyDataSetHaveState(GLMapInfo *info, GLMapInfoState state){
+    for(int i=0; i<GLMapInfoDataSet_Count; ++i)
+    {
+        if([info stateForDataSet:(GLMapInfoDataSet)i] == state) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool isOnDevice(GLMapInfo *info)
+{
+    return anyDataSetHaveState(info, GLMapInfoState_InProgress) ||
+    anyDataSetHaveState(info, GLMapInfoState_Downloaded) ||
+    anyDataSetHaveState(info, GLMapInfoState_NeedResume) ||
+    anyDataSetHaveState(info, GLMapInfoState_NeedUpdate) ||
+    anyDataSetHaveState(info, GLMapInfoState_Removed);
+}
+
 -(void) setMaps:(NSArray *)maps
 {
     // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
@@ -98,7 +117,7 @@
         if(info.subMaps.count) {
             NSUInteger downloadedSubMaps = 0;
             for (GLMapInfo *subInfo in info.subMaps) {
-                if (subInfo.state > GLMapInfoState_NotDownloaded) {
+                if (isOnDevice(subInfo)) {
                     downloadedSubMaps ++;
                 }
             }
@@ -109,11 +128,11 @@
             if (downloadedSubMaps != (info.subMaps).count) {
                 [mapsOnServer addObject:info];
             }
-        } else if(info.state == GLMapInfoState_NotDownloaded) {
-            [mapsOnServer addObject:info];
-        }  else {
+        } else if(isOnDevice(info)) {
             [mapsOnDevice addObject:info];
-        }        
+        }  else {
+            [mapsOnServer addObject:info];
+        }
     }
     
     _mapsOnDevice = mapsOnDevice;
@@ -186,35 +205,24 @@
         } else
         {
             cell.accessoryType = UITableViewCellAccessoryNone;
-            switch (map.state)
-            {
-                case GLMapInfoState_NeedUpdate:
-                    cell.detailTextLabel.text = @"Update";
-                    break;
-                case GLMapInfoState_NeedResume:
-                    cell.detailTextLabel.text = @"Resume";
-                    break;
-                case GLMapInfoState_Downloaded:
-                {
-                    cell.accessoryView = nil;
-                    double sizeInMB = (double)map.sizeOnDisk/(1000*1000);
-                    if (sizeInMB != 0)
-                    {
-                        cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", sizeInMB, @"MB"];
-                        break;
-                    }
-                }
-                case GLMapInfoState_InProgress:
-                {
-                    GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map];
-                    double progress = task ? task.downloaded * 100 / task.total : 0;
-                    cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
-                    break;
-                }
-                case GLMapInfoState_NotDownloaded:
-                default:
+
+            GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map];
+            if(task){
+                double progress = task ? task.downloaded * 100 / task.total : 0;
+                cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
+            } else if(anyDataSetHaveState(map, GLMapInfoState_NeedUpdate)){
+                cell.detailTextLabel.text = @"Update";
+            }else if(anyDataSetHaveState(map, GLMapInfoState_NeedResume)){
+                cell.detailTextLabel.text = @"Resume";
+            }else{
+                cell.accessoryView = nil;
+
+                int64_t size = [map sizeOnDiskForDataSets:GLMapInfoDataSetMask_All];
+                if(size != 0) {
+                    cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", (double) size / (1000*1000), @"MB"];
+                }else {
                     cell.detailTextLabel.text = nil;
-                    break;
+                }
             }
         }
     } else {
@@ -224,8 +232,7 @@
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         } else {
             cell.accessoryType = UITableViewCellAccessoryNone;
-            
-            double sizeInMB = (double)map.sizeOnServer/(1000*1000);
+            double sizeInMB = (double)[map sizeOnServerForDataSets:GLMapInfoDataSetMask_All]/(1000*1000);
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", sizeInMB, @"MB"];
         }
     }
@@ -248,7 +255,7 @@
     if(retryCount > 0)
     {
         __weak DownloadMapsViewController *wself = self;
-        [[GLMapManager sharedManager] downloadMap:map withCompletionBlock:^(GLMapDownloadTask *task){
+        [GLMapManager.sharedManager downloadDataSets:GLMapInfoDataSetMask_All forMap:map withCompletionBlock:^(GLMapDownloadTask *task) {
             if(task.error)
             {
                 NSLog(@"Map downloading error: %@", task.error);
@@ -274,7 +281,7 @@
     if ([map.subMaps count])
     {
         [self performSegueWithIdentifier:@"openSubmap" sender:map];
-    }else if(map.state != GLMapInfoState_Downloaded )
+    }else
     {
         GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:map];
         if(task != nil)
@@ -293,7 +300,7 @@
     if (indexPath.section == 0) {
         GLMapInfo *info = _mapsOnDevice[indexPath.row];
         
-        if (info.subMaps == nil)
+        if (info.subMaps.count == 0)
             return UITableViewCellEditingStyleDelete;
     }
     return UITableViewCellEditingStyleNone;
@@ -302,9 +309,8 @@
 - (void) tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0 && editingStyle == UITableViewCellEditingStyleDelete) {
         GLMapInfo *map = _mapsOnDevice[indexPath.row];
-        
         if (map) {
-            [[GLMapManager sharedManager] deleteMap:map];
+            [GLMapManager.sharedManager deleteDataSets:GLMapInfoDataSetMask_All forMap:map];
             [self setMaps:_allMaps];
         }
     }

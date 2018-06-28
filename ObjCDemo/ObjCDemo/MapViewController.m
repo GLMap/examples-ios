@@ -404,7 +404,7 @@
         
         _mapToDownload = [[GLMapManager sharedManager] mapAtPoint:center];
         
-        if (_mapToDownload && ([_mapToDownload state] == GLMapInfoState_Downloaded || [_mapToDownload distanceFromBorder:center] > 0))
+        if (_mapToDownload && ([_mapToDownload stateForDataSet:GLMapInfoDataSet_Map] == GLMapInfoState_Downloaded || [_mapToDownload distanceFromBorder:center] > 0))
         {
             _mapToDownload = nil;
         }
@@ -413,7 +413,7 @@
         {
             GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:_mapToDownload];
             NSString *title;
-            if(task && _mapToDownload.state == GLMapInfoState_InProgress)
+            if(task)
             {
                 title = [NSString stringWithFormat:@"Downloading %@ \u202A%d%%\u202C", [_mapToDownload name] , (int)(task.downloaded * 100 / task.total)];
             }else
@@ -460,7 +460,7 @@
             [task cancel];
         }else
         {
-            [[GLMapManager sharedManager] downloadMap:_mapToDownload withCompletionBlock:nil];
+            [[GLMapManager sharedManager] downloadDataSets:GLMapInfoDataSetMask_All forMap:_mapToDownload withCompletionBlock:nil];
         }
     } else
     {

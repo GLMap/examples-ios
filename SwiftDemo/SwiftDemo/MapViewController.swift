@@ -138,7 +138,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             mapToDownload = GLMapManager.shared.map(at: mapCenter)
 
             if let map = mapToDownload {
-                if map.state == .downloaded || map.distance(fromBorder: mapCenter) > 0.0 {
+                if map.state(for: .map) == .downloaded || map.distance(fromBorder: mapCenter) > 0.0 {
                     mapToDownload = nil
                 }
             }
@@ -166,7 +166,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let task = downloadTask {
                 task.cancel()
             } else {
-                GLMapManager.shared.downloadMap(map, withCompletionBlock: nil)
+                GLMapManager.shared.downloadDataSets(.all, forMap: map, withCompletionBlock: nil)
             }
         } else {
             performSegue(withIdentifier: "DownloadMaps", sender: self)

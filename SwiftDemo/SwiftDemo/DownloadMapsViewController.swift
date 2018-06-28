@@ -56,6 +56,24 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
+    func anyDataSetHaveState(_ info: GLMapInfo, state:GLMapInfoState) -> Bool {
+        for i in 0..<GLMapInfoDataSet.count.rawValue {
+            if info.state(for: GLMapInfoDataSet.init(rawValue: i)!) == state {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    func isOnDevice(_ info: GLMapInfo) -> Bool
+    {
+        return anyDataSetHaveState(info, state: .inProgress) ||
+            anyDataSetHaveState(info, state: .downloaded) ||
+            anyDataSetHaveState(info, state: .needResume) ||
+            anyDataSetHaveState(info, state: .needUpdate) ||
+            anyDataSetHaveState(info, state: .removed);
+    }
+
     func setMaps(_ maps: [GLMapInfo]) {
         // Unroll map groups for Africa, Caribbean, and Oceania
         // maps = [self unrollMapArray:maps];
@@ -78,7 +96,7 @@ class DownloadMapsViewController: UITableViewController {
                 var downloadedSubMaps = 0
 
                 for subInfo in subMaps {
-                    if (subInfo.state > .notDownloaded) {
+                    if isOnDevice(subInfo) {
                         downloadedSubMaps = downloadedSubMaps + 1
                     }
                 }
@@ -89,10 +107,10 @@ class DownloadMapsViewController: UITableViewController {
                 if downloadedSubMaps != subMaps.count {
                     mapsOnServer.append(mapInfo)
                 }
-            } else if mapInfo.state == .notDownloaded {
-                mapsOnServer.append(mapInfo)
-            } else {
+            } else if isOnDevice(mapInfo) {
                 mapsOnDevice.append(mapInfo)
+            } else {
+                mapsOnServer.append(mapInfo)
             }
         }
 
@@ -165,18 +183,19 @@ class DownloadMapsViewController: UITableViewController {
                 cell.accessoryType = .none
             } else {
                 cell.accessoryType = .none
-                switch mapInfo.state {
-                case .needUpdate:
-                    cell.detailTextLabel?.text = "Update"
-                case .needResume:
+
+                if anyDataSetHaveState(mapInfo, state: .needResume){
                     cell.detailTextLabel?.text = "Resume"
-                case .downloaded:
-                    cell.accessoryView = nil
-                    cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnDisk) / 1000000)
-                case .notDownloaded:
-                    cell.detailTextLabel?.text = nil
-                default:
-                    break
+                }else if anyDataSetHaveState(mapInfo, state: .needUpdate) {
+                    cell.detailTextLabel?.text = "Update"
+                }else {
+                    let size = mapInfo.sizeOnDisk(forDataSets: .all);
+                    if size != 0{
+                        cell.accessoryView = nil
+                        cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(size) / 1000000)
+                    }else {
+                        cell.detailTextLabel?.text = nil
+                    }
                 }
             }
         } else {
@@ -187,7 +206,7 @@ class DownloadMapsViewController: UITableViewController {
                 cell.detailTextLabel?.text = nil
             } else {
                 cell.accessoryType = .none
-                cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnServer) / 1000000)
+                cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnServer(forDataSets: .all)) / 1000000)
             }
         }
 
@@ -208,12 +227,10 @@ class DownloadMapsViewController: UITableViewController {
         if mapInfo.subMaps.count > 0 {
             performSegue(withIdentifier: "OpenSubmap", sender: mapInfo)
         } else {
-            if mapInfo.state != .downloaded {
-                if let downloadTask = GLMapManager.shared.downloadTask(forMap: mapInfo) {
-                    downloadTask.cancel()
-                } else {
-                    startDownloadingMap(mapInfo, retryCount: 3)
-                }
+            if let downloadTask = GLMapManager.shared.downloadTask(forMap: mapInfo) {
+                downloadTask.cancel()
+            } else {
+                startDownloadingMap(mapInfo, retryCount: 3)
             }
         }
 
@@ -222,7 +239,7 @@ class DownloadMapsViewController: UITableViewController {
 
     func startDownloadingMap(_ map: GLMapInfo, retryCount: Int) {
         if retryCount > 0 {
-            GLMapManager.shared.downloadMap(map, withCompletionBlock: { (task: GLMapDownloadTask) in
+            GLMapManager.shared.downloadDataSets(.all, forMap: map, withCompletionBlock: { (task: GLMapDownloadTask) in
                 if let error = task.error as NSError? {
                     NSLog("Map downloading error: \(error)")
                     //CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
@@ -271,7 +288,7 @@ class DownloadMapsViewController: UITableViewController {
         if editingStyle == .delete {
             let map = mapsOnDevice[indexPath.row]
 
-            GLMapManager.shared.deleteMap(map)
+            GLMapManager.shared.deleteDataSets(.all, forMap: map)
             setMaps(allMaps)
         }
     }
