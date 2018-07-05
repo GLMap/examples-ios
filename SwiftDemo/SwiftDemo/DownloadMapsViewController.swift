@@ -251,17 +251,6 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    /*
-    -(void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.identifier isEqualToString:@"openSubmap"]) {
-    DownloadMapsViewController *vc = (DownloadMapsViewController*)segue.destinationViewController;
-    GLMapInfo *map = sender;
-    vc.title = [map nameInLanguage:@"en"];
-    [vc setMaps:map.subMaps];
-    }
-    }
-    */
-
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "OpenSubmap" {
             if let mapViewController = segue.destination as? DownloadMapsViewController {

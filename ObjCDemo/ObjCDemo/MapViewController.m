@@ -95,6 +95,9 @@
         case Test_OnlineRouting:
             [self onlineRouting];
             break;
+        case Test_OfflineRouting:
+            [self offlineRouting];
+            break;
         case Test_RasterOnlineMap:
         {
             _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
@@ -287,6 +290,33 @@
             GLMapBBox bbox = trackData.bbox;
             _mapView.mapCenter = GLMapBBoxCenter(bbox);
             _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
+        }
+    }];
+}
+
+- (void) offlineRouting{
+    GLMapInfo *map = GLMapManager.sharedManager.cachedMaps[@59065];
+    if([map sizeOnDiskForDataSets:GLMapInfoDataSetMask_Navigation]<0)
+    {
+        [self displayAlertWithTitle:@"Error" message:@"Belarus have no downloaded offline navigation data"];
+        return;
+    }
+
+    GLRoutePoint pts[2] = {
+        GLRoutePointMake(GLMapGeoPointMake(52.093027, 23.685570), NAN, YES),
+        GLRoutePointMake(GLMapGeoPointMake(53.907273, 27.552126), NAN, YES)
+    };
+    [GLMapRouteData offlineRequestRouteWithPoints:pts count:2 mode:GLMapRouteMode_Drive locale:@"en" units:GLUnitSystem_International completionBlock:^(GLMapRouteData *result, NSError *error) {
+        if(result){
+            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(255, 0, 0, 255)];
+            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+            [_mapView add:track];
+            GLMapBBox bbox = trackData.bbox;
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
+        }else if(error)
+        {
+            [self displayAlertWithTitle:@"Error" message:error.localizedDescription];
         }
     }];
 }

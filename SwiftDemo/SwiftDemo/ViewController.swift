@@ -16,6 +16,7 @@ class ViewController: UITableViewController {
         case EmbeddMap
         case OnlineMap
         case OnlineRouting
+        case OfflineRouting
         case RasterOnlineMap
         case ZoomToBBox
         case OfflineSearch
@@ -60,6 +61,7 @@ class ViewController: UITableViewController {
                      TableRow(.EmbeddMap, name:"Open embedd map"),
                      TableRow(.OnlineMap, name:"Open online map", description:"Downloads tiles one by one"),
                      TableRow(.OnlineRouting, name:"Online routing"),
+                     TableRow(.OfflineRouting, name:"Offline routing"),
                      TableRow(.RasterOnlineMap, name:"Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
 
                      TableRow(.ZoomToBBox, name:"Zoom to bbox"),

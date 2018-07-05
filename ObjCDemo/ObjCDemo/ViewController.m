@@ -27,6 +27,7 @@
                     @{@"name":@"Open embedd map"},
                     @{@"name":@"Open online map", @"descr": @"Downloads tiles one by one"},
                     @{@"name":@"Online routing"},
+                    @{@"name":@"Offline routing"},
                     @{@"name":@"Raster online map", @"descr": @"Downloads raster tiles one by one from custom tile source"},
                     @{@"name":@"Zoom to bbox"},
                     @{@"name":@"Offline search"},

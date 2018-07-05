@@ -27,6 +27,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.EmbeddMap: showEmbedMap,
         Demo.OnlineMap: showOnlineMap,
         Demo.OnlineRouting: onlineRouting,
+        Demo.OfflineRouting: offlineRouting,
         Demo.RasterOnlineMap: showRasterOnlineMap,
         Demo.ZoomToBBox: zoomToBBox,
         Demo.OfflineSearch: offlineSearch,
@@ -203,6 +204,42 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                     self.map.mapCenter = bbox.center
                     self.map.mapZoom = self.map.mapZoom(for: bbox)
                 }
+            }
+        }
+    }
+
+    func checkOfflineNavigationData() -> Bool {
+        if let maps = GLMapManager.shared.cachedMaps(){
+            if let info = maps[59065] {
+                return info.sizeOnDisk(forDataSets: .navigation) > 0;
+            }
+        }
+        return false;
+    }
+
+    func offlineRouting() {
+
+        if !checkOfflineNavigationData(){
+            displayAlert("Error", message: "Belarus have no downloaded offline navigation data")
+            return
+        }
+
+        let pts = [GLRoutePoint(pt: GLMapGeoPointMake(52.093027, 23.685570), heading: Double.nan, isStop: true),
+                   GLRoutePoint(pt: GLMapGeoPointMake(53.907273, 27.552126), heading: Double.nan, isStop: true)]
+        GLMapRouteData.offlineRequestRoute(withPoints: pts, count: pts.count, mode: .drive, locale: "en", units: .international) { (result, error) in
+            if let routeData = result
+            {
+                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255))
+                {
+                    let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                    self.map.add(track)
+                    let bbox = trackData.bbox()
+                    self.map.mapCenter = bbox.center
+                    self.map.mapZoom = self.map.mapZoom(for: bbox)
+                }
+            }else if let err = error
+            {
+                self.displayAlert("Error", message: err.localizedDescription)
             }
         }
     }
