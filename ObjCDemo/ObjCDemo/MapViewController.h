@@ -18,6 +18,7 @@
 @property (readonly) ImageGroup *pins; // set of locations
 @property (readonly) GLMapImageGroup *mapImageGroup; // object to manage both of them
 @property (strong) Pin *pinToDelete;
+@property (assign) GLMapGeoPoint menuPoint;
 @property (assign) CGPoint menuPos;
 
 @end

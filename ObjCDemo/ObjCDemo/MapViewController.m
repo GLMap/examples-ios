@@ -28,6 +28,11 @@
 
     GLMapTrackData *_trackData;
     GLMapTrack *_track;
+    
+    // Routing Demo
+    UISegmentedControl *_routingMode, *_networkMode;
+    GLMapGeoPoint _startPoint, _endPoint, _menuPoint;
+    GLMapTrack *_routeTrack;
 }
 
 - (void)viewDidLoad
@@ -92,12 +97,53 @@
             _mapView.mapGeoCenter = GLMapGeoPointMake(37.3257, -122.0353);
             _mapView.mapZoomLevel = 14;
             break;
-        case Test_OnlineRouting:
-            [self onlineRouting];
+        case Test_Routing: {
+            [self loadEmbedMap];
+            
+            _routingMode = [[UISegmentedControl alloc] initWithItems:@[@"Auto", @"Bike", @"Walk"]];
+            _routingMode.selectedSegmentIndex = 0;
+            [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
+            
+            _networkMode = [[UISegmentedControl alloc] initWithItems:@[@"Online", @"Offline"]];
+            _networkMode.selectedSegmentIndex = 0;
+            [_networkMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
+
+            self.navigationItem.rightBarButtonItems = @[
+                                                        [[UIBarButtonItem alloc] initWithCustomView:_routingMode],
+                                                        [[UIBarButtonItem alloc] initWithCustomView:_networkMode]
+                                                        ];
+            
+            self.navigationItem.prompt = @"Tap on map to select departure and destination points";
+            
+            _startPoint = GLMapGeoPointMake(53.844720, 27.482352);
+            _endPoint = GLMapGeoPointMake(53.931935, 27.583995);
+            
+            GLMapBBox bbox = GLMapBBoxEmpty();
+            bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_startPoint));
+            bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_endPoint));
+            _mapView.mapCenter = GLMapBBoxCenter(bbox);
+            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
+
+            __weak GLMapView *weakmap = _mapView;
+            __weak MapViewController *wself = self;
+            
+            _mapView.tapGestureBlock = ^(CGPoint pt) {
+                UIMenuController *menu = [UIMenuController sharedMenuController];
+                if (!menu.menuVisible)
+                {
+                    wself.menuPoint = GLMapGeoPointFromMapPoint([weakmap makeMapPointFromDisplayPoint:pt]);
+                    [wself becomeFirstResponder];
+                    [menu setTargetRect:CGRectMake(pt.x, pt.y, 1, 1) inView:weakmap];
+                    menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Departure" action:@selector(setDeparture:)],
+                                        [[UIMenuItem alloc] initWithTitle:@"Destination" action:@selector(setDestination:)]
+                                        ];
+                    [menu setMenuVisible:YES animated:YES];
+                }
+            };
+            
+            [self updateRoute];
             break;
-        case Test_OfflineRouting:
-            [self offlineRouting];
-            break;
+        }
         case Test_RasterOnlineMap:
         {
             _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
@@ -276,49 +322,48 @@
     _mapView.mapZoomLevel = 14;
 }
 
-- (void) onlineRouting{
-    [self loadEmbedMap];
-    GLRoutePoint pts[2] = {
-        GLRoutePointMake(_mapView.mapGeoCenter, NAN, YES),
-        GLRoutePointMake(GLMapGeoPointMake(43, 20), NAN, YES)
-    };
-    [GLMapRouteData requestRouteWithPoints:pts count:2 mode:GLMapRouteMode_Drive locale:@"en" units:GLUnitSystem_International completionBlock:^(GLMapRouteData *result, NSError *error) {
-        if(result){
-            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(255, 0, 0, 255)];
-            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-            [_mapView add:track];
-            GLMapBBox bbox = trackData.bbox;
-            _mapView.mapCenter = GLMapBBoxCenter(bbox);
-            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
-        }
-    }];
+- (void) setDeparture:(id)sender {
+    _startPoint = _menuPoint;
+    [self updateRoute];
 }
 
-- (void) offlineRouting{
-    GLMapInfo *map = GLMapManager.sharedManager.cachedMaps[@59065];
-    if([map sizeOnDiskForDataSets:GLMapInfoDataSetMask_Navigation]<0)
-    {
-        [self displayAlertWithTitle:@"Error" message:@"Belarus have no downloaded offline navigation data"];
-        return;
-    }
+- (void) setDestination:(id)sender {
+    _endPoint = _menuPoint;
+    [self updateRoute];
+}
 
+- (void) updateRoute {
     GLRoutePoint pts[2] = {
-        GLRoutePointMake(GLMapGeoPointMake(52.093027, 23.685570), NAN, YES),
-        GLRoutePointMake(GLMapGeoPointMake(53.907273, 27.552126), NAN, YES)
+        GLRoutePointMake(_startPoint, NAN, YES),
+        GLRoutePointMake(_endPoint, NAN, YES)
     };
-    [GLMapRouteData offlineRequestRouteWithPoints:pts count:2 mode:GLMapRouteMode_Drive locale:@"en" units:GLUnitSystem_International completionBlock:^(GLMapRouteData *result, NSError *error) {
+    
+    GLMapRouteMode mode;
+    if (_routingMode.selectedSegmentIndex == 0) {
+        mode = GLMapRouteMode_Drive;
+    } else if (_routingMode.selectedSegmentIndex == 1) {
+        mode = GLMapRouteMode_Cycle;
+    } else {
+        mode = GLMapRouteMode_Walk;
+    }
+    
+    GLMapRouteDataCompletionBlock completion = ^(GLMapRouteData *result, NSError *error) {
         if(result){
-            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(255, 0, 0, 255)];
-            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-            [_mapView add:track];
-            GLMapBBox bbox = trackData.bbox;
-            _mapView.mapCenter = GLMapBBoxCenter(bbox);
-            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
-        }else if(error)
-        {
-            [self displayAlertWithTitle:@"Error" message:error.localizedDescription];
+            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 255, 0, 200)];
+            
+            if (_routeTrack)
+                [_routeTrack setTrackData:trackData];
+            else {
+                _routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+                [_mapView add:_routeTrack];
+            }
         }
-    }];
+    };
+    
+    if (_networkMode.selectedSegmentIndex == 0)
+        [GLMapRouteData requestRouteWithPoints:pts count:2 mode:mode locale:@"en" units:GLUnitSystem_International completionBlock:completion];
+    else
+        [GLMapRouteData offlineRequestRouteWithPoints:pts count:2 mode:mode locale:@"en" units:GLUnitSystem_International completionBlock:completion];
 }
 
 // Example how to calcludate zoom level for some bbox

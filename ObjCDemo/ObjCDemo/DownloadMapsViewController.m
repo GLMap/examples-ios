@@ -105,9 +105,9 @@ static bool isOnDevice(GLMapInfo *info)
 -(void) setMaps:(NSArray *)maps
 {
     // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
-    GLMapGeoPoint userLocation = GLMapGeoPointMake(40.7, -73.9);
-    maps = [self sortMaps:maps byDistanceFromLocation:userLocation];
-    //maps = [self sortMapsByName:maps forLocale:@"en"];
+    //GLMapGeoPoint userLocation = GLMapGeoPointMake(40.7, -73.9);
+    //maps = [self sortMaps:maps byDistanceFromLocation:userLocation];
+    maps = [self sortMapsByName:maps forLocale:@"en"];
     
     _allMaps = maps;
     
@@ -208,7 +208,7 @@ static bool isOnDevice(GLMapInfo *info)
 
             GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map];
             if(task){
-                double progress = task ? task.downloaded * 100 / task.total : 0;
+                double progress = task ? task.downloaded * 100.0 / task.total : 0;
                 cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
             } else if(anyDataSetHaveState(map, GLMapInfoState_NeedUpdate)){
                 cell.detailTextLabel.text = @"Update";
@@ -236,7 +236,7 @@ static bool isOnDevice(GLMapInfo *info)
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f %@", sizeInMB, @"MB"];
         }
     }
-    cell.textLabel.text = [map name];
+    cell.textLabel.text = [map nameInLanguage:@"en"];
     return cell;
 }
 
@@ -268,7 +268,6 @@ static bool isOnDevice(GLMapInfo *info)
         }];
     }
 }
-
 
 - (void) tableView:(UITableView *)tView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     GLMapInfo *map = nil;

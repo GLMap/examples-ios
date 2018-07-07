@@ -1,6 +1,5 @@
 {
   "additional_data": {
-    "elevation": "/data/valhalla/elevation/"
   },
   "httpd": {
     "service": {
@@ -11,18 +10,10 @@
   },
   "loki": {
     "actions": [
-      "locate",
-      "route",
-      "height",
-      "sources_to_targets",
-      "optimized_route",
-      "isochrone",
-      "trace_route",
-      "trace_attributes",
-      "transit_available"
+      "route"
     ],
     "logging": {
-      "color": true,
+      "color": false,
       "file_name": "path_to_some_file.log",
       "long_request": 100.0,
       "type": "std_out"
@@ -73,7 +64,7 @@
       "size": 500
     },
     "logging": {
-      "color": true,
+      "color": false,
       "file_name": "path_to_some_file.log",
       "type": "std_out"
     },
@@ -94,7 +85,7 @@
     "admin": "/Users/destman/git/molind/valhalla/valhalla_tiles/admins.sqlite",
     "hierarchy": true,
     "logging": {
-      "color": true,
+      "color": false,
       "file_name": "path_to_some_file.log",
       "type": "std_out"
     },
@@ -106,7 +97,7 @@
   },
   "odin": {
     "logging": {
-      "color": true,
+      "color": false,
       "file_name": "path_to_some_file.log",
       "type": "std_out"
     },
@@ -201,7 +192,7 @@
   },
   "thor": {
     "logging": {
-      "color": true,
+      "color": false,
       "file_name": "path_to_some_file.log",
       "long_request": 110.0,
       "type": "std_out"
