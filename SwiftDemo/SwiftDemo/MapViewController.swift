@@ -26,8 +26,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.OfflineMap: showOfflineMap,
         Demo.EmbeddMap: showEmbedMap,
         Demo.OnlineMap: showOnlineMap,
-        Demo.OnlineRouting: onlineRouting,
-        Demo.OfflineRouting: offlineRouting,
+        Demo.Routing: testRouting,
         Demo.RasterOnlineMap: showRasterOnlineMap,
         Demo.ZoomToBBox: zoomToBBox,
         Demo.OfflineSearch: offlineSearch,
@@ -187,63 +186,93 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    func onlineRouting() {
-        showEmbedMap()
+    var routingMode : UISegmentedControl?
+    var networkMode : UISegmentedControl?
+    var startPoint = GLMapGeoPointMake(53.844720, 27.482352)
+    var endPoint = GLMapGeoPointMake(53.931935, 27.583995)
+    var menuPoint : GLMapGeoPoint?
+    var routeTrack : GLMapTrack?
 
-        let pts = [GLRoutePoint(pt: map.mapGeoCenter, heading: Double.nan, isStop: true),
-                   GLRoutePoint(pt: GLMapGeoPointMake(43, 20), heading: Double.nan, isStop: true)]
+    func testRouting() {
 
-        GLMapRouteData.requestRoute(withPoints: pts, count: pts.count, mode: .drive, locale: "en", units: .international) { (result, error) in
-            if let routeData = result
-            {
-                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255))
-                {
-                    let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
-                    self.map.add(track)
-                    let bbox = trackData.bbox()
-                    self.map.mapCenter = bbox.center
-                    self.map.mapZoom = self.map.mapZoom(for: bbox)
+        routingMode = UISegmentedControl(items: ["Auto", "Bike", "Walk"])
+        routingMode?.selectedSegmentIndex = 0;
+        routingMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
+
+        networkMode = UISegmentedControl(items: ["Online", "Offline"]);
+        networkMode?.selectedSegmentIndex = 0;
+        networkMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
+
+        navigationItem.rightBarButtonItems = [ UIBarButtonItem(customView: routingMode!),
+                                               UIBarButtonItem(customView: networkMode!)]
+        navigationItem.prompt = "Tap on map to select departure and destination points"
+
+        var bbox = GLMapBBox.empty()
+        bbox.addPoint(GLMapPointFromMapGeoPoint(startPoint))
+        bbox.addPoint(GLMapPointFromMapGeoPoint(endPoint))
+        map.mapCenter = bbox.center
+        map.mapZoom = map.mapZoom(for: bbox) / 2
+
+        map.tapGestureBlock = {[weak self] (pt) in
+            if let sself = self {
+                let menu = UIMenuController.shared
+                if !menu.isMenuVisible {
+                    sself.menuPoint = GLMapGeoPointFromMapPoint(sself.map.makeMapPoint(fromDisplay: pt))
+                    sself.becomeFirstResponder()
+                    menu.setTargetRect(CGRect(x: pt.x, y: pt.y, width: 1, height: 1), in: sself.map)
+                    menu.menuItems = [ UIMenuItem.init(title: "Departure", action: #selector(MapViewController.setDeparture)),
+                                       UIMenuItem.init(title: "Destination", action: #selector(MapViewController.setDestination))]
+                    menu.setMenuVisible(true, animated: true)
                 }
             }
         }
+        updateRoute();
     }
 
-    func checkOfflineNavigationData() -> Bool {
-        if let maps = GLMapManager.shared.cachedMaps(){
-            if let info = maps[59065] {
-                return info.sizeOnDisk(forDataSets: .navigation) > 0;
-            }
-        }
-        return false;
+    @objc func setDeparture(){
+        startPoint = menuPoint!;
+        updateRoute()
     }
 
-    func offlineRouting() {
+    @objc func setDestination(){
+        endPoint = menuPoint!;
+        updateRoute()
+    }
 
-        if !checkOfflineNavigationData(){
-            displayAlert("Error", message: "Belarus have no downloaded offline navigation data")
-            return
+    @objc func updateRoute() {
+
+        let pts = [GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true),
+                   GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true)]
+
+
+        var mode = GLMapRouteMode.walk;
+        if (routingMode?.selectedSegmentIndex == 0) {
+            mode = GLMapRouteMode.drive
+        } else if (routingMode?.selectedSegmentIndex == 1) {
+            mode = GLMapRouteMode.cycle
         }
 
-        let pts = [GLRoutePoint(pt: GLMapGeoPointMake(52.093027, 23.685570), heading: Double.nan, isStop: true),
-                   GLRoutePoint(pt: GLMapGeoPointMake(53.907273, 27.552126), heading: Double.nan, isStop: true)]
-        GLMapRouteData.offlineRequestRoute(withPoints: pts, count: pts.count, mode: .drive, locale: "en", units: .international) { (result, error) in
-            if let routeData = result
-            {
-                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255))
-                {
-                    let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
-                    self.map.add(track)
-                    let bbox = trackData.bbox()
-                    self.map.mapCenter = bbox.center
-                    self.map.mapZoom = self.map.mapZoom(for: bbox)
+        let completion = {(result : GLMapRouteData? , error : Error?) in
+            if let routeData = result {
+                if let trackData = routeData.trackData(withColor: GLMapColorMake(255, 0, 0, 255)) {
+                    if let track = self.routeTrack {
+                        track.setTrackData(trackData)
+                    }else
+                    {
+                        let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                        self.map.add(track)
+                        self.routeTrack = track
+                    }
                 }
-            }else if let err = error
-            {
-                self.displayAlert("Error", message: err.localizedDescription)
             }
         }
-    }
 
+        if networkMode?.selectedSegmentIndex == 0 {
+            GLMapRouteData.requestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+        }else {
+            GLMapRouteData.offlineRequestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+        }
+    }
 
     func showOnlineMap() {
         GLMapManager.shared.tileDownloadingAllowed = true

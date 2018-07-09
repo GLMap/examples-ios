@@ -97,58 +97,12 @@
             _mapView.mapGeoCenter = GLMapGeoPointMake(37.3257, -122.0353);
             _mapView.mapZoomLevel = 14;
             break;
-        case Test_Routing: {
-            [self loadEmbedMap];
-            
-            _routingMode = [[UISegmentedControl alloc] initWithItems:@[@"Auto", @"Bike", @"Walk"]];
-            _routingMode.selectedSegmentIndex = 0;
-            [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
-            
-            _networkMode = [[UISegmentedControl alloc] initWithItems:@[@"Online", @"Offline"]];
-            _networkMode.selectedSegmentIndex = 0;
-            [_networkMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
-
-            self.navigationItem.rightBarButtonItems = @[
-                                                        [[UIBarButtonItem alloc] initWithCustomView:_routingMode],
-                                                        [[UIBarButtonItem alloc] initWithCustomView:_networkMode]
-                                                        ];
-            
-            self.navigationItem.prompt = @"Tap on map to select departure and destination points";
-            
-            _startPoint = GLMapGeoPointMake(53.844720, 27.482352);
-            _endPoint = GLMapGeoPointMake(53.931935, 27.583995);
-            
-            GLMapBBox bbox = GLMapBBoxEmpty();
-            bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_startPoint));
-            bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_endPoint));
-            _mapView.mapCenter = GLMapBBoxCenter(bbox);
-            _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
-
-            __weak GLMapView *weakmap = _mapView;
-            __weak MapViewController *wself = self;
-            
-            _mapView.tapGestureBlock = ^(CGPoint pt) {
-                UIMenuController *menu = [UIMenuController sharedMenuController];
-                if (!menu.menuVisible)
-                {
-                    wself.menuPoint = GLMapGeoPointFromMapPoint([weakmap makeMapPointFromDisplayPoint:pt]);
-                    [wself becomeFirstResponder];
-                    [menu setTargetRect:CGRectMake(pt.x, pt.y, 1, 1) inView:weakmap];
-                    menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Departure" action:@selector(setDeparture:)],
-                                        [[UIMenuItem alloc] initWithTitle:@"Destination" action:@selector(setDestination:)]
-                                        ];
-                    [menu setMenuVisible:YES animated:YES];
-                }
-            };
-            
-            [self updateRoute];
+        case Test_Routing:
+            [self testRouting];
             break;
-        }
         case Test_RasterOnlineMap:
-        {
             _mapView.rasterTileSources = @[[[OSMTileSource alloc] init]];
             break;
-        }
         case Test_ZoomToBBox: // zoom to bbox
             [self zoomToBBox];
             break;
@@ -322,6 +276,46 @@
     _mapView.mapZoomLevel = 14;
 }
 
+- (void)testRouting {
+    _routingMode = [[UISegmentedControl alloc] initWithItems:@[@"Auto", @"Bike", @"Walk"]];
+    _routingMode.selectedSegmentIndex = 0;
+    [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
+
+    _networkMode = [[UISegmentedControl alloc] initWithItems:@[@"Online", @"Offline"]];
+    _networkMode.selectedSegmentIndex = 0;
+    [_networkMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
+
+    self.navigationItem.rightBarButtonItems = @[[[UIBarButtonItem alloc] initWithCustomView:_routingMode],
+                                                [[UIBarButtonItem alloc] initWithCustomView:_networkMode]];
+    self.navigationItem.prompt = @"Tap on map to select departure and destination points";
+
+    _startPoint = GLMapGeoPointMake(53.844720, 27.482352);
+    _endPoint = GLMapGeoPointMake(53.931935, 27.583995);
+
+    GLMapBBox bbox = GLMapBBoxEmpty();
+    bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_startPoint));
+    bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_endPoint));
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
+
+    __weak GLMapView *wMap = _mapView;
+    __weak MapViewController *wself = self;
+    _mapView.tapGestureBlock = ^(CGPoint pt) {
+        UIMenuController *menu = [UIMenuController sharedMenuController];
+        if (!menu.menuVisible)
+        {
+            wself.menuPoint = GLMapGeoPointFromMapPoint([wMap makeMapPointFromDisplayPoint:pt]);
+            [wself becomeFirstResponder];
+            [menu setTargetRect:CGRectMake(pt.x, pt.y, 1, 1) inView:wMap];
+            menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Departure" action:@selector(setDeparture:)],
+                                [[UIMenuItem alloc] initWithTitle:@"Destination" action:@selector(setDestination:)]
+                                ];
+            [menu setMenuVisible:YES animated:YES];
+        }
+    };
+    [self updateRoute];
+}
+
 - (void) setDeparture:(id)sender {
     _startPoint = _menuPoint;
     [self updateRoute];
@@ -350,7 +344,6 @@
     GLMapRouteDataCompletionBlock completion = ^(GLMapRouteData *result, NSError *error) {
         if(result){
             GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 255, 0, 200)];
-            
             if (_routeTrack)
                 [_routeTrack setTrackData:trackData];
             else {
@@ -359,7 +352,6 @@
             }
         }
     };
-    
     if (_networkMode.selectedSegmentIndex == 0)
         [GLMapRouteData requestRouteWithPoints:pts count:2 mode:mode locale:@"en" units:GLUnitSystem_International completionBlock:completion];
     else
