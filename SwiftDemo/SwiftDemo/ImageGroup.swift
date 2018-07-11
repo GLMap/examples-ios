@@ -22,7 +22,7 @@ struct Pin {
     }
 }
 
-class ImageGroup : GLMapImageGroupCallback {
+class ImageGroup : GLMapImageGroupDataSource {
     
     let lock : NSRecursiveLock;
     let vairants : Array<UIImage>;

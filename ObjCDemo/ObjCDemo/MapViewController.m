@@ -351,6 +351,10 @@
                 [_mapView add:_routeTrack];
             }
         }
+        
+        if (error) {
+            [self displayAlertWithTitle:@"Routing error" message:[error description]];
+        }
     };
     if (_networkMode.selectedSegmentIndex == 0)
         [GLMapRouteData requestRouteWithPoints:pts count:2 mode:mode locale:@"en" units:GLUnitSystem_International completionBlock:completion];

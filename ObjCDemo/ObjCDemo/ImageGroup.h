@@ -13,7 +13,7 @@
 @property (assign) int imageID;
 @end
 
-@interface ImageGroup : NSObject<GLMapImageGroupCallback>
+@interface ImageGroup : NSObject<GLMapImageGroupDataSource>
 
 -(void) addPin:(Pin *)pin;
 -(void) removePin:(Pin *)pin;
