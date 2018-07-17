@@ -59,10 +59,10 @@ class DownloadMapsViewController: UITableViewController {
     func anyDataSetHaveState(_ info: GLMapInfo, state:GLMapInfoState) -> Bool {
         for i in 0..<GLMapInfoDataSet.count.rawValue {
             if info.state(for: GLMapInfoDataSet.init(rawValue: i)!) == state {
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
     func isOnDevice(_ info: GLMapInfo) -> Bool
@@ -71,18 +71,18 @@ class DownloadMapsViewController: UITableViewController {
             anyDataSetHaveState(info, state: .downloaded) ||
             anyDataSetHaveState(info, state: .needResume) ||
             anyDataSetHaveState(info, state: .needUpdate) ||
-            anyDataSetHaveState(info, state: .removed);
+            anyDataSetHaveState(info, state: .removed)
     }
 
     func setMaps(_ maps: [GLMapInfo]) {
         // Unroll map groups for Africa, Caribbean, and Oceania
-        // maps = [self unrollMapArray:maps];
+        // maps = [self unrollMapArray:maps]
 
         // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
-        let userLocation = GLMapGeoPoint.init(lat: 40.7, lon: -73.9)
-
-        let sortedMaps = sort(maps: maps, byDistanceFrom: userLocation)
-        // let sortedMaps = sort(maps: maps, byNameIn: "en")
+        //let userLocation = GLMapGeoPoint.init(lat: 40.7, lon: -73.9)
+        //let sortedMaps = sort(maps: maps, byDistanceFrom: userLocation)
+        
+        let sortedMaps = sort(maps: maps, byNameIn: "en")
         
         allMaps = sortedMaps
 
@@ -90,7 +90,7 @@ class DownloadMapsViewController: UITableViewController {
         mapsOnServer.removeAll()
 
         for mapInfo in allMaps {
-            let subMaps = mapInfo.subMaps;
+            let subMaps = mapInfo.subMaps
             
             if (subMaps.count != 0){
                 var downloadedSubMaps = 0
@@ -178,7 +178,7 @@ class DownloadMapsViewController: UITableViewController {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
             } else if let task = GLMapManager.shared.downloadTask(forMap: mapInfo) {
-                let progress = Float(task.downloaded) * 100 / Float(task.total);
+                let progress = Float(task.downloaded) * 100 / Float(task.total)
                 cell.detailTextLabel?.text = String.init(format: "Downloading %.2f%%", progress)
                 cell.accessoryType = .none
             } else {
@@ -189,7 +189,7 @@ class DownloadMapsViewController: UITableViewController {
                 }else if anyDataSetHaveState(mapInfo, state: .needUpdate) {
                     cell.detailTextLabel?.text = "Update"
                 }else {
-                    let size = mapInfo.sizeOnDisk(forDataSets: .all);
+                    let size = mapInfo.sizeOnDisk(forDataSets: .all)
                     if size != 0{
                         cell.accessoryView = nil
                         cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(size) / 1000000)
@@ -210,7 +210,7 @@ class DownloadMapsViewController: UITableViewController {
             }
         }
 
-        cell.textLabel?.text = mapInfo.name()
+        cell.textLabel?.text = mapInfo.name(inLanguage: "en")
         //cell.detailTextLabel?.text = row.description
 
         return cell
@@ -256,7 +256,7 @@ class DownloadMapsViewController: UITableViewController {
             if let mapViewController = segue.destination as? DownloadMapsViewController {
                 if let map = sender as? GLMapInfo {
                     mapViewController.setMaps(map.subMaps)
-                    mapViewController.title = map.name()
+                    mapViewController.title = map.name(inLanguage: "en")
                 }
             }
         }
