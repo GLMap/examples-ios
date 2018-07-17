@@ -292,7 +292,7 @@
     _startPoint = GLMapGeoPointMake(53.844720, 27.482352);
     _endPoint = GLMapGeoPointMake(53.931935, 27.583995);
 
-    GLMapBBox bbox = GLMapBBoxEmpty();
+    GLMapBBox bbox = GLMapBBoxEmpty;
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_startPoint));
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_endPoint));
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
@@ -364,7 +364,7 @@
 
 // Example how to calcludate zoom level for some bbox
 - (void) zoomToBBox {
-    GLMapBBox bbox = GLMapBBoxEmpty();
+    GLMapBBox bbox = GLMapBBoxEmpty;
     // Berlin
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102));
     // Minsk
@@ -432,7 +432,7 @@
 -(void) displaySearchResults:(NSArray<GLMapVectorObject *> *)results
 {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addStyleWithImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:0xFFFF0000] ];
+    [style addStyleWithImage: [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"] withScale:0.2 andTintColor:GLMapColorMake(0xFF, 0, 0, 0xFF)] ];
     
     //If marker layer constructed using NSArray with object of any type you need to set markerLocationBlock
     [style setMarkerLocationBlock:^(NSObject * _Nonnull marker) {
@@ -457,7 +457,7 @@
     if(results.count != 0)
     {
         //Calculate bbox
-        GLMapBBox bbox = GLMapBBoxEmpty();
+        GLMapBBox bbox = GLMapBBoxEmpty;
         for(GLMapVectorObject *object in results)
             bbox = GLMapBBoxAddPoint(bbox, object.point);
         
@@ -802,14 +802,14 @@
     
     // Create cascade style that will select style from collection
     GLMapVectorCascadeStyle *cascadeStyle = [GLMapVectorCascadeStyle createStyle:
-              @"node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
-               "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}"
-               "node[count>=4]{icon-image:\"uni2\"; text-priority: 102;}"
-               "node[count>=8]{icon-image:\"uni3\"; text-priority: 103;}"
-               "node[count>=16]{icon-image:\"uni4\"; text-priority: 104;}"
-               "node[count>=32]{icon-image:\"uni5\"; text-priority: 105;}"
-               "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}"
-               "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}"];
+                                             @"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
+                                             "node[count>=2]{icon-image:\"uni1\"; text:eval(tag(\"count\"));}"
+                                             "node[count>=4]{icon-image:\"uni2\";}"
+                                             "node[count>=8]{icon-image:\"uni3\";}"
+                                             "node[count>=16]{icon-image:\"uni4\";}"
+                                             "node[count>=32]{icon-image:\"uni5\";}"
+                                             "node[count>=64]{icon-image:\"uni6\";}"
+                                             "node[count>=128]{icon-image:\"uni7\";}"];
     
     // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -986,7 +986,7 @@
 
 // Example how to calcludate zoom level for some bbox
 - (void) changeBBox {
-    GLMapBBox bbox = GLMapBBoxEmpty();
+    GLMapBBox bbox = GLMapBBoxEmpty;
     // Minsk
     bbox = GLMapBBoxAddPoint(bbox, [GLMapView makeMapPointFromGeoPoint:GLMapGeoPointMake(52.5037, 13.4102)]);
     // Paris
@@ -1248,7 +1248,7 @@
                 return GLMapResourceWithData(data);
             }
             
-            return GLMapResourceEmpty();
+            return GLMapResourceEmpty;
         }];
         
         if (!rv) {
