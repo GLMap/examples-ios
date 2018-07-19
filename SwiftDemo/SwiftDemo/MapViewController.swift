@@ -6,17 +6,17 @@
 //  Copyright © 2016 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
 import GLMap
 import GLMapSwift
+import UIKit
 
 class MapViewController: UIViewController, CLLocationManagerDelegate {
     let map = GLMapView()
-    let downloadButton = UIButton(type:.system)
+    let downloadButton = UIButton(type: .system)
     let locationManager = CLLocationManager()
-    
-    var trackData : GLMapTrackData? = nil
-    var track : GLMapTrack? = nil
+
+    var trackData: GLMapTrackData?
+    var track: GLMapTrack?
 
     typealias Demo = ViewController.Demo
 
@@ -43,19 +43,19 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
         Demo.FlyTo: flyToDemo,
-        Demo.TilesBulkDownload : tilesBulkDownload,
+        Demo.TilesBulkDownload: tilesBulkDownload,
         Demo.StyleReload: styleReloadDemo,
     ]
 
-    var tilesToDownload : Int = 0
+    var tilesToDownload: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
 
-        self.title = "Demo map"
+        title = "Demo map"
 
-        map.frame = self.view.bounds
+        map.frame = view.bounds
         map.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         if CLLocationManager.authorizationStatus() == .notDetermined {
@@ -66,13 +66,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         map.showUserLocation = true
 
-        self.view.addSubview(map)
+        view.addSubview(map)
 
         downloadButton.setTitle("Download Map", for: .normal)
         downloadButton.addTarget(self, action: #selector(MapViewController.downloadButtonTap), for: .touchUpInside)
-        self.view.addSubview(downloadButton)
+        view.addSubview(downloadButton)
 
-        downloadButton.center = self.view.center
+        downloadButton.center = view.center
 
         updateDownloadButton()
 
@@ -80,7 +80,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             self?.updateDownloadButton()
         }
 
-        map.mapDidMoveBlock = { [weak self] (bbox: GLMapBBox) in
+        map.mapDidMoveBlock = { [weak self] (_: GLMapBBox) in
             self?.updateDownloadButtonText()
         }
 
@@ -100,7 +100,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_: Bool) {
         // restore state before next demo
         GLMapManager.shared.tileDownloadingAllowed = false
 
@@ -144,11 +144,10 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
 
             if let map = mapToDownload {
-
                 let title: String
                 if let task = GLMapManager.shared.downloadTask(forMap: map) {
                     let progress = task.downloaded * 100 / task.total
-                    title = String(format:"Downloading %@ %d%%", map.name(), progress)
+                    title = String(format: "Downloading %@ %d%%", map.name(), progress)
                 } else {
                     title = "Download \(map.name())"
                 }
@@ -174,6 +173,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     // MARK: Demo functions
+
     func showOfflineMap() {
         // nonthing to do
     }
@@ -186,15 +186,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    var routingMode : UISegmentedControl?
-    var networkMode : UISegmentedControl?
+    var routingMode: UISegmentedControl?
+    var networkMode: UISegmentedControl?
     var startPoint = GLMapGeoPointMake(53.844720, 27.482352)
     var endPoint = GLMapGeoPointMake(53.931935, 27.583995)
-    var menuPoint : GLMapGeoPoint?
-    var routeTrack : GLMapTrack?
+    var menuPoint: GLMapGeoPoint?
+    var routeTrack: GLMapTrack?
 
     func testRouting() {
-
         routingMode = UISegmentedControl(items: ["Auto", "Bike", "Walk"])
         routingMode?.selectedSegmentIndex = 0
         routingMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
@@ -203,8 +202,10 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         networkMode?.selectedSegmentIndex = 0
         networkMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
 
-        navigationItem.rightBarButtonItems = [ UIBarButtonItem(customView: routingMode!),
-                                               UIBarButtonItem(customView: networkMode!)]
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: routingMode!),
+            UIBarButtonItem(customView: networkMode!),
+        ]
         navigationItem.prompt = "Tap on map to select departure and destination points"
 
         var bbox = GLMapBBox.empty
@@ -213,15 +214,17 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.mapCenter = bbox.center
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
-        map.tapGestureBlock = {[weak self] (pt) in
+        map.tapGestureBlock = { [weak self] pt in
             if let sself = self {
                 let menu = UIMenuController.shared
                 if !menu.isMenuVisible {
                     sself.menuPoint = GLMapGeoPointFromMapPoint(sself.map.makeMapPoint(fromDisplay: pt))
                     sself.becomeFirstResponder()
                     menu.setTargetRect(CGRect(x: pt.x, y: pt.y, width: 1, height: 1), in: sself.map)
-                    menu.menuItems = [ UIMenuItem.init(title: "Departure", action: #selector(MapViewController.setDeparture)),
-                                       UIMenuItem.init(title: "Destination", action: #selector(MapViewController.setDestination))]
+                    menu.menuItems = [
+                        UIMenuItem(title: "Departure", action: #selector(MapViewController.setDeparture)),
+                        UIMenuItem(title: "Destination", action: #selector(MapViewController.setDestination)),
+                    ]
                     menu.setMenuVisible(true, animated: true)
                 }
             }
@@ -229,36 +232,35 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         updateRoute()
     }
 
-    @objc func setDeparture(){
+    @objc func setDeparture() {
         startPoint = menuPoint!
         updateRoute()
     }
 
-    @objc func setDestination(){
+    @objc func setDestination() {
         endPoint = menuPoint!
         updateRoute()
     }
 
     @objc func updateRoute() {
-
-        let pts = [GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true),
-                   GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true)]
-
+        let pts = [
+            GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true),
+            GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true),
+        ]
 
         var mode = GLMapRouteMode.walk
-        if (routingMode?.selectedSegmentIndex == 0) {
+        if routingMode?.selectedSegmentIndex == 0 {
             mode = GLMapRouteMode.drive
-        } else if (routingMode?.selectedSegmentIndex == 1) {
+        } else if routingMode?.selectedSegmentIndex == 1 {
             mode = GLMapRouteMode.cycle
         }
 
-        let completion = {(result : GLMapRouteData? , error : Error?) in
+        let completion = { (result: GLMapRouteData?, error: Error?) in
             if let routeData = result {
-                if let trackData = routeData.trackData(with: GLMapColor(red:50, green:255, blue:0, alpha:200)) {
+                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 255, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
                         track.setTrackData(trackData)
-                    }else
-                    {
+                    } else {
                         let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
                         self.map.add(track)
                         self.routeTrack = track
@@ -272,7 +274,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         if networkMode?.selectedSegmentIndex == 0 {
             GLMapRouteData.requestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
-        }else {
+        } else {
             GLMapRouteData.offlineRequestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         }
     }
@@ -284,7 +286,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func showRasterOnlineMap() {
-        if let osmTileSource = OSMTileSource(cachePath:"/osm.sqlite") {
+        if let osmTileSource = OSMTileSource(cachePath: "/osm.sqlite") {
             map.rasterTileSources = [osmTileSource]
         }
     }
@@ -293,69 +295,69 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         // get pixel coordinates of geo points
         var bbox = GLMapBBox.empty
 
-        bbox.addPoint(GLMapPoint(lat:52.5037, lon:13.4102))
-        bbox.addPoint(GLMapPoint(lat:53.9024, lon:27.5618))
-        
+        bbox.addPoint(GLMapPoint(lat: 52.5037, lon: 13.4102))
+        bbox.addPoint(GLMapPoint(lat: 53.9024, lon: 27.5618))
+
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
         map.mapCenter = bbox.center
         map.mapZoom = map.mapZoom(for: bbox)
     }
-    
+
     var _categories: GLSearchCategories?
     // Return search categories that used to sort search results.
-    func getCategories() -> GLSearchCategories{
-        if(_categories == nil){
-            //To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
+    func getCategories() -> GLSearchCategories {
+        if _categories == nil {
+            // To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
             GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath)
-            
-            //Load preapred categories from biary file.
+
+            // Load preapred categories from biary file.
             _categories = GLSearchCategories(path: Bundle.main.path(forResource: "categories", ofType: "")!)
         }
         return _categories!
     }
-    
+
     func offlineSearch() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
             GLMapManager.shared.addMap(mapPath)
             let center = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
             map.mapGeoCenter = center
-            map.mapZoomLevel  = 14
+            map.mapZoomLevel = 14
 
             let categories = getCategories()
-            
-            //Create new offline search request
+
+            // Create new offline search request
             let searchOffline = GLSearchOffline()
-            //Set search categories
+            // Set search categories
             searchOffline.setCategories(categories)
-            //Set center of search. Objects that is near center will recive bonus while sorting happens
+            // Set center of search. Objects that is near center will recive bonus while sorting happens
             searchOffline.setCenter(GLMapPointMakeFromGeoCoordinates(center.lat, center.lon))
-            //Set maximum number of results. By default is is 100
+            // Set maximum number of results. By default is is 100
             searchOffline.setLimit(20)
-            //Set locale settings. Used to boost results with locales native to user
+            // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
-            
+
             let category = categories.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
-            if(category.count != 0){
+            if category.count != 0 {
                 let name = category[0].localizedName(map.localeSettings)
                 NSLog("Searching %@", name ?? "no name")
                 searchOffline.addCategoryFilter(category[0])
             }
-            //You can add more filters. For example by name
-            //searchOffline.addNameFilter("cali") //Add filter by name
-            
-            searchOffline.start(completionBlock: { (results) in
+            // You can add more filters. For example by name
+            // searchOffline.addNameFilter("cali") //Add filter by name
+
+            searchOffline.start(completionBlock: { results in
                 DispatchQueue.main.async {
                     self.displaySearchResults(results: results)
                 }
             })
         }
     }
-    
-    func displaySearchResults(results : [GLMapVectorObject]) {
+
+    func displaySearchResults(results: [GLMapVectorObject]) {
         let styles = GLMapMarkerStyleCollection()
         styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: GLMapColor(red: 0xFF, green: 0, blue: 0, alpha: 0xFF))!)
 
-        //If marker layer constructed using array with object of any type you need to set markerLocationBlock
+        // If marker layer constructed using array with object of any type you need to set markerLocationBlock
         styles.setMarkerLocationBlock { (marker) -> GLMapPoint in
             if let obj = marker as? GLMapVectorObject {
                 return obj.point
@@ -366,14 +368,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         // Data fill block used to set marker style and text
         // It could work with any user defined object type.
         // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
-        styles.setMarkerDataFill { (marker, data) in
+        styles.setMarkerDataFill { _, data in
             data.setStyle(0)
         }
 
-        let layer = GLMapMarkerLayer(markers: results, andStyles: styles, clusteringRadius:0, drawOrder:2)
+        let layer = GLMapMarkerLayer(markers: results, andStyles: styles, clusteringRadius: 0, drawOrder: 2)
         map.add(layer)
-        
-        if(results.count != 0){
+
+        if results.count != 0 {
             var bbox = GLMapBBox.empty
             for object in results {
                 bbox.addPoint(object.point)
@@ -407,7 +409,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         // we'll just add button for this demo
         let barButton = UIBarButtonItem(title: "Add image", style: .plain, target: self, action: #selector(MapViewController.addImageButtonTap))
 
-        self.navigationItem.rightBarButtonItem = barButton
+        navigationItem.rightBarButtonItem = barButton
 
         addImageButtonTap(barButton)
     }
@@ -423,7 +425,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
                     button.title = "Move image"
                 case "Move image":
-                    map.animate({ (animation) in
+                    map.animate({ _ in
                         self.mapDrawable.position = self.map.mapCenter
                         self.mapDrawable.angle = Float(arc4random_uniform(360))
                     })
@@ -461,35 +463,32 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
 
         map.tapGestureBlock = { [weak self] (point: CGPoint) in
-            
-            if let pins = self?.pins, let map = self?.map{
-                if let pin = pins.findPin(point:point, mapView:map) {
+
+            if let pins = self?.pins, let map = self?.map {
+                if let pin = pins.findPin(point: point, mapView: map) {
                     let menu = UIMenuController.shared
-                    if !menu.isMenuVisible{
+                    if !menu.isMenuVisible {
                         let pinPos = map.makeDisplayPoint(from: pin.position)
                         self?.pinToDelete = pin
                         self?.becomeFirstResponder()
-                        menu.setTargetRect(CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y-20.0), size: CGSize(width: 1, height: 1)), in: map)
+                        menu.setTargetRect(CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)), in: map)
                         menu.menuItems = [UIMenuItem(title: "Delete pin", action: #selector(MapViewController.deletePin))]
                         menu.setMenuVisible(true, animated: true)
                     }
                 }
-            }                        
+            }
         }
     }
 
     override var canBecomeFirstResponder: Bool {
-        get {
-            return true
-        }
+        return true
     }
 
     @objc func addPin() {
-        
         if pins == nil {
             pins = ImageGroup()
         }
-        
+
         if mapImageGroup == nil {
             mapImageGroup = GLMapImageGroup(callback: pins!, andDrawOrder: 3)
             map.add(mapImageGroup!)
@@ -522,23 +521,23 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 let style = GLMapMarkerStyleCollection()
                 style.addStyle(with: image)
 
-                //If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
-                //[GLMapVectorObject point]. So you don't need to set markerLocationBlock.
-                //style.setMarkerLocationBlock()
+                // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
+                // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
+                // style.setMarkerLocationBlock()
 
                 // Data fill block used to set marker style and text
                 // It could work with any user defined object type.
                 // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
-                style.setMarkerDataFill { (marker, data) in
+                style.setMarkerDataFill { _, data in
                     data.setStyle(0)
                 }
 
                 // Load UK postal codes from GeoJSON
-                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
+                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
                     if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         // Put our array of objects into marker layer. It could be any custom array of objects.
                         // Disable clustering in this demo
-                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius:0, drawOrder: 2)
+                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius: 0, drawOrder: 2)
                         // Add marker layer on map
                         map.add(markerLayer)
                         let bbox = objects.bbox
@@ -546,7 +545,6 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                         map.mapZoom = map.mapZoom(for: bbox)
                     }
                 }
-
             }
         }
     }
@@ -555,14 +553,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
             // We use different colours for our clusters
             let tintColors = [
-                GLMapColor(red:33, green:0, blue:255, alpha:255),
-                GLMapColor(red:68, green:195, blue:255, alpha:255),
-                GLMapColor(red:63, green:237, blue:198, alpha:255),
-                GLMapColor(red:15, green:228, blue:36, alpha:255),
-                GLMapColor(red:168, green:238, blue:25, alpha:255),
-                GLMapColor(red:214, green:234, blue:25, alpha:255),
-                GLMapColor(red:223, green:180, blue:19, alpha:255),
-                GLMapColor(red:255, green:0, blue:0, alpha:255)
+                GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
+                GLMapColor(red: 68, green: 195, blue: 255, alpha: 255),
+                GLMapColor(red: 63, green: 237, blue: 198, alpha: 255),
+                GLMapColor(red: 15, green: 228, blue: 36, alpha: 255),
+                GLMapColor(red: 168, green: 238, blue: 25, alpha: 255),
+                GLMapColor(red: 214, green: 234, blue: 25, alpha: 255),
+                GLMapColor(red: 223, green: 180, blue: 19, alpha: 255),
+                GLMapColor(red: 255, green: 0, blue: 0, alpha: 255),
             ]
 
             // Create style collection - it's storage for all images possible to use for markers and clusters
@@ -570,11 +568,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
             // Render possible images from svgpb
             var maxWidth = 0.0
-            for i in 0..<tintColors.count {
+            for i in 0 ..< tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
-                    if(maxWidth < (Double)(image.size.width)){
-                        maxWidth = (Double)(image.size.width)
+                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i]) {
+                    if maxWidth < Double(image.size.width) {
+                        maxWidth = Double(image.size.width)
                     }
                     styleCollection.addStyle(with: image)
                 }
@@ -583,14 +581,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Create style for text
             let textStyle = GLMapVectorStyle.createStyle("{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}")
 
-            //If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
-            //[GLMapVectorObject point]. So you don't need to set markerLocationBlock.
-            //styleCollection.setMarkerLocationBlock()
+            // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
+            // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
+            // styleCollection.setMarkerLocationBlock()
 
             // Data fill block used to set marker style and text
             // It could work with any user defined object type.
             // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
-            styleCollection.setMarkerDataFill { (marker, data) in
+            styleCollection.setMarkerDataFill { marker, data in
                 if let obj = marker as? GLMapVectorObject {
                     data.setStyle(0)
                     if let name = obj.value(forKey: "name") {
@@ -600,23 +598,23 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
 
             // Union fill block used to set style for cluster object. First param is number objects inside the cluster and second is marker object.
-            styleCollection.setMarkerUnionFill({ (markerCount, data) in
+            styleCollection.setMarkerUnionFill({ markerCount, data in
                 // we have 8 marker styles for 1, 2, 4, 8, 16, 32, 64, 128+ markers inside
-                var markerStyle = Int( log2( Double(markerCount) ) )
+                var markerStyle = Int(log2(Double(markerCount)))
                 if markerStyle >= tintColors.count {
-                    markerStyle = tintColors.count-1
+                    markerStyle = tintColors.count - 1
                 }
-                data.setStyle( UInt(markerStyle) )
+                data.setStyle(UInt(markerStyle))
                 data.setText("\(markerCount)", offset: CGPoint.zero, style: textStyle!)
             })
 
             // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
             DispatchQueue.global().async {
-                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
+                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
                     if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
-                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius:maxWidth/2, drawOrder:2)
+                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                         let bbox = objects.bbox
-                        
+
                         DispatchQueue.main.async { [weak self] in
                             if let wself = self {
                                 let map = wself.map
@@ -630,40 +628,40 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
-    
+
     func markerLayerWithMapCSSClustering() {
         if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
             // We use different colours for our clusters
             let tintColors = [
-                GLMapColor(red:33, green:0, blue:255, alpha:255),
-                GLMapColor(red:68, green:195, blue:255, alpha:255),
-                GLMapColor(red:63, green:237, blue:198, alpha:255),
-                GLMapColor(red:15, green:228, blue:36, alpha:255),
-                GLMapColor(red:168, green:238, blue:25, alpha:255),
-                GLMapColor(red:214, green:234, blue:25, alpha:255),
-                GLMapColor(red:223, green:180, blue:19, alpha:255),
-                GLMapColor(red:255, green:0, blue:0, alpha:255)
+                GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
+                GLMapColor(red: 68, green: 195, blue: 255, alpha: 255),
+                GLMapColor(red: 63, green: 237, blue: 198, alpha: 255),
+                GLMapColor(red: 15, green: 228, blue: 36, alpha: 255),
+                GLMapColor(red: 168, green: 238, blue: 25, alpha: 255),
+                GLMapColor(red: 214, green: 234, blue: 25, alpha: 255),
+                GLMapColor(red: 223, green: 180, blue: 19, alpha: 255),
+                GLMapColor(red: 255, green: 0, blue: 0, alpha: 255),
             ]
-            
+
             // Create style collection - it's storage for all images possible to use for markers and clusters
             let styleCollection = GLMapMarkerStyleCollection()
-            
+
             // Render possible images from svgpb
             var maxWidth = 0.0
-            for i in 0..<tintColors.count {
+            for i in 0 ..< tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i] ) {
-                    if(maxWidth<(Double)(image.size.width)){
-                        maxWidth = (Double)(image.size.width)
+                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i]) {
+                    if maxWidth < Double(image.size.width) {
+                        maxWidth = Double(image.size.width)
                     }
                     let styleIndex = styleCollection.addStyle(with: image)
                     styleCollection.setStyleName("uni\(styleIndex)", forStyleIndex: styleIndex)
                 }
             }
-            
+
             // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
             DispatchQueue.global().async {
-                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType:"json") {
+                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
                     if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         if let cascadeStyle = GLMapVectorCascadeStyle.createStyle(
                             "node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}" +
@@ -673,9 +671,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                                 "node[count>=16]{icon-image:\"uni4\"; text-priority: 104;}" +
                                 "node[count>=32]{icon-image:\"uni5\"; text-priority: 105;}" +
                                 "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}" +
-                            "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}") {
-                            
-                            let markerLayer = GLMapMarkerLayer(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection, clusteringRadius:maxWidth/2, drawOrder:2)
+                                "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}") {
+                            let markerLayer = GLMapMarkerLayer(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                             let bbox = objects.bbox
                             DispatchQueue.main.async { [weak self] in
                                 if let wself = self {
@@ -695,17 +692,21 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     func multiLineDemo() {
         let multiline = GLMapVectorObject()
 
-        let line1 = [GLMapGeoPoint(lat: 53.8869, lon: 27.7151), // Minsk
+        let line1 = [
+            GLMapGeoPoint(lat: 53.8869, lon: 27.7151), // Minsk
             GLMapGeoPoint(lat: 50.4339, lon: 30.5186), // Kiev
             GLMapGeoPoint(lat: 52.2251, lon: 21.0103), // Warsaw
             GLMapGeoPoint(lat: 52.5037, lon: 13.4102), // Berlin
-            GLMapGeoPoint(lat: 48.8505, lon: 2.3343)]  // Paris
+            GLMapGeoPoint(lat: 48.8505, lon: 2.3343),
+        ] // Paris
 
         multiline.addGeoLine(line1)
 
-        let line2 = [GLMapGeoPoint(lat: 52.3690, lon: 4.9021), // Amsterdam
+        let line2 = [
+            GLMapGeoPoint(lat: 52.3690, lon: 4.9021), // Amsterdam
             GLMapGeoPoint(lat: 50.8263, lon: 4.3458), // Brussel
-            GLMapGeoPoint(lat: 49.6072, lon: 6.1296)] // Luxembourg
+            GLMapGeoPoint(lat: 49.6072, lon: 6.1296),
+        ] // Luxembourg
 
         multiline.addGeoLine(line2)
 
@@ -717,15 +718,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func polygonDemo() {
-
         func fillPoints(centerPoint: GLMapGeoPoint, radius: Double) -> Array<GLMapGeoPoint> {
             let pointCount = 25
-            let sectorSize = 2*Double.pi / Double(pointCount)
+            let sectorSize = 2 * Double.pi / Double(pointCount)
 
             var circlePoints: Array<GLMapGeoPoint> = []
-            for i in 0..<pointCount {
+            for i in 0 ..< pointCount {
                 circlePoints.append(GLMapGeoPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radius,
-                                                       lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
+                                                  lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
             }
             return circlePoints
         }
@@ -747,21 +747,19 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func geoJsonDemo() {
         if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
-        "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
-        "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}," +
+            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
+            "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}," +
             "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]") {
-
             if let style = GLMapVectorCascadeStyle.createStyle("node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
                 "node|z-9[id=2]{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
                 "line{linecap: round; width: 5pt; color:blue; layer:100;}" +
                 "area{fill-color:green; width:1pt; color:red; layer:100;}") {
-                
-                for i in 0..<objects.count {
+                for i in 0 ..< objects.count {
                     let drawable = GLMapDrawable()
                     drawable.setVectorObject(objects[i], for: map, with: style, completion: nil)
-                    if (i==0) {
+                    if i == 0 {
                         flashObject(object: drawable)
-                    }else {
+                    } else {
                         map.add(drawable)
                     }
                 }
@@ -771,13 +769,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     var flashAdd: Bool = false
     @objc func flashObject(object: GLMapDrawable) {
-        if (flashAdd) {
+        if flashAdd {
             map.add(object)
         } else {
             map.remove(object)
         }
         flashAdd = !flashAdd
-        self.perform(#selector(MapViewController.flashObject), with: object, afterDelay: 1)
+        perform(#selector(MapViewController.flashObject), with: object, afterDelay: 1)
     }
 
     func screenshotDemo() {
@@ -785,8 +783,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.captureFrame { [weak self] (image: UIImage?) in
             if image != nil {
                 NSLog("Image captured \(String(describing: image))")
-                let alert = UIAlertController(title: nil, message: "Image captured \(String(describing: image))", preferredStyle:.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler:nil))
+                let alert = UIAlertController(title: nil, message: "Image captured \(String(describing: image))", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
 
                 self?.present(alert, animated: true, completion: nil)
             }
@@ -796,16 +794,15 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     func fontsDemo() {
         if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON:
             "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 64]}, \"properties\": {\"id\": \"1\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63.6]}, \"properties\": {\"id\": \"2\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 62.3]}, \"properties\": {\"id\": \"3\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 61]}, \"properties\": {\"id\": \"4\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 60]}, \"properties\": {\"id\": \"5\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 58]}, \"properties\": {\"id\": \"6\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 56]}, \"properties\": {\"id\": \"7\"}}," +
-            "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]") {
-            
-                if let style = GLMapVectorCascadeStyle.createStyle(
-                    "node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}" +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63.6]}, \"properties\": {\"id\": \"2\"}}," +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 62.3]}, \"properties\": {\"id\": \"3\"}}," +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 61]}, \"properties\": {\"id\": \"4\"}}," +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 60]}, \"properties\": {\"id\": \"5\"}}," +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 58]}, \"properties\": {\"id\": \"6\"}}," +
+                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 56]}, \"properties\": {\"id\": \"7\"}}," +
+                "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]") {
+            if let style = GLMapVectorCascadeStyle.createStyle(
+                "node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}" +
                     "node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}" +
                     "node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}" +
                     "node[id=4]{text:'Test12';text-color:black;font-size:20;text-priority:100;}" +
@@ -813,13 +810,12 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                     "node[id=6]{text:'Test12';text-color:black;font-size:30;text-priority:100;}" +
                     "node[id=7]{text:'Test12';text-color:black;font-size:35;text-priority:100;}" +
                     "area{fill-color:white; layer:100;}") {
-                    
-                    for i in 0..<objects.count {
-                        let drawable = GLMapDrawable()
-                        drawable.setVectorObject(objects[i], for: map, with: style, completion: nil)
-                        map.add(drawable)
-                    }
+                for i in 0 ..< objects.count {
+                    let drawable = GLMapDrawable()
+                    drawable.setVectorObject(objects[i], for: map, with: style, completion: nil)
+                    map.add(drawable)
                 }
+            }
         }
 
         let testView = UIView(frame: CGRect(x: 350, y: 200, width: 150, height: 200))
@@ -830,7 +826,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         var y: CGFloat = 0.0
 
-        for i in 0...6 {
+        for i in 0 ... 6 {
             let font = UIFont.systemFont(ofSize: CGFloat(i * 5 + 5))
             let lbl = UILabel()
             lbl.text = "Test12"
@@ -857,54 +853,50 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func flyToDemo() {
         let barButton = UIBarButtonItem(title: "Fly", style: .plain, target: self, action: #selector(MapViewController.flyTo))
-        self.navigationItem.rightBarButtonItem = barButton
+        navigationItem.rightBarButtonItem = barButton
 
         GLMapManager.shared.tileDownloadingAllowed = true
 
-        map.animate { (animation) in
+        map.animate { animation in
             self.map.mapZoomLevel = 14
             animation.fly(to: GLMapGeoPoint(lat: 37.3257, lon: -122.0353))
         }
     }
 
     @objc func flyTo() {
-        map.animate { (animation) in
+        map.animate { animation in
             self.map.mapZoomLevel = 14
             let minPt = GLMapGeoPoint(lat: 33, lon: -118)
             let maxPt = GLMapGeoPoint(lat: 48, lon: -85)
             animation.fly(to: GLMapGeoPoint(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
-                                                 lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()))
+                                            lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()))
         }
     }
 
     func styleReloadDemo() {
-        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: self.navigationController!.navigationBar.frame.size.width, height: 21))
+        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: navigationController!.navigationBar.frame.size.width, height: 21))
         textField.placeholder = "Enter style URL"
-        self.navigationItem.titleView = textField
+        navigationItem.titleView = textField
 
         textField.becomeFirstResponder()
 
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(styleReload))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(styleReload))
     }
 
-    func tilesBulkDownload()
-    {
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(startBulkDownload))
+    func tilesBulkDownload() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(startBulkDownload))
         map.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27)
-        map.mapZoom = pow(2,12.5)
+        map.mapZoom = pow(2, 12.5)
     }
 
-    @objc func startBulkDownload()
-    {
+    @objc func startBulkDownload() {
         let bbox = map.bbox
         let manager = GLMapManager.shared
         let allTiles = manager.vectorTiles(at: bbox)
 
         let niceTileGridVisualization = true
-        if (niceTileGridVisualization)
-        {
-            if(allTiles.count > 100000)
-            {
+        if niceTileGridVisualization {
+            if allTiles.count > 100_000 {
                 NSLog("Too many tiles")
                 return
             }
@@ -915,21 +907,20 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             let notDownloadedTiles = GLMapVectorObject()
             let downloadedTiles = GLMapVectorObject()
 
-            for tile in allTiles
-            {
+            for tile in allTiles {
                 let tileBBox = manager.bbox(forTile: tile.uint64Value)
 
-                let pts = [tileBBox.origin,
-                           GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y),
-                           GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y),
-                           GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y),
-                           tileBBox.origin]
+                let pts = [
+                    tileBBox.origin,
+                    GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y),
+                    GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y),
+                    GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y),
+                    tileBBox.origin,
+                ]
 
-                if notCachedTiles.contains(tile)
-                {
+                if notCachedTiles.contains(tile) {
                     notDownloadedTiles.addPolygonOuterRing(pts)
-                }else
-                {
+                } else {
                     downloadedTiles.addPolygonOuterRing(pts)
                 }
             }
@@ -947,8 +938,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         manager.cacheTiles(allTiles) { (tile, error) -> Bool in
             NSLog("Tile downloaded:%llu error:%@", tile, error?.localizedDescription ?? "no error")
             self.tilesToDownload -= 1
-            if(self.tilesToDownload==0)
-            {
+            if self.tilesToDownload == 0 {
                 DispatchQueue.main.async {
                     self.map.reloadTiles()
                 }
@@ -958,12 +948,12 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     @objc func styleReload() {
-        let urlField = self.navigationItem.titleView as! UITextField
+        let urlField = navigationItem.titleView as! UITextField
 
         do {
             let styleData = try Data(contentsOf: URL(string: urlField.text!)!)
             if map.loadStyle({ (name) -> GLMapResource in
-                if (name == "Style.mapcss") {
+                if name == "Style.mapcss" {
                     return GLMapResourceWithData(styleData)
                 }
 
@@ -982,21 +972,21 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
-    
+
     func recordGPSTrack() {
         // we'll forward location back to mapView. I promise.
         locationManager.delegate = self
     }
-    
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         // Forward events to GLMapView
         map.locationManager(manager, didUpdateLocations: locations)
-        
+
         for location in locations {
             let mapPoint = GLMapPointMakeFromGeoCoordinates(location.coordinate.latitude, location.coordinate.longitude)
-            var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red:255, green:255, blue:0, alpha:255))
+            var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
 
             if trackData != nil {
                 trackData = GLMapTrackData(data: trackData!, andNewPoint: trackPoint, startNewSegment: false)
@@ -1004,7 +994,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 trackData = GLMapTrackData(points: &trackPoint, count: 1)
             }
         }
-        
+
         if track == nil {
             track = GLMapTrack(drawOrder: 2, andTrackData: trackData)
             track?.setStyle(GLMapVectorStyle.createStyle("{width:5pt;}"))
@@ -1012,6 +1002,5 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         } else {
             track?.setTrackData(trackData!)
         }
-        
     }
 }

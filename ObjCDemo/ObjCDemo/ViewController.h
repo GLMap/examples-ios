@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-enum Test{
+enum Test {
     Test_OfflineMap,
     Test_EmbeddMap,
     Test_OnlineMap,
@@ -38,4 +38,3 @@ enum Test{
 @interface ViewController : UITableViewController
 
 @end
-

@@ -9,17 +9,17 @@
 #import <GLMap/GLMap.h>
 
 @interface Pin : NSObject
-@property (assign) GLMapPoint pos;
-@property (assign) int imageID;
+@property(assign) GLMapPoint pos;
+@property(assign) int imageID;
 @end
 
-@interface ImageGroup : NSObject<GLMapImageGroupDataSource>
+@interface ImageGroup : NSObject <GLMapImageGroupDataSource>
 
--(void) addPin:(Pin *)pin;
--(void) removePin:(Pin *)pin;
+- (void)addPin:(Pin *)pin;
+- (void)removePin:(Pin *)pin;
 
--(NSUInteger) count;
+- (NSUInteger)count;
 
--(Pin *) pinAtLocation:(CGPoint)pt atMap:(GLMapView *)mapView;
+- (Pin *)pinAtLocation:(CGPoint)pt atMap:(GLMapView *)mapView;
 
 @end

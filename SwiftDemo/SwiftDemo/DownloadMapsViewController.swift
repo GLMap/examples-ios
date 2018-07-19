@@ -6,15 +6,14 @@
 //  Copyright © 2016 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
 import GLMap
 import GLMapSwift
+import UIKit
 
 class DownloadMapsViewController: UITableViewController {
-
     var mapsOnDevice: [GLMapInfo] = [], mapsOnServer: [GLMapInfo] = [], allMaps: [GLMapInfo] = []
 
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_: Bool) {
         if allMaps.count == 0 { // map data could be set during preparing for segue
             if let cachedMapList = GLMapManager.shared.cachedMapList() {
                 setMaps(cachedMapList)
@@ -38,7 +37,7 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    @objc func mapUpdated(notification: Notification) {
+    @objc func mapUpdated(notification _: Notification) {
         setMaps(allMaps)
     }
 
@@ -50,23 +49,22 @@ class DownloadMapsViewController: UITableViewController {
 
     func updateCellForMap(_ map: GLMapInfo) {
         if let index = mapsOnDevice.index(of: map) {
-            tableView.reloadRows(at: [IndexPath.init(row: index, section: 0)], with: .none)
+            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
         } else {
             setMaps(allMaps)
         }
     }
 
-    func anyDataSetHaveState(_ info: GLMapInfo, state:GLMapInfoState) -> Bool {
-        for i in 0..<GLMapInfoDataSet.count.rawValue {
-            if info.state(for: GLMapInfoDataSet.init(rawValue: i)!) == state {
+    func anyDataSetHaveState(_ info: GLMapInfo, state: GLMapInfoState) -> Bool {
+        for i in 0 ..< GLMapInfoDataSet.count.rawValue {
+            if info.state(for: GLMapInfoDataSet(rawValue: i)!) == state {
                 return true
             }
         }
         return false
     }
 
-    func isOnDevice(_ info: GLMapInfo) -> Bool
-    {
+    func isOnDevice(_ info: GLMapInfo) -> Bool {
         return anyDataSetHaveState(info, state: .inProgress) ||
             anyDataSetHaveState(info, state: .downloaded) ||
             anyDataSetHaveState(info, state: .needResume) ||
@@ -79,11 +77,11 @@ class DownloadMapsViewController: UITableViewController {
         // maps = [self unrollMapArray:maps]
 
         // Detect and pass user location there. If there is no location detected yet, just don't sort an array by location. ;)
-        //let userLocation = GLMapGeoPoint.init(lat: 40.7, lon: -73.9)
-        //let sortedMaps = sort(maps: maps, byDistanceFrom: userLocation)
-        
+        // let userLocation = GLMapGeoPoint.init(lat: 40.7, lon: -73.9)
+        // let sortedMaps = sort(maps: maps, byDistanceFrom: userLocation)
+
         let sortedMaps = sort(maps: maps, byNameIn: "en")
-        
+
         allMaps = sortedMaps
 
         mapsOnDevice.removeAll()
@@ -91,8 +89,8 @@ class DownloadMapsViewController: UITableViewController {
 
         for mapInfo in allMaps {
             let subMaps = mapInfo.subMaps
-            
-            if (subMaps.count != 0){
+
+            if subMaps.count != 0 {
                 var downloadedSubMaps = 0
 
                 for subInfo in subMaps {
@@ -114,12 +112,12 @@ class DownloadMapsViewController: UITableViewController {
             }
         }
 
-        self.tableView.reloadData()
+        tableView.reloadData()
     }
 
     func sort(maps: [GLMapInfo], byDistanceFrom location: GLMapGeoPoint) -> [GLMapInfo] {
         return maps.sorted(by: { (a: GLMapInfo, b: GLMapInfo) -> Bool in
-            return a.distance(from: location) < b.distance(from: location)
+            a.distance(from: location) < b.distance(from: location)
         })
     }
 
@@ -145,11 +143,11 @@ class DownloadMapsViewController: UITableViewController {
 
     // MARK: Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in _: UITableView) -> Int {
         return 2
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
             return "Maps on device"
         } else {
@@ -157,7 +155,7 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return mapsOnDevice.count
         } else {
@@ -166,34 +164,32 @@ class DownloadMapsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let identifier = "MapCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
 
         let mapInfo: GLMapInfo
         if indexPath.section == 0 {
-
             mapInfo = mapsOnDevice[indexPath.row]
             if mapInfo.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
             } else if let task = GLMapManager.shared.downloadTask(forMap: mapInfo) {
                 let progress = Float(task.downloaded) * 100 / Float(task.total)
-                cell.detailTextLabel?.text = String.init(format: "Downloading %.2f%%", progress)
+                cell.detailTextLabel?.text = String(format: "Downloading %.2f%%", progress)
                 cell.accessoryType = .none
             } else {
                 cell.accessoryType = .none
 
-                if anyDataSetHaveState(mapInfo, state: .needResume){
+                if anyDataSetHaveState(mapInfo, state: .needResume) {
                     cell.detailTextLabel?.text = "Resume"
-                }else if anyDataSetHaveState(mapInfo, state: .needUpdate) {
+                } else if anyDataSetHaveState(mapInfo, state: .needUpdate) {
                     cell.detailTextLabel?.text = "Update"
-                }else {
+                } else {
                     let size = mapInfo.sizeOnDisk(forDataSets: .all)
-                    if size != 0{
+                    if size != 0 {
                         cell.accessoryView = nil
-                        cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(size) / 1000000)
-                    }else {
+                        cell.detailTextLabel?.text = String(format: "%.2f MB", Double(size) / 1_000_000)
+                    } else {
                         cell.detailTextLabel?.text = nil
                     }
                 }
@@ -206,12 +202,12 @@ class DownloadMapsViewController: UITableViewController {
                 cell.detailTextLabel?.text = nil
             } else {
                 cell.accessoryType = .none
-                cell.detailTextLabel?.text = String.init(format: "%.2f MB", Double(mapInfo.sizeOnServer(forDataSets: .all)) / 1000000)
+                cell.detailTextLabel?.text = String(format: "%.2f MB", Double(mapInfo.sizeOnServer(forDataSets: .all)) / 1_000_000)
             }
         }
 
         cell.textLabel?.text = mapInfo.name(inLanguage: "en")
-        //cell.detailTextLabel?.text = row.description
+        // cell.detailTextLabel?.text = row.description
 
         return cell
     }
@@ -242,7 +238,7 @@ class DownloadMapsViewController: UITableViewController {
             GLMapManager.shared.downloadDataSets(.all, forMap: map, withCompletionBlock: { (task: GLMapDownloadTask) in
                 if let error = task.error as NSError? {
                     NSLog("Map downloading error: \(error)")
-                    //CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
+                    // CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
                     if error.domain == "CURL" && error.code == 28 {
                         self.startDownloadingMap(map, retryCount: 2)
                     }
@@ -262,7 +258,7 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+    override func tableView(_: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
         if indexPath.section == 0 {
             let map = mapsOnDevice[indexPath.row]
 
@@ -273,7 +269,7 @@ class DownloadMapsViewController: UITableViewController {
         return .none
     }
 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let map = mapsOnDevice[indexPath.row]
 

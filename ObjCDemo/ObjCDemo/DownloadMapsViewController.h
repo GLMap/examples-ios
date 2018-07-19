@@ -8,12 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DownloadMapsViewController : UITableViewController
-{
+@interface DownloadMapsViewController : UITableViewController {
     NSArray *_allMaps;
     NSMutableArray *_mapsOnDevice, *_mapsOnServer;
 }
 
--(void) setMaps:(NSArray *)maps;
+- (void)setMaps:(NSArray *)maps;
 
 @end
