@@ -14,10 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-
-        // FIXME: set apikey from https://user.getyourmap.com/apps
-        GLMapManager.shared.apiKey = UserDefaults.standard.string(forKey: "apiKey")
+        // Insert your API key from https://user.getyourmap.com/apps
+        GLMapManager.shared.apiKey = <#API key#>
         return true
     }
 }

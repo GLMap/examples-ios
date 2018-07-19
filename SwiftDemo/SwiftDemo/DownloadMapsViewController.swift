@@ -55,21 +55,8 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    func anyDataSetHaveState(_ info: GLMapInfo, state: GLMapInfoState) -> Bool {
-        for i in 0 ..< GLMapInfoDataSet.count.rawValue {
-            if info.state(for: GLMapInfoDataSet(rawValue: i)!) == state {
-                return true
-            }
-        }
-        return false
-    }
-
-    func isOnDevice(_ info: GLMapInfo) -> Bool {
-        return anyDataSetHaveState(info, state: .inProgress) ||
-            anyDataSetHaveState(info, state: .downloaded) ||
-            anyDataSetHaveState(info, state: .needResume) ||
-            anyDataSetHaveState(info, state: .needUpdate) ||
-            anyDataSetHaveState(info, state: .removed)
+    func isOnDevice(_ map: GLMapInfo) -> Bool {
+        return map.state(for: .map) != .notDownloaded || map.state(for: .navigation) != .notDownloaded
     }
 
     func setMaps(_ maps: [GLMapInfo]) {
@@ -87,8 +74,8 @@ class DownloadMapsViewController: UITableViewController {
         mapsOnDevice.removeAll()
         mapsOnServer.removeAll()
 
-        for mapInfo in allMaps {
-            let subMaps = mapInfo.subMaps
+        for map in allMaps {
+            let subMaps = map.subMaps
 
             if subMaps.count != 0 {
                 var downloadedSubMaps = 0
@@ -100,15 +87,15 @@ class DownloadMapsViewController: UITableViewController {
                 }
 
                 if downloadedSubMaps > 0 {
-                    mapsOnDevice.append(mapInfo)
+                    mapsOnDevice.append(map)
                 }
                 if downloadedSubMaps != subMaps.count {
-                    mapsOnServer.append(mapInfo)
+                    mapsOnServer.append(map)
                 }
-            } else if isOnDevice(mapInfo) {
-                mapsOnDevice.append(mapInfo)
+            } else if isOnDevice(map) {
+                mapsOnDevice.append(map)
             } else {
-                mapsOnServer.append(mapInfo)
+                mapsOnServer.append(map)
             }
         }
 
@@ -167,25 +154,25 @@ class DownloadMapsViewController: UITableViewController {
         let identifier = "MapCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
 
-        let mapInfo: GLMapInfo
+        let map: GLMapInfo
         if indexPath.section == 0 {
-            mapInfo = mapsOnDevice[indexPath.row]
-            if mapInfo.subMaps.count > 0 {
+            map = mapsOnDevice[indexPath.row]
+            if map.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
-            } else if let task = GLMapManager.shared.downloadTask(forMap: mapInfo) {
+            } else if let task = GLMapManager.shared.downloadTask(forMap: map) {
                 let progress = Float(task.downloaded) * 100 / Float(task.total)
                 cell.detailTextLabel?.text = String(format: "Downloading %.2f%%", progress)
                 cell.accessoryType = .none
             } else {
                 cell.accessoryType = .none
 
-                if anyDataSetHaveState(mapInfo, state: .needResume) {
+                if map.haveState(.needResume, inDataSets: .all) {
                     cell.detailTextLabel?.text = "Resume"
-                } else if anyDataSetHaveState(mapInfo, state: .needUpdate) {
+                } else if map.haveState(.needUpdate, inDataSets: .all) {
                     cell.detailTextLabel?.text = "Update"
                 } else {
-                    let size = mapInfo.sizeOnDisk(forDataSets: .all)
+                    let size = map.sizeOnDisk(forDataSets: .all)
                     if size != 0 {
                         cell.accessoryView = nil
                         cell.detailTextLabel?.text = String(format: "%.2f MB", Double(size) / 1_000_000)
@@ -195,38 +182,38 @@ class DownloadMapsViewController: UITableViewController {
                 }
             }
         } else {
-            mapInfo = mapsOnServer[indexPath.row]
+            map = mapsOnServer[indexPath.row]
 
-            if mapInfo.subMaps.count > 0 {
+            if map.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
             } else {
                 cell.accessoryType = .none
-                cell.detailTextLabel?.text = String(format: "%.2f MB", Double(mapInfo.sizeOnServer(forDataSets: .all)) / 1_000_000)
+                cell.detailTextLabel?.text = String(format: "%.2f MB", Double(map.sizeOnServer(forDataSets: .all)) / 1_000_000)
             }
         }
 
-        cell.textLabel?.text = mapInfo.name(inLanguage: "en")
+        cell.textLabel?.text = map.name(inLanguage: "en")
         // cell.detailTextLabel?.text = row.description
 
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let mapInfo: GLMapInfo
+        let map: GLMapInfo
         if indexPath.section == 0 {
-            mapInfo = mapsOnDevice[indexPath.row]
+            map = mapsOnDevice[indexPath.row]
         } else {
-            mapInfo = mapsOnServer[indexPath.row]
+            map = mapsOnServer[indexPath.row]
         }
 
-        if mapInfo.subMaps.count > 0 {
-            performSegue(withIdentifier: "OpenSubmap", sender: mapInfo)
+        if map.subMaps.count > 0 {
+            performSegue(withIdentifier: "OpenSubmap", sender: map)
         } else {
-            if let downloadTask = GLMapManager.shared.downloadTask(forMap: mapInfo) {
+            if let downloadTask = GLMapManager.shared.downloadTask(forMap: map) {
                 downloadTask.cancel()
             } else {
-                startDownloadingMap(mapInfo, retryCount: 3)
+                startDownloadingMap(map, retryCount: 3)
             }
         }
 
