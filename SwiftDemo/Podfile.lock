@@ -1,24 +1,36 @@
 PODS:
-  - GLMap (0.9.7):
-    - GLMap+DefaultStyle
-    - GLMap+DynamicLib (= 0.9.7)
-    - GLMap+WorldMap
-  - GLMap+DefaultStyle (1.0.1)
-  - GLMap+DynamicLib (0.9.7)
-  - GLMap+WorldMap (18.01)
-  - GLMapSwift (0.9.7):
-    - GLMap (= 0.9.7)
+  - GLMap (0.9.9):
+    - "GLMap+DefaultStyle"
+    - "GLMap+DynamicLib (= 0.9.9)"
+    - "GLMap+ICUData (= 61.1)"
+    - "GLMap+WorldMap"
+  - "GLMap+DefaultStyle (1.0.4)"
+  - "GLMap+DynamicLib (0.9.9)"
+  - "GLMap+ICUData (61.1)"
+  - "GLMap+WorldMap (18.01)"
+  - GLMapSwift (0.9.9):
+    - GLMap (= 0.9.9)
 
 DEPENDENCIES:
   - GLMapSwift
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - GLMap
+    - "GLMap+DefaultStyle"
+    - "GLMap+DynamicLib"
+    - "GLMap+ICUData"
+    - "GLMap+WorldMap"
+    - GLMapSwift
+
 SPEC CHECKSUMS:
-  GLMap: 787ed186cc7272ec37433e7554f2a1287ec7f039
-  GLMap+DefaultStyle: 9ef0a9e75ac251dca2b2c1b34d847a7e90d9deb4
-  GLMap+DynamicLib: 35af24724d59e30f08e262a577b0f01aff4a0dbe
-  GLMap+WorldMap: 1114e69ca800a1ca6f911599331462ef29419c86
-  GLMapSwift: 5d205ce2bcdbc0d27030a31e4cb37e7cf8814387
+  GLMap: a793f5473a716e61c64ba97bc97df840efbd2ae7
+  "GLMap+DefaultStyle": fa089bb873daecb9965a2ee7db56c4345ed307bd
+  "GLMap+DynamicLib": 7dd770eea3260d88330db74ca3f5c1de0176b2a6
+  "GLMap+ICUData": 6ed37e07a60014e4a10f5f3b7c94267c68475e5c
+  "GLMap+WorldMap": 1114e69ca800a1ca6f911599331462ef29419c86
+  GLMapSwift: aba0c83d693ea60f6cc48f2c2c0fb36a46b92412
 
 PODFILE CHECKSUM: 1162096d0dd0129d9f844a7876ab99c6c1bea662
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.3

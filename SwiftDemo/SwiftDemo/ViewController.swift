@@ -6,16 +6,15 @@
 //  Copyright © 2016 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
 import GLMapSwift
+import UIKit
 
 class ViewController: UITableViewController {
-
     public enum Demo {
         case OfflineMap
         case EmbeddMap
         case OnlineMap
-        case OnlineRouting
+        case Routing
         case RasterOnlineMap
         case ZoomToBBox
         case OfflineSearch
@@ -46,7 +45,7 @@ class ViewController: UITableViewController {
         init(_ id: Demo, name: String) {
             self.id = id
             self.name = name
-            self.description = nil
+            description = nil
         }
 
         init(_ id: Demo, name: String, description: String) {
@@ -56,42 +55,43 @@ class ViewController: UITableViewController {
         }
     }
 
-    var tableRows = [TableRow(.OfflineMap, name:"Open offline map"),
-                     TableRow(.EmbeddMap, name:"Open embedd map"),
-                     TableRow(.OnlineMap, name:"Open online map", description:"Downloads tiles one by one"),
-                     TableRow(.OnlineRouting, name:"Online routing"),
-                     TableRow(.RasterOnlineMap, name:"Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
+    var tableRows = [
+        TableRow(.OfflineMap, name: "Open offline map"),
+        TableRow(.EmbeddMap, name: "Open embedd map"),
+        TableRow(.OnlineMap, name: "Open online map", description: "Downloads tiles one by one"),
+        TableRow(.Routing, name: "Routing", description: "Offline routing requires downloaded navigation data"),
+        TableRow(.RasterOnlineMap, name: "Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
 
-                     TableRow(.ZoomToBBox, name:"Zoom to bbox"),
-                     TableRow(.OfflineSearch, name:"Offline search"),
-                     TableRow(.Notifications, name:"Notification test"),
-                     TableRow(.SingleImage, name:"GLMapDrawable demo", description:"For one pin or any other image"),
-                     TableRow(.MultiImage, name:"GLMapImageGroup demo", description:"For large set of pins with smaller set of images"),
+        TableRow(.ZoomToBBox, name: "Zoom to bbox"),
+        TableRow(.OfflineSearch, name: "Offline search"),
+        TableRow(.Notifications, name: "Notification test"),
+        TableRow(.SingleImage, name: "GLMapDrawable demo", description: "For one pin or any other image"),
+        TableRow(.MultiImage, name: "GLMapImageGroup demo", description: "For large set of pins with smaller set of images"),
 
-                     TableRow(.MarkerLayer, name:"GLMapMarkerLayer demo"),
-                     TableRow(.MarkerLayerWithClustering, name:"GLMapMarkerLayer with clustering"),
-                     TableRow(.MarkerLayerWithMapCSSClustering, name:"GLMapMarkerLayer with MapCSS clustering"),
+        TableRow(.MarkerLayer, name: "GLMapMarkerLayer demo"),
+        TableRow(.MarkerLayerWithClustering, name: "GLMapMarkerLayer with clustering"),
+        TableRow(.MarkerLayerWithMapCSSClustering, name: "GLMapMarkerLayer with MapCSS clustering"),
 
-                     TableRow(.Track, name:"GPS track recording"),
-                     TableRow(.MultiLine, name:"Add multiline"),
+        TableRow(.Track, name: "GPS track recording"),
+        TableRow(.MultiLine, name: "Add multiline"),
 
-                     TableRow(.Polygon, name:"Add polygon"),
-                     TableRow(.GeoJSON, name:"Load GeoJSON"),
-                     TableRow(.Screenshot, name:"Take screenshot"),
-                     TableRow(.Fonts, name:"Fonts"),
-                     TableRow(.FlyTo, name:"Fly to"),
+        TableRow(.Polygon, name: "Add polygon"),
+        TableRow(.GeoJSON, name: "Load GeoJSON"),
+        TableRow(.Screenshot, name: "Take screenshot"),
+        TableRow(.Fonts, name: "Fonts"),
+        TableRow(.FlyTo, name: "Fly to"),
 
-                     TableRow(.TilesBulkDownload, name:"Tiles bulk download"),
-                     TableRow(.StyleReload, name:"Style live reload"),
+        TableRow(.TilesBulkDownload, name: "Tiles bulk download"),
+        TableRow(.StyleReload, name: "Style live reload"),
 
-                     TableRow(.DownloadMap, name:"Download offline map")
+        TableRow(.DownloadMap, name: "Download offline map"),
     ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-        self.title = "GLMap examples"
+        title = "GLMap examples"
     }
 
     override func didReceiveMemoryWarning() {
@@ -99,13 +99,13 @@ class ViewController: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 
-// MARK: Table view data source
+    // MARK: Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in _: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return tableRows.count
     }
 
@@ -125,9 +125,9 @@ class ViewController: UITableViewController {
         let row = tableRows[indexPath.row]
 
         if row.id == Demo.DownloadMap {
-            self.performSegue(withIdentifier: "DownloadMaps", sender: nil)
+            performSegue(withIdentifier: "DownloadMaps", sender: nil)
         } else {
-            self.performSegue(withIdentifier: "Map", sender: row.id)
+            performSegue(withIdentifier: "Map", sender: row.id)
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
