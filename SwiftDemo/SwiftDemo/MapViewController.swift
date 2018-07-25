@@ -192,8 +192,28 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     var endPoint = GLMapGeoPointMake(53.931935, 27.583995)
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
+    var valhallaConfig: String?
 
     func testRouting() {
+        // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
+        guard let stylePath = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle") else {
+            NSLog("Can't find DefaultStyle.bundle in resources")
+            return
+        }
+        map.loadStyle(fromPaths: [stylePath, Bundle.main.bundlePath])
+        
+        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
+            NSLog("Can't find valhalla.json in resources")
+            return
+        }
+        
+        do {
+            valhallaConfig = try String.init(contentsOfFile: valhallaConfigPath)
+        } catch {
+            NSLog("Can't read contents of valhalla.json")
+            return
+        }
+        
         routingMode = UISegmentedControl(items: ["Auto", "Bike", "Walk"])
         routingMode?.selectedSegmentIndex = 0
         routingMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
@@ -257,11 +277,12 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         let completion = { (result: GLMapRouteData?, error: Error?) in
             if let routeData = result {
-                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 255, blue: 0, alpha: 200)) {
+                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
                         track.setTrackData(trackData)
                     } else {
                         let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                        track.setStyle(GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svgpb\";}"))
                         self.map.add(track)
                         self.routeTrack = track
                     }
@@ -275,7 +296,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         if networkMode?.selectedSegmentIndex == 0 {
             GLMapRouteData.requestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         } else {
-            GLMapRouteData.offlineRequestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+            GLMapRouteData.offlineRequestRoute(withConfig: valhallaConfig!, points: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         }
     }
 

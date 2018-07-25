@@ -33,6 +33,7 @@
     UISegmentedControl *_routingMode, *_networkMode;
     GLMapGeoPoint _startPoint, _endPoint, _menuPoint;
     GLMapTrack *_routeTrack;
+    NSString *_valhallaConfig;
 }
 
 - (void)viewDidLoad {
@@ -293,6 +294,14 @@
 }
 
 - (void)testRouting {
+    NSError *error = nil;
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
+    
+    if (error) {
+        NSLog(@"Can't load valhalla.json");
+        return;
+    }
+    
     _routingMode = [[UISegmentedControl alloc] initWithItems:@[ @"Auto", @"Bike", @"Walk" ]];
     _routingMode.selectedSegmentIndex = 0;
     [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
@@ -314,6 +323,9 @@
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
 
+    // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
+    [_mapView loadStyleFromPaths:@[[[NSBundle mainBundle] pathForResource:@"DefaultStyle" ofType:@"bundle"], [[NSBundle mainBundle] bundlePath]]];
+    
     __weak GLMapView *wMap = _mapView;
     __weak MapViewController *wself = self;
     _mapView.tapGestureBlock = ^(CGPoint pt) {
@@ -356,11 +368,12 @@
 
     GLMapRouteDataCompletionBlock completion = ^(GLMapRouteData *result, NSError *error) {
       if (result) {
-          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 255, 0, 200)];
+          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
           if (_routeTrack)
               [_routeTrack setTrackData:trackData];
           else {
               _routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+              [_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
               [_mapView add:_routeTrack];
           }
       }
@@ -377,7 +390,8 @@
                                          units:GLUnitSystem_International
                                completionBlock:completion];
     else
-        [GLMapRouteData offlineRequestRouteWithPoints:pts
+        [GLMapRouteData offlineRequestRouteWithConfig:_valhallaConfig
+                                               points:pts
                                                 count:2
                                                  mode:mode
                                                locale:@"en"
