@@ -347,7 +347,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             let categories = getCategories()
 
             // Create new offline search request
-            let searchOffline = GLSearchOffline()
+            let searchOffline = GLSearch()
             // Set search categories
             searchOffline.setCategories(categories)
             // Set center of search. Objects that is near center will recive bonus while sorting happens
