@@ -8,6 +8,8 @@
 
 import GLMap
 import GLMapSwift
+import GLRoute
+import GLSearch
 import UIKit
 
 class MapViewController: UIViewController, CLLocationManagerDelegate {
@@ -275,7 +277,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             mode = GLMapRouteMode.cycle
         }
 
-        let completion = { (result: GLMapRouteData?, error: Error?) in
+        let completion = { (result: GLRoute?, error: Error?) in
             if let routeData = result {
                 if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
@@ -294,9 +296,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
 
         if networkMode?.selectedSegmentIndex == 0 {
-            GLMapRouteData.requestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+            GLRoute.request(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         } else {
-            GLMapRouteData.offlineRequestRoute(withConfig: valhallaConfig!, points: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+            GLRoute.offlineRequest(withConfig: valhallaConfig!, points: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         }
     }
 
@@ -324,19 +326,6 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.mapZoom = map.mapZoom(for: bbox)
     }
 
-    var _categories: GLSearchCategories?
-    // Return search categories that used to sort search results.
-    func getCategories() -> GLSearchCategories {
-        if _categories == nil {
-            // To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
-            GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath)
-
-            // Load preapred categories from biary file.
-            _categories = GLSearchCategories(path: Bundle.main.path(forResource: "categories", ofType: "")!)
-        }
-        return _categories!
-    }
-
     func offlineSearch() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
             GLMapManager.shared.addMap(mapPath)
@@ -344,12 +333,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             map.mapGeoCenter = center
             map.mapZoomLevel = 14
 
-            let categories = getCategories()
-
             // Create new offline search request
             let searchOffline = GLSearch()
-            // Set search categories
-            searchOffline.setCategories(categories)
             // Set center of search. Objects that is near center will recive bonus while sorting happens
             searchOffline.setCenter(GLMapPointMakeFromGeoCoordinates(center.lat, center.lon))
             // Set maximum number of results. By default is is 100
@@ -357,7 +342,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
-            let category = categories.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
+            let category = GLSearchCategories.shared.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
             if category.count != 0 {
                 let name = category[0].localizedName(map.localeSettings)
                 NSLog("Searching %@", name ?? "no name")

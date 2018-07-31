@@ -26,7 +26,6 @@
 		6C780D0721088724008410F6 /* track-arrow.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D0521088724008410F6 /* track-arrow.svgpb */; };
 		6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196A1E0D515500FBCF75 /* cluster_data.json */; };
 		6CB9196D1E0D515500FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196B1E0D515500FBCF75 /* cluster.svgpb */; };
-		6CCEFCD91F30CCF5005BB149 /* categories in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD71F30CCF5005BB149 /* categories */; };
 		6CEA4E231FF4D9F900AC3758 /* ImageGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */; };
 		F437D9F2453A898A43665EE5 /* Pods_SwiftDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 638C036C602B69428C6D4223 /* Pods_SwiftDemo.framework */; };
 /* End PBXBuildFile section */
@@ -55,7 +54,6 @@
 		6C780D0521088724008410F6 /* track-arrow.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = "track-arrow.svgpb"; path = "../../../Resources/track-arrow.svgpb"; sourceTree = "<group>"; };
 		6CB9196A1E0D515500FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196B1E0D515500FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
-		6CCEFCD71F30CCF5005BB149 /* categories */ = {isa = PBXFileReference; lastKnownFileType = file; name = categories; path = ../../../Resources/categories; sourceTree = "<group>"; };
 		6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGroup.swift; sourceTree = "<group>"; };
 		F2083E390792CB74631D51FD /* Pods-SwiftDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -119,7 +117,6 @@
 		6C6C26171DDDF1540060A241 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				6CCEFCD71F30CCF5005BB149 /* categories */,
 				6CB9196A1E0D515500FBCF75 /* cluster_data.json */,
 				6C780D0421088724008410F6 /* valhalla.json */,
 				6C6C261E1DDDF1540060A241 /* pin1.png */,
@@ -210,7 +207,6 @@
 				6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */,
 				6C6C262A1DDDF1540060A241 /* pin1.png in Resources */,
 				6C6C25681DD9F5F80060A241 /* LaunchScreen.storyboard in Resources */,
-				6CCEFCD91F30CCF5005BB149 /* categories in Resources */,
 				6CB9196D1E0D515500FBCF75 /* cluster.svgpb in Resources */,
 				6C6C26291DDDF1540060A241 /* Montenegro.vm in Resources */,
 				6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */,
@@ -253,13 +249,17 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh",
-				"${PODS_ROOT}/GLMap+DynamicLib/GLMap.framework",
+				"${PODS_ROOT}/GLMap/GLMap.framework",
 				"${BUILT_PRODUCTS_DIR}/GLMapSwift/GLMapSwift.framework",
+				"${PODS_ROOT}/GLRoute/GLRoute.framework",
+				"${PODS_ROOT}/GLSearch/GLSearch.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMapSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLRoute.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLSearch.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -275,14 +275,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-resources.sh",
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
-				"${PODS_ROOT}/GLMap+ICUData/icudt61l.dat",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DefaultStyle.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt61l.dat",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

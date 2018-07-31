@@ -3,4 +3,6 @@ use_frameworks!
 
 target 'SwiftDemo' do
     pod 'GLMapSwift'
+    pod 'GLSearch'
+    pod 'GLRoute'
 end

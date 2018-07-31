@@ -28,7 +28,6 @@
 		6C780D03210886F4008410F6 /* track-arrow.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D02210886F4008410F6 /* track-arrow.svgpb */; };
 		6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196E1E0D516100FBCF75 /* cluster_data.json */; };
 		6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196F1E0D516100FBCF75 /* cluster.svgpb */; };
-		6CCEFCD51F30CCBB005BB149 /* categories in Resources */ = {isa = PBXBuildFile; fileRef = 6CCEFCD31F30CCBB005BB149 /* categories */; };
 		6CD8B21C1FF4D27D00321F9B /* ImageGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD8B21A1FF4D27D00321F9B /* ImageGroup.m */; };
 /* End PBXBuildFile section */
 
@@ -62,7 +61,6 @@
 		6C780D02210886F4008410F6 /* track-arrow.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = "track-arrow.svgpb"; path = "../../../Resources/track-arrow.svgpb"; sourceTree = "<group>"; };
 		6CB9196E1E0D516100FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196F1E0D516100FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
-		6CCEFCD31F30CCBB005BB149 /* categories */ = {isa = PBXFileReference; lastKnownFileType = file; name = categories; path = ../../../Resources/categories; sourceTree = "<group>"; };
 		6CD8B21A1FF4D27D00321F9B /* ImageGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageGroup.m; sourceTree = "<group>"; };
 		6CD8B21B1FF4D27D00321F9B /* ImageGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageGroup.h; sourceTree = "<group>"; };
 		E439A1F90C707DA765D3D5E8 /* Pods-ObjCDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo.debug.xcconfig"; sourceTree = "<group>"; };
@@ -134,7 +132,6 @@
 		6C6C25FE1DDDF0520060A241 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				6CCEFCD31F30CCBB005BB149 /* categories */,
 				6CB9196E1E0D516100FBCF75 /* cluster_data.json */,
 				6C780D00210886EE008410F6 /* valhalla.json */,
 				6C6C26051DDDF0520060A241 /* pin1.png */,
@@ -178,7 +175,6 @@
 				6C6C25B31DDA04840060A241 /* Sources */,
 				6C6C25B41DDA04840060A241 /* Frameworks */,
 				6C6C25B51DDA04840060A241 /* Resources */,
-				3E26EDB10E6B1FA9FDA72A49 /* [CP] Embed Pods Frameworks */,
 				F5CA6D59D9C0BB5155F295E8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -232,7 +228,6 @@
 				6C6C26141DDDF0520060A241 /* pin2@2x.png in Resources */,
 				6C6C26111DDDF0520060A241 /* pin1.png in Resources */,
 				6C6C25CA1DDA04840060A241 /* LaunchScreen.storyboard in Resources */,
-				6CCEFCD51F30CCBB005BB149 /* categories in Resources */,
 				6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */,
 				6C6C26101DDDF0520060A241 /* Montenegro.vm in Resources */,
 				6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */,
@@ -250,24 +245,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		3E26EDB10E6B1FA9FDA72A49 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh",
-				"${PODS_ROOT}/GLMap+DynamicLib/GLMap.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		4815B531C1164D53672AC25E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -295,15 +272,17 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-resources.sh",
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
-				"${PODS_ROOT}/GLMap+ICUData/icudt61l.dat",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
+				"${PODS_ROOT}/GLSearchStatic/icudt61l.dat",
+				"${PODS_ROOT}/GLSearchStatic/categories",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DefaultStyle.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt61l.dat",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt61l.dat",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/categories",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
