@@ -8,6 +8,8 @@
 
 import GLMap
 import GLMapSwift
+import GLRoute
+import GLSearch
 import UIKit
 
 class MapViewController: UIViewController, CLLocationManagerDelegate {
@@ -192,8 +194,28 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     var endPoint = GLMapGeoPointMake(53.931935, 27.583995)
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
+    var valhallaConfig: String?
 
     func testRouting() {
+        // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
+        guard let stylePath = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle") else {
+            NSLog("Can't find DefaultStyle.bundle in resources")
+            return
+        }
+        map.loadStyle(fromPaths: [stylePath, Bundle.main.bundlePath])
+        
+        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
+            NSLog("Can't find valhalla.json in resources")
+            return
+        }
+        
+        do {
+            valhallaConfig = try String.init(contentsOfFile: valhallaConfigPath)
+        } catch {
+            NSLog("Can't read contents of valhalla.json")
+            return
+        }
+        
         routingMode = UISegmentedControl(items: ["Auto", "Bike", "Walk"])
         routingMode?.selectedSegmentIndex = 0
         routingMode?.addTarget(self, action: #selector(MapViewController.updateRoute), for: .valueChanged)
@@ -255,13 +277,14 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             mode = GLMapRouteMode.cycle
         }
 
-        let completion = { (result: GLMapRouteData?, error: Error?) in
+        let completion = { (result: GLRoute?, error: Error?) in
             if let routeData = result {
-                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 255, blue: 0, alpha: 200)) {
+                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
                         track.setTrackData(trackData)
                     } else {
                         let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
+                        track.setStyle(GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svgpb\";}"))
                         self.map.add(track)
                         self.routeTrack = track
                     }
@@ -273,9 +296,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         }
 
         if networkMode?.selectedSegmentIndex == 0 {
-            GLMapRouteData.requestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+            GLRoute.request(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         } else {
-            GLMapRouteData.offlineRequestRoute(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
+            GLRoute.offlineRequest(withConfig: valhallaConfig!, points: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
         }
     }
 
@@ -303,19 +326,6 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.mapZoom = map.mapZoom(for: bbox)
     }
 
-    var _categories: GLSearchCategories?
-    // Return search categories that used to sort search results.
-    func getCategories() -> GLSearchCategories {
-        if _categories == nil {
-            // To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
-            GLSearchCategories.setCollationDataLocation(Bundle.main.bundlePath)
-
-            // Load preapred categories from biary file.
-            _categories = GLSearchCategories(path: Bundle.main.path(forResource: "categories", ofType: "")!)
-        }
-        return _categories!
-    }
-
     func offlineSearch() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
             GLMapManager.shared.addMap(mapPath)
@@ -323,12 +333,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             map.mapGeoCenter = center
             map.mapZoomLevel = 14
 
-            let categories = getCategories()
-
             // Create new offline search request
-            let searchOffline = GLSearchOffline()
-            // Set search categories
-            searchOffline.setCategories(categories)
+            let searchOffline = GLSearch()
             // Set center of search. Objects that is near center will recive bonus while sorting happens
             searchOffline.setCenter(GLMapPointMakeFromGeoCoordinates(center.lat, center.lon))
             // Set maximum number of results. By default is is 100
@@ -336,7 +342,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
-            let category = categories.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
+            let category = GLSearchCategories.shared.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
             if category.count != 0 {
                 let name = category[0].localizedName(map.localeSettings)
                 NSLog("Searching %@", name ?? "no name")

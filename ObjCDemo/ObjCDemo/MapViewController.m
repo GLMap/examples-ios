@@ -8,6 +8,8 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import <GLMap/GLMap.h>
+#import <GLRoute/GLRoute.h>
+#import <GLSearch/GLSearch.h>
 
 #import "DownloadMapsViewController.h"
 #import "MapViewController.h"
@@ -24,8 +26,6 @@
 
     CLLocationManager *_locationManager;
 
-    GLSearchCategories *_categories;
-
     GLMapTrackData *_trackData;
     GLMapTrack *_track;
 
@@ -33,6 +33,7 @@
     UISegmentedControl *_routingMode, *_networkMode;
     GLMapGeoPoint _startPoint, _endPoint, _menuPoint;
     GLMapTrack *_routeTrack;
+    NSString *_valhallaConfig;
 }
 
 - (void)viewDidLoad {
@@ -293,6 +294,14 @@
 }
 
 - (void)testRouting {
+    NSError *error = nil;
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
+    
+    if (error) {
+        NSLog(@"Can't load valhalla.json");
+        return;
+    }
+    
     _routingMode = [[UISegmentedControl alloc] initWithItems:@[ @"Auto", @"Bike", @"Walk" ]];
     _routingMode.selectedSegmentIndex = 0;
     [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
@@ -314,6 +323,9 @@
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
 
+    // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
+    [_mapView loadStyleFromPaths:@[[[NSBundle mainBundle] pathForResource:@"DefaultStyle" ofType:@"bundle"], [[NSBundle mainBundle] bundlePath]]];
+    
     __weak GLMapView *wMap = _mapView;
     __weak MapViewController *wself = self;
     _mapView.tapGestureBlock = ^(CGPoint pt) {
@@ -354,13 +366,14 @@
         mode = GLMapRouteMode_Walk;
     }
 
-    GLMapRouteDataCompletionBlock completion = ^(GLMapRouteData *result, NSError *error) {
+    GLRouteCompletionBlock completion = ^(GLRoute *result, NSError *error) {
       if (result) {
-          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 255, 0, 200)];
+          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
           if (_routeTrack)
               [_routeTrack setTrackData:trackData];
           else {
               _routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+              [_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
               [_mapView add:_routeTrack];
           }
       }
@@ -370,14 +383,15 @@
       }
     };
     if (_networkMode.selectedSegmentIndex == 0)
-        [GLMapRouteData requestRouteWithPoints:pts
+        [GLRoute requestRouteWithPoints:pts
                                          count:2
                                           mode:mode
                                         locale:@"en"
                                          units:GLUnitSystem_International
                                completionBlock:completion];
     else
-        [GLMapRouteData offlineRequestRouteWithPoints:pts
+        [GLRoute offlineRequestRouteWithConfig:_valhallaConfig
+                                               points:pts
                                                 count:2
                                                  mode:mode
                                                locale:@"en"
@@ -397,18 +411,6 @@
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
 }
 
-// Return search categories that used to sort search results.
-- (GLSearchCategories *)getCategories {
-    if (_categories == nil) {
-        // To compare string GLMap use ICU. It needs collation data (icudtXXl.dat). You can place this line in main.m
-        [GLSearchCategories setCollationDataLocation:[NSBundle mainBundle].bundlePath];
-
-        // Load preapred categories from biary file.
-        _categories = [[GLSearchCategories alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"categories" ofType:@""]];
-    }
-    return _categories;
-}
-
 - (void)offlineSearch {
     // Offline search works only with offline maps. Online tiles does not contains search index
     [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
@@ -419,11 +421,8 @@
     _mapView.mapGeoCenter = center;
     _mapView.mapZoomLevel = 14;
 
-    GLSearchCategories *categories = [self getCategories];
     // Create new offline search request
-    GLSearchOffline *searchOffline = [[GLSearchOffline alloc] init];
-    // Set search categories
-    searchOffline.categories = categories;
+    GLSearch *searchOffline = [[GLSearch alloc] init];
     // Set center of search. Objects that is near center will recive bonus while sorting happens
     searchOffline.center = GLMapPointMakeFromGeoCoordinates(center.lat, center.lon);
     // Set maximum number of results. By default is is 100
@@ -432,7 +431,7 @@
     searchOffline.localeSettings = _mapView.localeSettings;
 
     NSArray<GLSearchCategory *> *category =
-        [categories categoriesStartedWith:@[ @"food" ] localeSettings:_mapView.localeSettings]; // find categories by name
+        [GLSearchCategories.sharedCategories categoriesStartedWith:@[ @"food" ] localeSettings:_mapView.localeSettings]; // find categories by name
     if (category.count != 0) {
         NSString *name = [category[0] localizedName:_mapView.localeSettings];
         NSLog(@"Searching %@", name);
