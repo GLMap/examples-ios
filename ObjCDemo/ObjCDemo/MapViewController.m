@@ -544,17 +544,14 @@
 }
 
 - (void)loadImageAtURL:(NSURL *)url intoDrawable:(GLMapDrawable *)drawable {
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                             if (data) {
-                                 UIImage *img = [UIImage imageWithData:data];
-                                 if (img) {
-                                     [drawable setImage:img forMapView:_mapView completion:nil];
-                                 }
-                             }
-                           }];
+    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (data) {
+            UIImage *img = [UIImage imageWithData:data];
+            if (img) {
+                [drawable setImage:img forMapView:_mapView completion:nil];
+            }
+        }
+    }] resume];
 }
 
 #pragma mark Add/move/remove image
@@ -576,7 +573,7 @@
         int32_t tileSize = GLMapPointMax / tilesForZoom;
 
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        drawable.useTransform = YES;
+        drawable.transformMode = GLMapTransformMode_Custom;
         drawable.rotatesWithMap = YES;
         drawable.scale = GLMapPointMax / (tilesForZoom * 256);
         drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
@@ -605,7 +602,7 @@
         int32_t tileSize = GLMapPointMax / tilesForZoom;
 
         GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
-        drawable.useTransform = YES;
+        drawable.transformMode = GLMapTransformMode_Custom;
         drawable.rotatesWithMap = YES;
         drawable.scale = GLMapPointMax / (tilesForZoom * 256);
         drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
