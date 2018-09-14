@@ -414,12 +414,67 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         // we'll just add button for this demo
         let barButton = UIBarButtonItem(title: "Add image", style: .plain, target: self, action: #selector(MapViewController.addImageButtonTap))
-
         navigationItem.rightBarButtonItem = barButton
-
-        addImageButtonTap(barButton)
+        addImageButtonTap(barButton);
+        
+        drawableImage()
+        drawableImageWithDrawOrder()
     }
 
+    func drawableImage() {
+        // original tile url is https://tile.openstreetmap.org/3/4/2.png
+        // we'll show how to calculate it's position on map in GLMapPoints
+        let tilePosZ:Int32 = 3, tilePosX:Int32 = 4, tilePosY:Int32 = 2
+        
+        // world size divided to number of tiles at this zoom level
+        let tilesForZoom : Int32 = 1 << tilePosZ
+        let tileSize = GLMapPointMax / tilesForZoom;
+        
+        // Drawables created using default constructor is added on map as polygon with layer:0; and z-index:0;
+        let drawable = GLMapDrawable()
+        drawable.transformMode = .custom
+        drawable.rotatesWithMap = true
+        drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
+        drawable.position = GLMapPoint(x: Double(tileSize * tilePosX), y: Double((tilesForZoom - tilePosY - 1) * tileSize))
+        map.add(drawable)
+        
+        if let url = URL(string: "https://tile.openstreetmap.org/3/4/2.png") {
+            loadImage(atUrl: url, intoDrawable: drawable)
+        }
+    }
+    
+    func drawableImageWithDrawOrder() {
+        // original tile url is https://tile.openstreetmap.org/3/4/3.png
+        // we'll show how to calculate it's position on map in GLMapPoints
+        let tilePosZ:Int32 = 3, tilePosX:Int32 = 4, tilePosY:Int32 = 3
+        
+        // world size divided to number of tiles at this zoom level
+        let tilesForZoom : Int32 = 1 << tilePosZ
+        let tileSize = GLMapPointMax / tilesForZoom;
+        
+        // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
+        let drawable = GLMapDrawable(drawOrder:0)
+        drawable.transformMode = .custom
+        drawable.rotatesWithMap = true
+        drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
+        drawable.position = GLMapPoint(x: Double(tileSize * tilePosX), y: Double((tilesForZoom - tilePosY - 1) * tileSize))
+        map.add(drawable)
+        
+        if let url = URL(string: "https://tile.openstreetmap.org/3/4/3.png") {
+            loadImage(atUrl: url, intoDrawable: drawable)
+        }
+    }
+    
+    func loadImage(atUrl url:URL, intoDrawable drawable:GLMapDrawable) {
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if let data = data {
+                if let image = UIImage(data: data) {
+                    drawable.setImage(image, for: self.map, completion: nil)
+                }
+            }
+        }.resume()
+    }
+    
     @objc func addImageButtonTap(_ sender: Any) {
         if let button = sender as? UIBarButtonItem {
             if let title = button.title {
