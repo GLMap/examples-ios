@@ -919,7 +919,7 @@
     [multilineData addObject:data];
 
     // style applied to all lines added. Style is string with mapcss rules. Read more in manual.
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true;width: 2pt;color:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width:2pt; color:green;}"];
 
     // All user geometry objects should be drawn trough GLMapVectorObject
     // To load data faster we use NSArray of NSData. Each NSData contains GLMapPoints of one line. Allocate buffers first, then load it
@@ -1204,14 +1204,14 @@
         GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
         [downloaded setVectorObject:downloadedTiles
                          forMapView:_mapView
-                          withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:green;}"]
+                          withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:green;}"]
                          completion:nil];
         [_mapView add:downloaded];
 
         GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
         [notDownloaded setVectorObject:notDownloadedTiles
                             forMapView:_mapView
-                             withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"]
+                             withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:red;}"]
                             completion:nil];
         [_mapView add:notDownloaded];
     }
