@@ -548,7 +548,7 @@
         if (data) {
             UIImage *img = [UIImage imageWithData:data];
             if (img) {
-                [drawable setImage:img forMapView:_mapView completion:nil];
+                [drawable setImage:img forMapView:self->_mapView completion:nil];
             }
         }
     }] resume];
