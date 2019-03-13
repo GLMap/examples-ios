@@ -176,7 +176,7 @@
 
         // Move map to the San Francisco
         [_mapView animate:^(GLMapAnimation *_Nonnull animation) {
-          _mapView.mapZoomLevel = 14;
+          self->_mapView.mapZoomLevel = 14;
           [animation flyToGeoPoint:GLMapGeoPointMake(37.3257, -122.0353)];
         }];
         [GLMapManager sharedManager].tileDownloadingAllowed = YES;
@@ -369,12 +369,12 @@
     GLRouteCompletionBlock completion = ^(GLRoute *result, NSError *error) {
       if (result) {
           GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
-          if (_routeTrack)
-              [_routeTrack setTrackData:trackData];
+          if (self->_routeTrack)
+              [self->_routeTrack setTrackData:trackData];
           else {
-              _routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-              [_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
-              [_mapView add:_routeTrack];
+              self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+              [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
+              [self->_mapView add:self->_routeTrack];
           }
       }
 
@@ -433,7 +433,7 @@
     NSArray<GLSearchCategory *> *category =
         [GLSearchCategories.sharedCategories categoriesStartedWith:@[ @"food" ] localeSettings:_mapView.localeSettings]; // find categories by name
     if (category.count != 0) {
-        NSString *name = [category[0] localizedName:_mapView.localeSettings];
+        NSString *name = [category[0] localizedName:_mapView.localeSettings].asString;
         NSLog(@"Searching %@", name);
         [searchOffline addFilter:[[GLSearchFilter alloc] initWithCategory:category[0]]]; // Filter results by category
     }
@@ -648,8 +648,8 @@
         [_mapView animate:^(GLMapAnimation *animation) {
           [animation setTransition:GLMapTransitionEaseInOut];
           [animation setDuration:1];
-          _mapImage.position = _mapView.mapCenter;
-          _mapImage.angle = arc4random_uniform(360);
+          self->_mapImage.position = self->_mapView.mapCenter;
+          self->_mapImage.angle = arc4random_uniform(360);
         }];
     }
 }
@@ -812,9 +812,9 @@
                                                                clusteringRadius:maxSize / 2
                                                                       drawOrder:2];
       dispatch_async(dispatch_get_main_queue(), ^{
-        [_mapView add:layer];
-        _mapView.mapCenter = GLMapBBoxCenter(bbox);
-        _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+        [self->_mapView add:layer];
+        self->_mapView.mapCenter = GLMapBBoxCenter(bbox);
+        self->_mapView.mapZoom = [self->_mapView mapZoomForBBox:bbox];
       });
     });
 }
@@ -851,7 +851,7 @@
       // marker - is an object from markers array.
       GLMapVectorObject *obj = (GLMapVectorObject *)marker;
       GLMapMarkerSetStyle(data, 0);
-      NSString *name = [obj valueForKey:@"name"];
+      NSString *name = [obj valueForKey:@"name"].asString;
       if (name) {
           GLMapMarkerSetText(data, name, CGPointMake(0, 7), textStyle);
       }
@@ -879,9 +879,9 @@
           [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection clusteringRadius:maxWidth / 2 drawOrder:2];
 
       dispatch_async(dispatch_get_main_queue(), ^{
-        [_mapView add:layer];
-        _mapView.mapCenter = GLMapBBoxCenter(bbox);
-        _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+        [self->_mapView add:layer];
+        self->_mapView.mapCenter = GLMapBBoxCenter(bbox);
+        self->_mapView.mapZoom = [self->_mapView mapZoomForBBox:bbox];
       });
     });
 }
@@ -1105,31 +1105,20 @@
 }
 
 - (void)loadMultiPolygonGeoJSON {
-    /*GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
                         "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
                         "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
 
+    GLMapBBox bbox = GLMapBBoxEmpty;
     for(NSUInteger i=0; i<objects.count; ++i){
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
         [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
         [_mapView add:drawable];
-    }*/
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
-
-    GLMapVectorObject *object = [[GLMapVectorObject alloc] init];
-    GLMapPoint pts[] = {
-        GLMapPointMake(243035994, 647535200), GLMapPointMake(243083218, 647435388), GLMapPointMake(242801528, 647435388),
-        GLMapPointMake(242560431, 647526125), GLMapPointMake(242241458, 647414221), GLMapPointMake(242274598, 647493859),
-    };
-    [object addPolygonOuterRing:pts pointCount:6];
-
-    GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-    [drawable setVectorObject:object forMapView:_mapView withStyle:style completion:nil];
-    [_mapView add:drawable];
-
-    GLMapBBox bbox = [object bbox];
+        bbox = objects[i].bbox;
+    }
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
 }
@@ -1150,7 +1139,7 @@
 
 - (void)flyTo:(id)sender {
     [_mapView animate:^(GLMapAnimation *animation) {
-      _mapView.mapZoomLevel = 14;
+      self->_mapView.mapZoomLevel = 14;
       GLMapGeoPoint minPt = GLMapGeoPointMake(33, -118), maxPt = GLMapGeoPointMake(48, -85);
       [animation flyToGeoPoint:GLMapGeoPointMake(minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
                                                  minPt.lon + (maxPt.lon - minPt.lon) * drand48())];
@@ -1223,7 +1212,7 @@
             count--;
             if (count == 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                  [_mapView reloadTiles];
+                  [self->_mapView reloadTiles];
                 });
             }
             return YES;
