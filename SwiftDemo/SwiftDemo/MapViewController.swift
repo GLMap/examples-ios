@@ -346,7 +346,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if category.count != 0 {
                 let name = category[0].localizedName(map.localeSettings)
                 NSLog("Searching %@", name ?? "no name")
-                searchOffline.addCategoryFilter(category[0])
+                searchOffline.add(GLSearchFilter(category: category[0]))
             }
             // You can add more filters. For example by name
             // searchOffline.addNameFilter("cali") //Add filter by name
@@ -987,11 +987,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
 
             let downloaded = GLMapDrawable(drawOrder: 4)
-            downloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{galileo-fast-draw:true;width: 2pt; color:green;}")!, completion: nil)
+            downloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
             map.add(downloaded)
 
             let notDownloaded = GLMapDrawable(drawOrder: 5)
-            notDownloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{galileo-fast-draw:true;width: 2pt; color:red;}")!, completion: nil)
+            notDownloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
             map.add(notDownloaded)
         }
 

@@ -435,7 +435,7 @@
     if (category.count != 0) {
         NSString *name = [category[0] localizedName:_mapView.localeSettings];
         NSLog(@"Searching %@", name);
-        [searchOffline addCategoryFilter:category[0]]; // Filter results by category
+        [searchOffline addFilter:[[GLSearchFilter alloc] initWithCategory:category[0]]]; // Filter results by category
     }
 
     // You can add more filters. For example by name
@@ -548,7 +548,7 @@
         if (data) {
             UIImage *img = [UIImage imageWithData:data];
             if (img) {
-                [drawable setImage:img forMapView:_mapView completion:nil];
+                [drawable setImage:img forMapView:self->_mapView completion:nil];
             }
         }
     }] resume];
@@ -919,7 +919,7 @@
     [multilineData addObject:data];
 
     // style applied to all lines added. Style is string with mapcss rules. Read more in manual.
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true;width: 2pt;color:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width:2pt; color:green;}"];
 
     // All user geometry objects should be drawn trough GLMapVectorObject
     // To load data faster we use NSArray of NSData. Each NSData contains GLMapPoints of one line. Allocate buffers first, then load it
@@ -1055,7 +1055,7 @@
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, "
                                                           @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue;}"];
     for (NSUInteger i = 0; i < objects.count; ++i) {
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
@@ -1067,7 +1067,7 @@
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, "
                                                           @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:true; width: 4pt; color:green;}"];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"];
     for (NSUInteger i = 0; i < objects.count; ++i) {
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
@@ -1082,7 +1082,7 @@
                                 "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
                                 " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
     GLMapVectorCascadeStyle *style =
-        [GLMapVectorCascadeStyle createStyle:@"line{galileo-fast-draw:false; linecap: round; width: 5pt; color:blue;}"];
+        [GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"];
     for (NSUInteger i = 0; i < objects.count; ++i) {
         GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
         [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
@@ -1204,14 +1204,14 @@
         GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
         [downloaded setVectorObject:downloadedTiles
                          forMapView:_mapView
-                          withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:green;}"]
+                          withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:green;}"]
                          completion:nil];
         [_mapView add:downloaded];
 
         GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
         [notDownloaded setVectorObject:notDownloadedTiles
                             forMapView:_mapView
-                             withStyle:[GLMapVectorCascadeStyle createStyle:@"area{galileo-fast-draw:true;width: 2pt; color:red;}"]
+                             withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:red;}"]
                             completion:nil];
         [_mapView add:notDownloaded];
     }
