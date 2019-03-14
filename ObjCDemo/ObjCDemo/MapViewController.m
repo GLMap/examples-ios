@@ -210,11 +210,9 @@
                                                   "node[id=6]{text:'Test12';text-color:black;font-size:60;text-priority:100;}"
                                                   "area{fill-color:white; layer:100;}"];
 
-        for (NSUInteger i = 0; i < objects.count; ++i) {
-            GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-            [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-            [_mapView add:drawable];
-        }
+        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+        [drawable setVectorObjects:objects withStyle:style completion:nil];
+        [_mapView add:drawable];
 
         UIView *testView = [[UIView alloc] initWithFrame:CGRectMake(350, 200, 150, 200)];
         UIView *testView2 = [[UIView alloc] initWithFrame:CGRectMake(200, 200, 150, 200)];
@@ -572,7 +570,7 @@
         int tilesForZoom = (1 << tilePosZ);
         int32_t tileSize = GLMapPointMax / tilesForZoom;
 
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
+        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
         drawable.transformMode = GLMapTransformMode_Custom;
         drawable.rotatesWithMap = YES;
         drawable.scale = GLMapPointMax / (tilesForZoom * 256);
@@ -584,11 +582,10 @@
 
     // Drawable can draw a text
     {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable
-               setText:@"Text2"
-             withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
-            completion:nil];
+        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+        [drawable setText:@"Text2"
+                withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
+               completion:nil];
         drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
         [_mapView add:drawable];
     }
@@ -928,7 +925,7 @@
     [vectorObject loadGeoMultiLine:multilineData];
 
     GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
-    [drawable setVectorObject:vectorObject forMapView:_mapView withStyle:style completion:nil];
+    [drawable setVectorObject:vectorObject withStyle:style completion:nil];
     [_mapView add:drawable];
 }
 
@@ -969,7 +966,7 @@
     [vectorObject loadGeoPolygon:@[ outerRings, innerRings ]];
 
     GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:4];
-    [drawable setVectorObject:vectorObject forMapView:_mapView withStyle:style completion:nil];
+    [drawable setVectorObject:vectorObject withStyle:style completion:nil];
     [_mapView add:drawable];
 
     _mapView.mapGeoCenter = centerPoint;
@@ -1009,6 +1006,12 @@
     [self performSelector:@selector(flashObject:) withObject:image afterDelay:1.0];
 }
 
+- (void)zoomToObjects:(GLMapVectorObjectArray *)objects{
+    GLMapBBox bbox = objects.bbox;
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+}
+
 - (void)loadGeoJSONWithCSSStyle {
     GLMapVectorObjectArray *objects = [GLMapVectorObject
         createVectorObjectsFromGeoJSON:@"[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, "
@@ -1028,113 +1031,96 @@
                                               "line{linecap: round; width: 5pt; color:blue;}"
                                               "area{fill-color:green; width:1pt; color:red;}"];
 
-    GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-    [drawable setVectorObject:objects[0] forMapView:_mapView withStyle:style completion:nil];
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObject:objects[0] withStyle:style completion:nil];
     [self flashObject:drawable];
+    [objects removeObjectAtIndex:0];
 
-    for (NSUInteger i = 1; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+    drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects withStyle:style completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadPointGeoJSON {
-    GLMapVectorObjectArray *objects =
-        [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
-    GLMapVectorCascadeStyle *style =
-        [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"];
-    for (NSUInteger i = 0; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects
+                     withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadMultiPointGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, "
                                                           @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue;}"];
-    for (NSUInteger i = 0; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects
+                     withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue; text-priority:100;}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadLineStringGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, "
                                                           @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"];
-    for (NSUInteger i = 0; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects
+                     withStyle:[GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
-- (void)loadMultiLineStringGeoJSON {
-    GLMapVectorObjectArray *objects =
-        [GLMapVectorObject createVectorObjectsFromGeoJSON:
-                               @"{\"type\":\"MultiLineString\",\"coordinates\":"
-                                "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
-                                " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
-    GLMapVectorCascadeStyle *style =
-        [GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"];
-    for (NSUInteger i = 0; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+- (void)loadMultiLineStringGeoJSON
+{
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
+                                       @"{\"type\":\"MultiLineString\",\"coordinates\":"
+                                       "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
+                                       " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
+
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects
+                     withStyle:[GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadPolygonGeoJSON {
-    GLMapVectorObjectArray *objects =
-        [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Polygon\",\"coordinates\":"
-                                                           "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
-                                                           " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
-
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"];
-    for (NSUInteger i = 0; i < objects.count; ++i) {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-    }
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
+                                       @"{\"type\":\"Polygon\",\"coordinates\":"
+                                       "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
+                                       " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadMultiPolygonGeoJSON {
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"];
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
                         "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
                         "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
 
-    GLMapBBox bbox = GLMapBBoxEmpty;
-    for(NSUInteger i=0; i<objects.count; ++i){
-        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-        [drawable setVectorObject:objects[i] forMapView:_mapView withStyle:style completion:nil];
-        [_mapView add:drawable];
-        bbox = objects[i].bbox;
-    }
-    _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+    [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"] completion:nil];
+    [_mapView add:drawable];
+    [self zoomToObjects:objects];
 }
 
 - (void)loadGeoJSON {
-    //[self loadGeoJSONWithCSSStyle];
-
-    /*[self loadPointGeoJSON];
-     [self loadMultiPointGeoJSON];
-
-     [self loadLineStringGeoJSON];
-     [self loadMultiLineStringGeoJSON];
-
-     [self loadPolygonGeoJSON];
-     */
-    [self loadMultiPolygonGeoJSON];
+    [self loadGeoJSONWithCSSStyle];
+    //[self loadPointGeoJSON];
+    //[self loadMultiPointGeoJSON];
+    //[self loadLineStringGeoJSON];
+    //[self loadMultiLineStringGeoJSON];
+    //[self loadPolygonGeoJSON];
+    //[self loadMultiPolygonGeoJSON];
 }
 
 - (void)flyTo:(id)sender {
@@ -1192,14 +1178,12 @@
 
         GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
         [downloaded setVectorObject:downloadedTiles
-                         forMapView:_mapView
                           withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:green;}"]
                          completion:nil];
         [_mapView add:downloaded];
 
         GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
         [notDownloaded setVectorObject:notDownloadedTiles
-                            forMapView:_mapView
                              withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:red;}"]
                             completion:nil];
         [_mapView add:notDownloaded];
