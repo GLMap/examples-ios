@@ -1113,8 +1113,24 @@
     [self zoomToObjects:objects];
 }
 
+- (void)loadGeoJSONPostcode {
+    NSError *error = nil;
+    NSString *geojson = [NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"uk_postcodes" ofType:@"geojson"] encoding:NSUTF8StringEncoding error:&error];
+    if (geojson) {
+        GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:geojson];
+        
+        if (objects) {
+            GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+            [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
+            [_mapView add:drawable];
+            [self zoomToObjects:objects];
+        }
+    }
+}
+
 - (void)loadGeoJSON {
-    [self loadGeoJSONWithCSSStyle];
+    [self loadGeoJSONPostcode];
+    //[self loadGeoJSONWithCSSStyle];
     //[self loadPointGeoJSON];
     //[self loadMultiPointGeoJSON];
     //[self loadLineStringGeoJSON];
