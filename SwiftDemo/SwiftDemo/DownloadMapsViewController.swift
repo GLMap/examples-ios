@@ -48,7 +48,7 @@ class DownloadMapsViewController: UITableViewController {
     }
 
     func updateCellForMap(_ map: GLMapInfo) {
-        if let index = mapsOnDevice.index(of: map) {
+        if let index = mapsOnDevice.firstIndex(of: map) {
             tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
         } else {
             setMaps(allMaps)
@@ -245,7 +245,7 @@ class DownloadMapsViewController: UITableViewController {
         }
     }
 
-    override func tableView(_: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+    override func tableView(_: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if indexPath.section == 0 {
             let map = mapsOnDevice[indexPath.row]
 
@@ -256,7 +256,7 @@ class DownloadMapsViewController: UITableViewController {
         return .none
     }
 
-    override func tableView(_: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let map = mapsOnDevice[indexPath.row]
 
