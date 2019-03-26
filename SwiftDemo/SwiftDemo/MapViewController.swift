@@ -41,7 +41,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.MultiLine: multiLineDemo,
         Demo.Track: recordGPSTrack,
         Demo.Polygon: polygonDemo,
-        Demo.GeoJSON: geoJsonDemo,
+        Demo.GeoJSON: geoJsonDemoPostcodes,
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
         Demo.FlyTo: flyToDemo,
@@ -808,6 +808,34 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.mapGeoCenter = centerPoint
     }
 
+    func geoJsonDemoPostcodes() {
+        guard let path = Bundle.main.path(forResource: "uk_postcodes", ofType: "geojson") else {
+            return
+        }
+        
+        do {
+            let geojson = try String.init(contentsOfFile: path)
+            
+            guard let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: geojson) else {
+                return
+            }
+            guard let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}") else {
+                return
+            }
+            
+            let drawable = GLMapDrawable()
+            drawable.setVectorObjects(objects, with: style, completion: nil)
+            map.add(drawable)
+            
+            let bbox = objects.bbox
+            map.mapCenter = bbox.center
+            map.mapZoom = map.mapZoom(for: bbox)
+        } catch let error {
+            displayAlert(nil, message: "GeoJSON loading error: \(error.localizedDescription)")
+            return
+        }
+    }
+    
     func geoJsonDemo() {
         if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
