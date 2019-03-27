@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6C255FB31DF02F3C0083815D /* DownloadMapsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C255FB11DF02F3C0083815D /* DownloadMapsViewController.swift */; };
 		6C255FB41DF02F3C0083815D /* OSMTileSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C255FB21DF02F3C0083815D /* OSMTileSource.swift */; };
+		6C558A96224B65360095E602 /* uk_postcodes.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 6C558A95224B65360095E602 /* uk_postcodes.geojson */; };
 		6C6C255E1DD9F5F80060A241 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */; };
 		6C6C25601DD9F5F80060A241 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C255F1DD9F5F80060A241 /* ViewController.swift */; };
 		6C6C25631DD9F5F80060A241 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C25611DD9F5F80060A241 /* Main.storyboard */; };
@@ -35,6 +36,7 @@
 		638C036C602B69428C6D4223 /* Pods_SwiftDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C255FB11DF02F3C0083815D /* DownloadMapsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadMapsViewController.swift; sourceTree = "<group>"; };
 		6C255FB21DF02F3C0083815D /* OSMTileSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSMTileSource.swift; sourceTree = "<group>"; };
+		6C558A95224B65360095E602 /* uk_postcodes.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = uk_postcodes.geojson; path = ../../../Resources/uk_postcodes.geojson; sourceTree = "<group>"; };
 		6C6C255A1DD9F5F70060A241 /* SwiftDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6C6C255F1DD9F5F80060A241 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 		6C6C26171DDDF1540060A241 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6C558A95224B65360095E602 /* uk_postcodes.geojson */,
 				6CB9196A1E0D515500FBCF75 /* cluster_data.json */,
 				6C780D0421088724008410F6 /* valhalla.json */,
 				6C6C261E1DDDF1540060A241 /* pin1.png */,
@@ -171,19 +174,20 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0810;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Evgen Bodunov";
 				TargetAttributes = {
 					6C6C25591DD9F5F70060A241 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = AS56W2YHKU;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
 			buildConfigurationList = 6C6C25551DD9F5F70060A241 /* Build configuration list for PBXProject "SwiftDemo" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -212,6 +216,7 @@
 				6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */,
 				6C6C25651DD9F5F80060A241 /* Assets.xcassets in Resources */,
 				6C6C262E1DDDF1540060A241 /* pin3.png in Resources */,
+				6C558A96224B65360095E602 /* uk_postcodes.geojson in Resources */,
 				6C6C262C1DDDF1540060A241 /* pin2.png in Resources */,
 				6C780D0621088724008410F6 /* valhalla.json in Resources */,
 				6C6C262B1DDDF1540060A241 /* pin1@2x.png in Resources */,
@@ -248,7 +253,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh",
 				"${PODS_ROOT}/GLMap/GLMap.framework",
 				"${BUILT_PRODUCTS_DIR}/GLMapSwift/GLMapSwift.framework",
 				"${PODS_ROOT}/GLRoute/GLRoute.framework",
@@ -263,7 +268,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EA1207D910DD248497281778 /* [CP] Copy Pods Resources */ = {
@@ -272,7 +277,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-resources.sh",
 				"${PODS_ROOT}/GLMap/GLMap.framework/default.metallib",
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
@@ -287,7 +292,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -332,20 +337,30 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -382,20 +397,30 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -431,7 +456,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.SwiftDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -445,7 +470,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.SwiftDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

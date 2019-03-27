@@ -41,7 +41,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         Demo.MultiLine: multiLineDemo,
         Demo.Track: recordGPSTrack,
         Demo.Polygon: polygonDemo,
-        Demo.GeoJSON: geoJsonDemo,
+        Demo.GeoJSON: geoJsonDemoPostcodes,
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
         Demo.FlyTo: flyToDemo,
@@ -336,9 +336,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Create new offline search request
             let searchOffline = GLSearch()
             // Set center of search. Objects that is near center will recive bonus while sorting happens
-            searchOffline.setCenter(GLMapPointMakeFromGeoCoordinates(center.lat, center.lon))
+            searchOffline.center = GLMapPointMakeFromGeoCoordinates(center.lat, center.lon)
             // Set maximum number of results. By default is is 100
-            searchOffline.setLimit(20)
+            searchOffline.limit = 20
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
@@ -652,8 +652,10 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             styleCollection.setMarkerDataFill { marker, data in
                 if let obj = marker as? GLMapVectorObject {
                     data.setStyle(0)
-                    if let name = obj.value(forKey: "name") {
-                        data.setText(name, offset: CGPoint(x: 0, y: 8), style: textStyle!)
+                    if let nameValue = obj.value(forKey: "name") {
+                        if let name = nameValue.asString(){
+                            data.setText(name, offset: CGPoint(x: 0, y: 8), style: textStyle!)
+                        }
                     }
                 }
             }
@@ -773,7 +775,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
             let drawable = GLMapDrawable()
-            drawable.setVectorObject(multiline, for: map, with: style, completion: nil)
+            drawable.setVectorObject(multiline, with: style, completion: nil)
             map.add(drawable)
         }
     }
@@ -800,12 +802,40 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
             let drawable = GLMapDrawable()
-            drawable.setVectorObject(polygon, for: map, with: style, completion: nil)
+            drawable.setVectorObject(polygon, with: style, completion: nil)
             map.add(drawable)
         }
         map.mapGeoCenter = centerPoint
     }
 
+    func geoJsonDemoPostcodes() {
+        guard let path = Bundle.main.path(forResource: "uk_postcodes", ofType: "geojson") else {
+            return
+        }
+        
+        do {
+            let geojson = try String.init(contentsOfFile: path)
+            
+            guard let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: geojson) else {
+                return
+            }
+            guard let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}") else {
+                return
+            }
+            
+            let drawable = GLMapDrawable()
+            drawable.setVectorObjects(objects, with: style, completion: nil)
+            map.add(drawable)
+            
+            let bbox = objects.bbox
+            map.mapCenter = bbox.center
+            map.mapZoom = map.mapZoom(for: bbox)
+        } catch let error {
+            displayAlert(nil, message: "GeoJSON loading error: \(error.localizedDescription)")
+            return
+        }
+    }
+    
     func geoJsonDemo() {
         if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
@@ -815,15 +845,16 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 "node|z-9[id=2]{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
                 "line{linecap: round; width: 5pt; color:blue; layer:100;}" +
                 "area{fill-color:green; width:1pt; color:red; layer:100;}") {
-                for i in 0 ..< objects.count {
-                    let drawable = GLMapDrawable()
-                    drawable.setVectorObject(objects[i], for: map, with: style, completion: nil)
-                    if i == 0 {
-                        flashObject(object: drawable)
-                    } else {
-                        map.add(drawable)
-                    }
-                }
+
+                var drawable = GLMapDrawable()
+                drawable.setVectorObject(objects[0], with: style, completion: nil)
+                map.add(drawable)
+                flashObject(object: drawable)
+                objects.removeObject(at: 0);
+
+                drawable = GLMapDrawable()
+                drawable.setVectorObjects(objects, with: style, completion: nil)
+                map.add(drawable)
             }
         }
     }
@@ -871,11 +902,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                     "node[id=6]{text:'Test12';text-color:black;font-size:30;text-priority:100;}" +
                     "node[id=7]{text:'Test12';text-color:black;font-size:35;text-priority:100;}" +
                     "area{fill-color:white; layer:100;}") {
-                for i in 0 ..< objects.count {
-                    let drawable = GLMapDrawable()
-                    drawable.setVectorObject(objects[i], for: map, with: style, completion: nil)
-                    map.add(drawable)
-                }
+                let drawable = GLMapDrawable()
+                drawable.setVectorObjects(objects, with: style, completion: nil)
+                map.add(drawable)
             }
         }
 
@@ -987,11 +1016,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
 
             let downloaded = GLMapDrawable(drawOrder: 4)
-            downloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
+            downloaded.setVectorObject(downloadedTiles, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
             map.add(downloaded)
 
             let notDownloaded = GLMapDrawable(drawOrder: 5)
-            notDownloaded.setVectorObject(downloadedTiles, for: map, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
+            notDownloaded.setVectorObject(downloadedTiles, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
             map.add(notDownloaded)
         }
 

@@ -80,7 +80,7 @@ class ImageGroup: GLMapImageGroupDataSource {
 
     public func remove(_ pin: Pin) {
         lock.lock()
-        if let index = pins.index(where: { $0 == pin }) {
+        if let index = pins.firstIndex(where: { $0 == pin }) {
             pins.remove(at: index)
         }
         lock.unlock()
