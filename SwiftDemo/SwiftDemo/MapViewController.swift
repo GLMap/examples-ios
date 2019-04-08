@@ -342,14 +342,30 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
-            let category = GLSearchCategories.shared.categoriesStarted(with: ["food"], localeSettings: map.localeSettings)
-            if category.count != 0 {
-                let name = category[0].localizedName(map.localeSettings)
-                NSLog("Searching %@", name ?? "no name")
-                searchOffline.add(GLSearchFilter(category: category[0]))
+            let category = GLSearchCategories.shared.categoriesStarted(with: ["restaurant"], localeSettings: GLMapLocaleSettings.init(localesOrder: ["en"]))
+            if category.count == 0 {
+                return
             }
-            // You can add more filters. For example by name
-            // searchOffline.addNameFilter("cali") //Add filter by name
+            
+            // Logical operations between filters is AND
+            // Filter results by category
+            searchOffline.add(GLSearchFilter(category: category[0]))
+            
+            // Additionally search for objects with
+            // word beginning "Baj" in name or alt_name,
+            // "Crno" as word beginning in name, alt_name or andd:* tags,
+            // and exact "60/1" in name, alt_name or addr:* tags.
+            //
+            // Logical operation between words in filter is OR, so we have to create one filter per word.
+            //
+            // Expected result is restaurant Bajka at Bulevar Ivana Crnojevića 60/1 ( https://www.openstreetmap.org/node/4397752292 )
+            searchOffline.add(GLSearchFilter(name: "Baj", localeSettings: map.localeSettings, useGeoCodeNames: false))
+            searchOffline.add(GLSearchFilter(name: "Crno", localeSettings: map.localeSettings, useGeoCodeNames: true))
+            
+            let filter = GLSearchFilter(name: "60/1", localeSettings: map.localeSettings, useGeoCodeNames: true)
+            // Default match type is WordStart. But we could change it to Exact or Word.
+            filter.matchType = .exact
+            searchOffline.add(filter)
 
             searchOffline.start(completionBlock: { results in
                 DispatchQueue.main.async {

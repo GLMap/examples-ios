@@ -429,16 +429,30 @@
     searchOffline.localeSettings = _mapView.localeSettings;
 
     NSArray<GLSearchCategory *> *category =
-        [GLSearchCategories.sharedCategories categoriesStartedWith:@[ @"food" ] localeSettings:_mapView.localeSettings]; // find categories by name
-    if (category.count != 0) {
-        NSString *name = [category[0] localizedName:_mapView.localeSettings].asString;
-        NSLog(@"Searching %@", name);
-        [searchOffline addFilter:[[GLSearchFilter alloc] initWithCategory:category[0]]]; // Filter results by category
-    }
+        [GLSearchCategories.sharedCategories categoriesStartedWith:@[@"restaurant"] localeSettings:_mapView.localeSettings]; // find categories by name
+    if (category.count == 0)
+        return;
 
-    // You can add more filters. For example by name
-    //[searchOffline addNameFilter:@"cali"]; //Add filter by name
+    // Logical operations between filters is AND
+    // Filter results by category
+    [searchOffline addFilter:[GLSearchFilter.alloc initWithCategory:category[0]]];
 
+    // Additionally search for objects with
+    // word beginning "Baj" in name or alt_name,
+    // "Crno" as word beginning in name, alt_name or andd:* tags,
+    // and exact "60/1" in name, alt_name or addr:* tags.
+    //
+    // Logical operation between words in filter is OR, so we have to create one filter per word.
+    //
+    // Expected result is restaurant Bajka at Bulevar Ivana Crnojevića 60/1 ( https://www.openstreetmap.org/node/4397752292 )
+    [searchOffline addFilter:[GLSearchFilter.alloc initWithName:@"Baj" localeSettings:_mapView.localeSettings useGeoCodeNames:NO]];
+    [searchOffline addFilter:[GLSearchFilter.alloc initWithName:@"Crno" localeSettings:_mapView.localeSettings useGeoCodeNames:YES]];
+    
+    GLSearchFilter *filter = [GLSearchFilter.alloc initWithName:@"60/1" localeSettings:_mapView.localeSettings useGeoCodeNames:YES];
+    // Default match type is WordStart. But we could change it to Exact or Word.
+    filter.matchType = GLSearchMatchType_Exact;
+    [searchOffline addFilter:filter];
+    
     [searchOffline startWithCompletionBlock:^(NSArray<GLMapVectorObject *> *_Nonnull results) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self displaySearchResults:results];
