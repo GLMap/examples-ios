@@ -439,16 +439,14 @@
 
     // Additionally search for objects with
     // word beginning "Baj" in name or alt_name,
-    // "Crno" as word beginning in name, alt_name or andd:* tags,
-    // and exact "60/1" in name, alt_name or addr:* tags.
-    //
-    // Logical operation between words in filter is OR, so we have to create one filter per word.
+    // "Crno" as word beginning in addr:* tags,
+    // and exact "60/1" in addr:* tags.
     //
     // Expected result is restaurant Bajka at Bulevar Ivana Crnojevića 60/1 ( https://www.openstreetmap.org/node/4397752292 )
-    [searchOffline addFilter:[GLSearchFilter.alloc initWithName:@"Baj" localeSettings:_mapView.localeSettings useGeoCodeNames:NO]];
-    [searchOffline addFilter:[GLSearchFilter.alloc initWithName:@"Crno" localeSettings:_mapView.localeSettings useGeoCodeNames:YES]];
+    [searchOffline addFilter:[GLSearchFilter.alloc initWithQuery:@"Baj" tagSetMask:GLSearchTagSetMask_Name | GLSearchTagSetMask_AltName]];
+    [searchOffline addFilter:[GLSearchFilter.alloc initWithQuery:@"Crno" tagSetMask:GLSearchTagSetMask_Address]];
     
-    GLSearchFilter *filter = [GLSearchFilter.alloc initWithName:@"60/1" localeSettings:_mapView.localeSettings useGeoCodeNames:YES];
+    GLSearchFilter *filter = [GLSearchFilter.alloc initWithQuery:@"60/1" tagSetMask:GLSearchTagSetMask_Address];
     // Default match type is WordStart. But we could change it to Exact or Word.
     filter.matchType = GLSearchMatchType_Exact;
     [searchOffline addFilter:filter];
