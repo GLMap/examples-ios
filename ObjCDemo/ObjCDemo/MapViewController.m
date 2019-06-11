@@ -171,7 +171,7 @@
     case Test_FlyTo: {
         // we'll just add button for this demo
         UIBarButtonItem *barButton =
-            [[UIBarButtonItem alloc] initWithTitle:@"Fly" style:UIBarButtonItemStylePlain target:self action:@selector(flyTo:)];
+            [UIBarButtonItem.alloc initWithTitle:@"Fly" style:UIBarButtonItemStylePlain target:self action:@selector(flyTo:)];
         self.navigationItem.rightBarButtonItem = barButton;
 
         // Move map to the San Francisco
@@ -249,7 +249,7 @@
 
     case Test_TilesBulkDownload: {
         UIBarButtonItem *barButton =
-            [[UIBarButtonItem alloc] initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
+            [UIBarButtonItem.alloc initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
         self.navigationItem.rightBarButtonItem = barButton;
         _mapView.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27);
         _mapView.mapZoomLevel = 12.5;
@@ -263,7 +263,7 @@
 
         [textField becomeFirstResponder];
 
-        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:@"Reload style"
+        UIBarButtonItem *barButton = [UIBarButtonItem.alloc initWithTitle:@"Reload style"
                                                                       style:UIBarButtonItemStylePlain
                                                                      target:self
                                                                      action:@selector(reloadStyle)];
@@ -309,7 +309,7 @@
     [_networkMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
 
     self.navigationItem.rightBarButtonItems =
-        @[ [[UIBarButtonItem alloc] initWithCustomView:_routingMode], [[UIBarButtonItem alloc] initWithCustomView:_networkMode] ];
+        @[ [UIBarButtonItem.alloc initWithCustomView:_routingMode], [UIBarButtonItem.alloc initWithCustomView:_networkMode] ];
     self.navigationItem.prompt = @"Tap on map to select departure and destination points";
 
     _startPoint = GLMapGeoPointMake(53.844720, 27.482352);
@@ -353,48 +353,41 @@
 }
 
 - (void)updateRoute {
-    GLRoutePoint pts[2] = {GLRoutePointMake(_startPoint, NAN, YES), GLRoutePointMake(_endPoint, NAN, YES)};
 
-    GLMapRouteMode mode;
-    if (_routingMode.selectedSegmentIndex == 0) {
-        mode = GLMapRouteMode_Drive;
-    } else if (_routingMode.selectedSegmentIndex == 1) {
-        mode = GLMapRouteMode_Cycle;
-    } else {
-        mode = GLMapRouteMode_Walk;
-    }
-
-    GLRouteCompletionBlock completion = ^(GLRoute *result, NSError *error) {
-      if (result) {
-          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
-          if (self->_routeTrack)
-              [self->_routeTrack setTrackData:trackData];
-          else {
-              self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-              [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
-              [self->_mapView add:self->_routeTrack];
-          }
-      }
-
-      if (error) {
-          [self displayAlertWithTitle:@"Routing error" message:[error description]];
-      }
-    };
-    if (_networkMode.selectedSegmentIndex == 0)
-        [GLRoute requestRouteWithPoints:pts
-                                         count:2
-                                          mode:mode
-                                        locale:@"en"
-                                         units:GLUnitSystem_International
-                               completionBlock:completion];
+    GLRouteMode mode;
+    if (_routingMode.selectedSegmentIndex == 0)
+        mode = GLRouteMode_Drive;
+    else if (_routingMode.selectedSegmentIndex == 1)
+        mode = GLRouteMode_Cycle;
     else
-        [GLRoute offlineRequestRouteWithConfig:_valhallaConfig
-                                               points:pts
-                                                count:2
-                                                 mode:mode
-                                               locale:@"en"
-                                                units:GLUnitSystem_International
-                                      completionBlock:completion];
+        mode = GLRouteMode_Walk;
+
+    GLRouteRequest *request = [GLRouteRequest.alloc init];
+    request.mode = mode;
+    request.locale = @"en";
+    request.unitSystem = GLUnitSystem_International;
+    [request addPoint:GLRoutePointMake(_startPoint, NAN, YES)];
+    [request addPoint:GLRoutePointMake(_endPoint, NAN, YES)];
+
+    if(_networkMode.selectedSegmentIndex !=0)
+        [request setOfflineWithConfig:_valhallaConfig];
+
+    [request startWithCompletion:^(GLRoute *result, NSError *error) {
+        if (result) {
+            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
+            if (self->_routeTrack)
+                [self->_routeTrack setTrackData:trackData];
+            else {
+                self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+                [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
+                [self->_mapView add:self->_routeTrack];
+            }
+        }
+
+        if (error) {
+            [self displayAlertWithTitle:@"Routing error" message:[error description]];
+        }
+    }];
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -451,14 +444,14 @@
     filter.matchType = GLSearchMatchType_Exact;
     [searchOffline addFilter:filter];
     
-    [searchOffline startWithCompletionBlock:^(NSArray<GLMapVectorObject *> *_Nonnull results) {
+    [searchOffline searchAsyncWithCompletionBlock:^(GLMapVectorObjectArray *results) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self displaySearchResults:results];
       });
     }];
 }
 
-- (void)displaySearchResults:(NSArray<GLMapVectorObject *> *)results {
+- (void)displaySearchResults:(GLMapVectorObjectArray *)results {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
     [style addStyleWithImage:[[GLMapVectorImageFactory sharedFactory]
                                  imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"]
@@ -479,14 +472,14 @@
       GLMapMarkerSetStyle(data, 0);
     }];
 
-    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results andStyles:style clusteringRadius:0 drawOrder:2];
+    GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithMarkers:results.array andStyles:style clusteringRadius:0 drawOrder:2];
     [_mapView add:layer];
 
     // Zoom to results
     if (results.count != 0) {
         // Calculate bbox
         GLMapBBox bbox = GLMapBBoxEmpty;
-        for (GLMapVectorObject *object in results)
+        for (GLMapVectorObject *object in results.array)
             bbox = GLMapBBoxAddPoint(bbox, object.point);
 
         [_mapView setMapCenter:GLMapBBoxCenter(bbox)];
@@ -507,7 +500,7 @@
         }
 
         if (_mapToDownload) {
-            GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:_mapToDownload];
+            GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:_mapToDownload dataSet:GLMapInfoDataSet_Map];
             NSString *title;
             if (task) {
                 title = [NSString
@@ -542,7 +535,7 @@
 
 - (void)downloadButtonTouchUp:(UIButton *)sender {
     if (_mapToDownload) {
-        GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:_mapToDownload];
+        GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:_mapToDownload dataSet:GLMapInfoDataSet_Map];
         if (task) {
             [task cancel];
         } else {
@@ -568,7 +561,7 @@
 - (void)singleImage {
     // we'll just add button for this demo
     UIBarButtonItem *barButton =
-        [[UIBarButtonItem alloc] initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
+        [UIBarButtonItem.alloc initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
     self.navigationItem.rightBarButtonItem = barButton;
     [self addImage:barButton];
 
@@ -905,77 +898,49 @@
 
 - (void)addMultiline {
     // prepare object data
-    NSMutableArray *multilineData = [[NSMutableArray alloc] init];
-
-    int pointCount = 5;
-    NSMutableData *data = [NSMutableData dataWithLength:sizeof(GLMapGeoPoint) * pointCount];
-    GLMapGeoPoint *pts = (GLMapGeoPoint *)data.mutableBytes;
-
-    pts[0] = GLMapGeoPointMake(53.8869, 27.7151); // Minsk
-    pts[1] = GLMapGeoPointMake(50.4339, 30.5186); // Kiev
-    pts[2] = GLMapGeoPointMake(52.2251, 21.0103); // Warsaw
-    pts[3] = GLMapGeoPointMake(52.5037, 13.4102); // Berlin
-    pts[4] = GLMapGeoPointMake(48.8505, 2.3343);  // Paris
-    [multilineData addObject:data];
-
-    pointCount = 3;
-    data = [NSMutableData dataWithLength:sizeof(GLMapPoint) * pointCount];
-    pts = (GLMapGeoPoint *)data.mutableBytes;
-
-    pts[0] = GLMapGeoPointMake(52.3690, 4.9021); // Amsterdam
-    pts[1] = GLMapGeoPointMake(50.8263, 4.3458); // Brussel
-    pts[2] = GLMapGeoPointMake(49.6072, 6.1296); // Luxembourg
-    [multilineData addObject:data];
+    NSArray<GLMapPointArray *> *multiline = @[[GLMapPointArray.alloc initWithPoints:(GLMapPoint []){
+        GLMapPointMakeFromGeoCoordinates(53.8869, 27.7151), // Minsk
+        GLMapPointMakeFromGeoCoordinates(50.4339, 30.5186), // Kiev
+        GLMapPointMakeFromGeoCoordinates(52.2251, 21.0103), // Warsaw
+        GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102), // Berlin
+        GLMapPointMakeFromGeoCoordinates(48.8505, 2.3343)  // Paris
+    } count:5],[GLMapPointArray.alloc initWithPoints:(GLMapPoint []){
+        GLMapPointMakeFromGeoCoordinates(52.3690, 4.9021), // Amsterdam
+        GLMapPointMakeFromGeoCoordinates(50.8263, 4.3458), // Brussel
+        GLMapPointMakeFromGeoCoordinates(49.6072, 6.1296), // Luxembourg
+    } count:3]];
 
     // style applied to all lines added. Style is string with mapcss rules. Read more in manual.
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width:2pt; color:green;}"];
 
     // All user geometry objects should be drawn trough GLMapVectorObject
-    // To load data faster we use NSArray of NSData. Each NSData contains GLMapPoints of one line. Allocate buffers first, then load it
-    // using appropriate function.
-    GLMapVectorObject *vectorObject = [[GLMapVectorObject alloc] init];
-    [vectorObject loadGeoMultiLine:multilineData];
+    GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithMultiline:multiline];
 
-    GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
+    GLMapDrawable *drawable = [GLMapDrawable.alloc initWithDrawOrder:0];
     [drawable setVectorObject:vectorObject withStyle:style completion:nil];
     [_mapView add:drawable];
 }
 
-- (void)addPolygon {
-    NSMutableArray *outerRings = [[NSMutableArray alloc] init];
-    NSMutableArray *innerRings = [[NSMutableArray alloc] init];
-
+- (void)addPolygon
+{
     int pointCount = 100;
     float radius = 10;
     GLMapGeoPoint centerPoint = GLMapGeoPointMake(53, 27);
-
-    NSMutableData *data = [NSMutableData dataWithLength:sizeof(GLMapPoint) * pointCount];
-    GLMapGeoPoint *pts = (GLMapGeoPoint *)data.mutableBytes;
-
     // let's display circle
-    for (int i = 0; i < pointCount; i++) {
-        pts[i] = GLMapGeoPointMake(centerPoint.lat + sin(2 * M_PI / pointCount * i) * radius,
-                                   centerPoint.lon + cos(2 * M_PI / pointCount * i) * radius);
-    }
-
-    [outerRings addObject:data];
+    NSArray *outerRings = @[[GLMapPointArray.alloc initWithCount:pointCount callback:^(NSUInteger index){
+        return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
+                                                centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
+    }]];
 
     // now add hole
     radius = 5;
-    data = [NSMutableData dataWithLength:sizeof(GLMapPoint) * pointCount];
-    pts = (GLMapGeoPoint *)data.mutableBytes;
-    // let's display polygon with random points
-    for (int i = 0; i < pointCount; i++) {
-        pts[i] = GLMapGeoPointMake(centerPoint.lat + sin(2 * M_PI / pointCount * i) * radius,
-                                   centerPoint.lon + cos(2 * M_PI / pointCount * i) * radius);
-    }
-    [innerRings addObject:data];
+    NSArray *innerRings = @[[GLMapPointArray.alloc initWithCount:pointCount callback:^(NSUInteger index){
+        return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
+                                                centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
+    }]];
 
-    GLMapVectorObject *vectorObject = [[GLMapVectorObject alloc] init];
-
-    GLMapVectorCascadeStyle *style =
-        [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
-    [vectorObject loadGeoPolygon:@[ outerRings, innerRings ]];
+    GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithPolygonOuterRings:outerRings innerRings:innerRings];
+    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
 
     GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:4];
     [drawable setVectorObject:vectorObject withStyle:style completion:nil];
@@ -1185,8 +1150,8 @@
         NSArray *notCachedTiles = [manager notCachedVectorTilesAtBBox:_mapView.bbox];
         NSLog(@"Total tiles %d tiles to cache: %d", (int)allTiles.count, (int)notCachedTiles.count);
 
-        GLMapVectorObject *notDownloadedTiles = [[GLMapVectorObject alloc] init];
-        GLMapVectorObject *downloadedTiles = [[GLMapVectorObject alloc] init];
+        NSMutableArray<GLMapPointArray *> *notDownloadedPoly = [NSMutableArray.alloc init];
+        NSMutableArray<GLMapPointArray *> *downloadedPoly = [NSMutableArray.alloc init];
 
         for (NSNumber *tile in allTiles) {
             GLMapBBox tileBBox = [manager bboxForTile:tile.unsignedLongLongValue];
@@ -1196,22 +1161,21 @@
             pts[2] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y);
             pts[3] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y);
             pts[4] = tileBBox.origin;
-
-            if ([notCachedTiles containsObject:tile]) {
-                [notDownloadedTiles addPolygonOuterRing:pts pointCount:5];
-            } else {
-                [downloadedTiles addPolygonOuterRing:pts pointCount:5];
-            }
+            GLMapPointArray *poly = [GLMapPointArray.alloc initWithPoints:pts count:5];
+            if ([notCachedTiles containsObject:tile])
+                [notDownloadedPoly addObject:poly];
+            else
+                [downloadedPoly addObject:poly];
         }
 
-        GLMapDrawable *downloaded = [[GLMapDrawable alloc] initWithDrawOrder:4];
-        [downloaded setVectorObject:downloadedTiles
+        GLMapDrawable *downloaded = [GLMapDrawable.alloc initWithDrawOrder:4];
+        [downloaded setVectorObject:[GLMapVectorObject.alloc initWithPolygonOuterRings:downloadedPoly innerRings:nil]
                           withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:green;}"]
                          completion:nil];
         [_mapView add:downloaded];
 
-        GLMapDrawable *notDownloaded = [[GLMapDrawable alloc] initWithDrawOrder:5];
-        [notDownloaded setVectorObject:notDownloadedTiles
+        GLMapDrawable *notDownloaded = [GLMapDrawable.alloc initWithDrawOrder:5];
+        [notDownloaded setVectorObject:[GLMapVectorObject.alloc initWithPolygonOuterRings:notDownloadedPoly innerRings:nil]
                              withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:red;}"]
                             completion:nil];
         [_mapView add:notDownloaded];

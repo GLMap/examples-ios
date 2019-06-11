@@ -270,11 +270,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true),
         ]
 
-        var mode = GLMapRouteMode.walk
+        var mode = GLRouteMode.walk
         if routingMode?.selectedSegmentIndex == 0 {
-            mode = GLMapRouteMode.drive
+            mode = GLRouteMode.drive
         } else if routingMode?.selectedSegmentIndex == 1 {
-            mode = GLMapRouteMode.cycle
+            mode = GLRouteMode.cycle
         }
 
         let completion = { (result: GLRoute?, error: Error?) in

@@ -173,7 +173,7 @@
         } else {
             cell.accessoryType = UITableViewCellAccessoryNone;
 
-            GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map];
+            GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map dataSet:GLMapInfoDataSet_Map];
             if (task) {
                 double progress = task ? task.downloaded * 100.0 / task.total : 0;
                 cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
@@ -244,12 +244,11 @@
     if ([map.subMaps count]) {
         [self performSegueWithIdentifier:@"openSubmap" sender:map];
     } else {
-        GLMapDownloadTask *task = [[GLMapManager sharedManager] downloadTaskForMap:map];
-        if (task != nil) {
+        GLMapDownloadTask *task = [GLMapManager.sharedManager downloadTaskForMap:map dataSet:GLMapInfoDataSet_Map];
+        if (task != nil)
             [task cancel];
-        } else {
+        else
             [self startDownloadingMap:map retryCount:3];
-        }
     }
 
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
