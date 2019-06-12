@@ -160,7 +160,7 @@ class DownloadMapsViewController: UITableViewController {
             if map.subMaps.count > 0 {
                 cell.accessoryType = .disclosureIndicator
                 cell.detailTextLabel?.text = nil
-            } else if let task = GLMapManager.shared.downloadTask(forMap: map) {
+            } else if let task = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map) {
                 let progress = Float(task.downloaded) * 100 / Float(task.total)
                 cell.detailTextLabel?.text = String(format: "Downloading %.2f%%", progress)
                 cell.accessoryType = .none
@@ -210,7 +210,7 @@ class DownloadMapsViewController: UITableViewController {
         if map.subMaps.count > 0 {
             performSegue(withIdentifier: "OpenSubmap", sender: map)
         } else {
-            if let downloadTask = GLMapManager.shared.downloadTask(forMap: map) {
+            if let downloadTask = GLMapManager.shared.downloadTask(forMap: map, dataSet:.map) {
                 downloadTask.cancel()
             } else {
                 startDownloadingMap(map, retryCount: 3)

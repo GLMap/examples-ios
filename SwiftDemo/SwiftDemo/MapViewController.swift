@@ -147,7 +147,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
             if let map = mapToDownload {
                 let title: String
-                if let task = GLMapManager.shared.downloadTask(forMap: map) {
+                if let task = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map) {
                     let progress = task.downloaded * 100 / task.total
                     title = String(format: "Downloading %@ %d%%", map.name(), progress)
                 } else {
@@ -163,7 +163,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     @objc func downloadButtonTap() {
         if let map = mapToDownload {
-            let downloadTask = GLMapManager.shared.downloadTask(forMap: map)
+            let downloadTask = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map)
             if let task = downloadTask {
                 task.cancel()
             } else {
@@ -265,19 +265,24 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     @objc func updateRoute() {
-        let pts = [
-            GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true),
-            GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true),
-        ]
+        let routeRequest = GLRouteRequest()
 
-        var mode = GLRouteMode.walk
         if routingMode?.selectedSegmentIndex == 0 {
-            mode = GLRouteMode.drive
+            routeRequest.mode = GLRouteMode.drive
         } else if routingMode?.selectedSegmentIndex == 1 {
-            mode = GLRouteMode.cycle
+            routeRequest.mode = GLRouteMode.cycle
+        } else {
+            routeRequest.mode = GLRouteMode.walk
         }
 
-        let completion = { (result: GLRoute?, error: Error?) in
+        if networkMode?.selectedSegmentIndex != 0 {
+            routeRequest.setOfflineWithConfig(valhallaConfig!)
+        }
+
+        routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true))
+        routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true))
+
+        routeRequest.start(completion: { (result: GLRoute?, error: Error?) in
             if let routeData = result {
                 if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
@@ -293,13 +298,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let error = error {
                 self.displayAlert("Routing error", message: error.localizedDescription)
             }
-        }
-
-        if networkMode?.selectedSegmentIndex == 0 {
-            GLRoute.request(withPoints: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
-        } else {
-            GLRoute.offlineRequest(withConfig: valhallaConfig!, points: pts, count: 2, mode: mode, locale: "en", units: .international, completionBlock: completion)
-        }
+        })
     }
 
     func showOnlineMap() {
@@ -365,15 +364,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             filter.matchType = .exact
             searchOffline.add(filter)
 
-            searchOffline.start(completionBlock: { results in
-                DispatchQueue.main.async {
-                    self.displaySearchResults(results: results)
-                }
+            searchOffline.searchAsync(completionBlock: { results in
+                self.displaySearchResults(results: results)
             })
         }
     }
 
-    func displaySearchResults(results: [GLMapVectorObject]) {
+    func displaySearchResults(results: GLMapVectorObjectArray) {
         let styles = GLMapMarkerStyleCollection()
         styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: GLMapColor(red: 0xFF, green: 0, blue: 0, alpha: 0xFF))!)
 
@@ -392,14 +389,11 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             data.setStyle(0)
         }
 
-        let layer = GLMapMarkerLayer(markers: results, andStyles: styles, clusteringRadius: 0, drawOrder: 2)
+        let layer = GLMapMarkerLayer(markers: results.array(), andStyles: styles, clusteringRadius: 0, drawOrder: 2)
         map.add(layer)
 
         if results.count != 0 {
-            var bbox = GLMapBBox.empty
-            for object in results {
-                bbox.addPoint(object.point)
-            }
+            let bbox = results.bbox
             map.mapCenter = bbox.center
             map.mapZoom = map.mapZoom(for: bbox)
         }
@@ -767,56 +761,49 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func multiLineDemo() {
-        let multiline = GLMapVectorObject()
 
-        let line1 = [
-            GLMapGeoPoint(lat: 53.8869, lon: 27.7151), // Minsk
-            GLMapGeoPoint(lat: 50.4339, lon: 30.5186), // Kiev
-            GLMapGeoPoint(lat: 52.2251, lon: 21.0103), // Warsaw
-            GLMapGeoPoint(lat: 52.5037, lon: 13.4102), // Berlin
-            GLMapGeoPoint(lat: 48.8505, lon: 2.3343),
-        ] // Paris
-
-        multiline.addGeoLine(line1)
-
-        let line2 = [
-            GLMapGeoPoint(lat: 52.3690, lon: 4.9021), // Amsterdam
-            GLMapGeoPoint(lat: 50.8263, lon: 4.3458), // Brussel
-            GLMapGeoPoint(lat: 49.6072, lon: 6.1296),
-        ] // Luxembourg
-
-        multiline.addGeoLine(line2)
-
+        let multiline = [
+            GLMapPointArray([
+                GLMapPointMakeFromGeoCoordinates(53.8869, 27.7151), // Minsk
+                GLMapPointMakeFromGeoCoordinates(50.4339, 30.5186), // Kiev
+                GLMapPointMakeFromGeoCoordinates(52.2251, 21.0103), // Warsaw
+                GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102), // Berlin
+                GLMapPointMakeFromGeoCoordinates(48.8505, 2.3343), // Paris
+                ]),
+            GLMapPointArray([
+                GLMapPointMakeFromGeoCoordinates(52.3690, 4.9021), // Amsterdam
+                GLMapPointMakeFromGeoCoordinates(50.8263, 4.3458), // Brussel
+                GLMapPointMakeFromGeoCoordinates(49.6072, 6.1296), // Luxembourg
+                ])
+        ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
             let drawable = GLMapDrawable()
-            drawable.setVectorObject(multiline, with: style, completion: nil)
+            drawable.setVectorObject(GLMapVectorObject(multiline: multiline), with: style, completion: nil)
             map.add(drawable)
         }
     }
 
-    func polygonDemo() {
-        func fillPoints(centerPoint: GLMapGeoPoint, radius: Double) -> Array<GLMapGeoPoint> {
-            let pointCount = 25
-            let sectorSize = 2 * Double.pi / Double(pointCount)
+    func polygonDemo()
+    {
+        let pointCount = 25
+        let centerPoint = GLMapGeoPointMake(53, 27)
+        let radiusOuter = 10.0
+        let radiusInner = 5.0
+        let sectorSize = 2 * Double.pi / Double(pointCount)
 
-            var circlePoints: Array<GLMapGeoPoint> = []
-            for i in 0 ..< pointCount {
-                circlePoints.append(GLMapGeoPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radius,
-                                                  lon: centerPoint.lon + sin(sectorSize * Double(i)) * radius))
-            }
-            return circlePoints
+        let outerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
+            return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + cos(sectorSize * Double(i)) * radiusOuter,
+                                                    centerPoint.lon + sin(sectorSize * Double(i)) * radiusOuter)
         }
 
-        let polygon = GLMapVectorObject()
-        let centerPoint = GLMapGeoPointMake(53, 27)
-
-        polygon.addGeoPolygonOuterRing(fillPoints(centerPoint: centerPoint, radius: 10))
-
-        polygon.addGeoPolygonInnerRing(fillPoints(centerPoint: centerPoint, radius: 5))
+        let innerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
+            return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + cos(sectorSize * Double(i)) * radiusInner,
+                                                    centerPoint.lon + sin(sectorSize * Double(i)) * radiusInner)
+        }
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
             let drawable = GLMapDrawable()
-            drawable.setVectorObject(polygon, with: style, completion: nil)
+            drawable.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style, completion: nil)
             map.add(drawable)
         }
         map.mapGeoCenter = centerPoint
@@ -1008,8 +995,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             let notCachedTiles = manager.notCachedVectorTiles(at: bbox)
             NSLog("Total tiles %d tiles to cache: %d", allTiles.count, notCachedTiles.count)
 
-            let notDownloadedTiles = GLMapVectorObject()
-            let downloadedTiles = GLMapVectorObject()
+            let notDownloadedTiles = GLMapPointArray()
+            let downloadedTiles = GLMapPointArray()
 
             for tile in allTiles {
                 let tileBBox = manager.bbox(forTile: tile.uint64Value)
@@ -1023,18 +1010,18 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                 ]
 
                 if notCachedTiles.contains(tile) {
-                    notDownloadedTiles.addPolygonOuterRing(pts)
+                    notDownloadedTiles.addPoints(pts)
                 } else {
-                    downloadedTiles.addPolygonOuterRing(pts)
+                    downloadedTiles.addPoints(pts)
                 }
             }
 
             let downloaded = GLMapDrawable(drawOrder: 4)
-            downloaded.setVectorObject(downloadedTiles, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
+            downloaded.setVectorObject(GLMapVectorObject(polygonOuterRings: [downloadedTiles], innerRings: nil), with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
             map.add(downloaded)
 
             let notDownloaded = GLMapDrawable(drawOrder: 5)
-            notDownloaded.setVectorObject(downloadedTiles, with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
+            notDownloaded.setVectorObject(GLMapVectorObject(polygonOuterRings: [notDownloadedTiles], innerRings: nil), with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
             map.add(notDownloaded)
         }
 
