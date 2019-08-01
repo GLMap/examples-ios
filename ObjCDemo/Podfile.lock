@@ -1,6 +1,6 @@
 PODS:
   - "GLMap+DefaultStyle (1.1.0)"
-  - "GLMap+WorldMap (19.03)"
+  - "GLMap+WorldMap (19.06)"
   - GLMapStatic (1.2.0):
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
@@ -24,7 +24,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   "GLMap+DefaultStyle": e6d5a4b2f7e12f57bc2ce5dc42c3f5986a818427
-  "GLMap+WorldMap": 205b985691318ad006c3f17de663007c1b835854
+  "GLMap+WorldMap": 0a7d98811a8d4f02d70b4f91db0bed5d5ceb3aee
   GLMapStatic: 290fb4dd533a8e843e1b7d25c58724668c385511
   GLRouteStatic: ae375baf9ad40876dd736f17668ceff03e6da8bd
   GLSearchStatic: 5d47a6d05d39fcf5aa372a21f3f8554b5649cab5
