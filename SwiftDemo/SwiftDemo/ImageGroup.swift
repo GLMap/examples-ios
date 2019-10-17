@@ -25,8 +25,8 @@ struct Pin {
 
 class ImageGroup: GLMapImageGroupDataSource {
     let lock: NSRecursiveLock
-    let vairants: Array<UIImage>
-    var pins: Array<Pin>
+    let vairants: [UIImage]
+    var pins: [Pin]
 
     init() {
         lock = NSRecursiveLock()

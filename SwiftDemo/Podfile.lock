@@ -1,15 +1,15 @@
 PODS:
-  - GLMap (1.2.0):
+  - GLMap (1.2.1):
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
   - "GLMap+DefaultStyle (1.1.0)"
   - "GLMap+WorldMap (19.06)"
-  - GLMapSwift (1.2.0):
-    - GLMap (= 1.2.0)
-  - GLRoute (1.2.0):
-    - GLMap (= 1.2.0)
-  - GLSearch (1.2.0):
-    - GLMap (= 1.2.0)
+  - GLMapSwift (1.2.1):
+    - GLMap (= 1.2.1)
+  - GLRoute (1.2.1):
+    - GLMap (= 1.2.1)
+  - GLSearch (1.2.1):
+    - GLMap (= 1.2.1)
 
 DEPENDENCIES:
   - GLMapSwift
@@ -17,7 +17,7 @@ DEPENDENCIES:
   - GLSearch
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - GLMap
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
@@ -26,13 +26,13 @@ SPEC REPOS:
     - GLSearch
 
 SPEC CHECKSUMS:
-  GLMap: a8dd8140a110e03286b1b9bca8cfa2cbd02891ad
+  GLMap: 1fee04384ea3d8761d803132ac1d2e058708d9cf
   "GLMap+DefaultStyle": e6d5a4b2f7e12f57bc2ce5dc42c3f5986a818427
   "GLMap+WorldMap": 0a7d98811a8d4f02d70b4f91db0bed5d5ceb3aee
-  GLMapSwift: 343f554268246197f24e2128284d146bf69e75cb
-  GLRoute: 75912b57d40c67dd30c88379bde71e8916a2d948
-  GLSearch: 7f37b92a1805bd87fc16e690d45966291806648f
+  GLMapSwift: ad7550c79430ab05444e4ac932315b9bdf86984d
+  GLRoute: cc9605202058f16060aecc537bb9917745887269
+  GLSearch: a6faa766f15e4fe2884a32415e81b7b411e18c26
 
 PODFILE CHECKSUM: 0909add2badd090862f2ff856b45a9586fce106a
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4

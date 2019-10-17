@@ -120,7 +120,7 @@ class DownloadMapsViewController: UITableViewController {
                 bName = b.name()
             }
 
-            if aName != nil && bName != nil {
+            if aName != nil, bName != nil {
                 return aName! < bName!
             }
 
@@ -210,7 +210,7 @@ class DownloadMapsViewController: UITableViewController {
         if map.subMaps.count > 0 {
             performSegue(withIdentifier: "OpenSubmap", sender: map)
         } else {
-            if let downloadTask = GLMapManager.shared.downloadTask(forMap: map, dataSet:.map) {
+            if let downloadTask = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map) {
                 downloadTask.cancel()
             } else {
                 startDownloadingMap(map, retryCount: 3)
@@ -226,7 +226,7 @@ class DownloadMapsViewController: UITableViewController {
                 if let error = task.error as NSError? {
                     NSLog("Map downloading error: \(error)")
                     // CURLE_OPERATION_TIMEDOUT = 28 http://curl.haxx.se/libcurl/c/libcurl-errors.html
-                    if error.domain == "CURL" && error.code == 28 {
+                    if error.domain == "CURL", error.code == 28 {
                         self.startDownloadingMap(map, retryCount: 2)
                     }
                 }
