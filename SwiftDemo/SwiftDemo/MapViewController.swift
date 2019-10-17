@@ -190,8 +190,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     var routingMode: UISegmentedControl?
     var networkMode: UISegmentedControl?
-    var startPoint = GLMapGeoPointMake(53.844720, 27.482352)
-    var endPoint = GLMapGeoPointMake(53.931935, 27.583995)
+    var startPoint = GLMapGeoPoint(lat: 53.844720, lon: 27.482352)
+    var endPoint = GLMapGeoPoint(lat: 53.931935, lon: 27.583995)
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
     var valhallaConfig: String?
@@ -231,8 +231,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         navigationItem.prompt = "Tap on map to select departure and destination points"
 
         var bbox = GLMapBBox.empty
-        bbox.addPoint(GLMapPointFromMapGeoPoint(startPoint))
-        bbox.addPoint(GLMapPointFromMapGeoPoint(endPoint))
+        bbox.addPoint(GLMapPoint(geoPoint: startPoint))
+        bbox.addPoint(GLMapPoint(geoPoint: endPoint))
         map.mapCenter = bbox.center
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
@@ -240,7 +240,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             if let sself = self {
                 let menu = UIMenuController.shared
                 if !menu.isMenuVisible {
-                    sself.menuPoint = GLMapGeoPointFromMapPoint(sself.map.makeMapPoint(fromDisplay: pt))
+                    sself.menuPoint = GLMapGeoPoint(point: sself.map.makeMapPoint(fromDisplay: pt))
                     sself.becomeFirstResponder()
                     menu.setTargetRect(CGRect(x: pt.x, y: pt.y, width: 1, height: 1), in: sself.map)
                     menu.menuItems = [
@@ -335,7 +335,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // Create new offline search request
             let searchOffline = GLSearch()
             // Set center of search. Objects that is near center will recive bonus while sorting happens
-            searchOffline.center = GLMapPointMakeFromGeoCoordinates(center.lat, center.lon)
+            searchOffline.center = GLMapPoint(lat: center.lat, lon: center.lon)
             // Set maximum number of results. By default is is 100
             searchOffline.limit = 20
             // Set locale settings. Used to boost results with locales native to user
@@ -764,16 +764,16 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
         let multiline = [
             GLMapPointArray([
-                GLMapPointMakeFromGeoCoordinates(53.8869, 27.7151), // Minsk
-                GLMapPointMakeFromGeoCoordinates(50.4339, 30.5186), // Kiev
-                GLMapPointMakeFromGeoCoordinates(52.2251, 21.0103), // Warsaw
-                GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102), // Berlin
-                GLMapPointMakeFromGeoCoordinates(48.8505, 2.3343), // Paris
+                GLMapPoint(lat: 53.8869, lon: 27.7151), // Minsk
+                GLMapPoint(lat: 50.4339, lon: 30.5186), // Kiev
+                GLMapPoint(lat: 52.2251, lon: 21.0103), // Warsaw
+                GLMapPoint(lat: 52.5037, lon: 13.4102), // Berlin
+                GLMapPoint(lat: 48.8505, lon: 2.3343), // Paris
                 ]),
             GLMapPointArray([
-                GLMapPointMakeFromGeoCoordinates(52.3690, 4.9021), // Amsterdam
-                GLMapPointMakeFromGeoCoordinates(50.8263, 4.3458), // Brussel
-                GLMapPointMakeFromGeoCoordinates(49.6072, 6.1296), // Luxembourg
+                GLMapPoint(lat: 52.3690, lon: 4.9021), // Amsterdam
+                GLMapPoint(lat: 50.8263, lon: 4.3458), // Brussel
+                GLMapPoint(lat: 49.6072, lon: 6.1296), // Luxembourg
                 ])
         ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
@@ -786,19 +786,19 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     func polygonDemo()
     {
         let pointCount = 25
-        let centerPoint = GLMapGeoPointMake(53, 27)
+        let centerPoint = GLMapGeoPoint(lat: 53, lon: 27)
         let radiusOuter = 10.0
         let radiusInner = 5.0
         let sectorSize = 2 * Double.pi / Double(pointCount)
 
         let outerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
-            return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + cos(sectorSize * Double(i)) * radiusOuter,
-                                                    centerPoint.lon + sin(sectorSize * Double(i)) * radiusOuter)
+            return GLMapPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radiusOuter,
+                              lon: centerPoint.lon + sin(sectorSize * Double(i)) * radiusOuter)
         }
 
         let innerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
-            return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + cos(sectorSize * Double(i)) * radiusInner,
-                                                    centerPoint.lon + sin(sectorSize * Double(i)) * radiusInner)
+            return GLMapPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radiusInner,
+                              lon: centerPoint.lon + sin(sectorSize * Double(i)) * radiusInner)
         }
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
@@ -976,7 +976,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func tilesBulkDownload() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(startBulkDownload))
-        map.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27)
+        map.mapCenter = GLMapPoint(lat: 53, lon: 27)
         map.mapZoom = pow(2, 12.5)
     }
 
@@ -1003,9 +1003,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
                 let pts = [
                     tileBBox.origin,
-                    GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y),
-                    GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y),
-                    GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y),
+                    GLMapPoint(x: tileBBox.origin.x, y: tileBBox.origin.y + tileBBox.size.y),
+                    GLMapPoint(x: tileBBox.origin.x + tileBBox.size.x, y: tileBBox.origin.y + tileBBox.size.y),
+                    GLMapPoint(x: tileBBox.origin.x + tileBBox.size.x, y: tileBBox.origin.y),
                     tileBBox.origin,
                 ]
 
@@ -1045,10 +1045,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             let styleData = try Data(contentsOf: URL(string: urlField.text!)!)
             if map.loadStyle({ (name) -> GLMapResource in
                 if name == "Style.mapcss" {
-                    return GLMapResourceWithData(styleData)
+                    return GLMapResource(data: styleData)
                 }
-
-                return GLMapResourceEmpty
+                return .empty
             }) {
                 map.reloadTiles()
             } else {
@@ -1076,7 +1075,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         map.locationManager(manager, didUpdateLocations: locations)
 
         for location in locations {
-            let mapPoint = GLMapPointMakeFromGeoCoordinates(location.coordinate.latitude, location.coordinate.longitude)
+            let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
             var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
 
             if trackData != nil {
