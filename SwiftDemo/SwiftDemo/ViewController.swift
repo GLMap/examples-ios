@@ -12,6 +12,7 @@ import UIKit
 class ViewController: UITableViewController {
     public enum Demo {
         case OfflineMap
+        case DarkTheme
         case EmbeddMap
         case OnlineMap
         case Routing
@@ -57,6 +58,7 @@ class ViewController: UITableViewController {
 
     var tableRows = [
         TableRow(.OfflineMap, name: "Open offline map"),
+        TableRow(.DarkTheme, name: "Dark theme"),
         TableRow(.EmbeddMap, name: "Open embedd map"),
         TableRow(.OnlineMap, name: "Open online map", description: "Downloads tiles one by one"),
         TableRow(.Routing, name: "Routing", description: "Offline routing requires downloaded navigation data"),

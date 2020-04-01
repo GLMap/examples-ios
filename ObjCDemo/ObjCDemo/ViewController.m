@@ -24,6 +24,8 @@
 
     _tableItems = @[
         @{@"name" : @"Open offline map"},
+        @{@"name" : @"Dark theme"},
+
         @{@"name" : @"Open embedd map"},
         @{@"name" : @"Open online map", @"descr" : @"Downloads tiles one by one"},
         @{@"name" : @"Routing", @"descr" : @"Offline routing requires downloaded navigation data"},

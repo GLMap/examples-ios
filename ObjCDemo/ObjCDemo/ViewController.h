@@ -10,6 +10,7 @@
 
 enum Test {
     Test_OfflineMap,
+    Test_DarkTheme,
     Test_EmbeddMap,
     Test_OnlineMap,
     Test_Routing,

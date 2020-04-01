@@ -95,6 +95,9 @@
     case Test_OfflineMap: // open map
         // nothing to do. just start rendering inside viewWillAppear
         break;
+    case Test_DarkTheme:
+        [self loadDarkTheme];
+        break;
     case Test_EmbeddMap: // load map from app resources
         [self loadEmbedMap];
         break;
@@ -1195,12 +1198,29 @@
           }];
 }
 
+- (void)loadDarkTheme {
+    NSString *stylePath = [NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"];
+    __weak MapViewController *wself = self;
+    [_mapView loadStyleWithBlock:^GLMapResource(NSString *_Nonnull name) {
+      MapViewController *sself = wself;
+      if(sself == nil)
+          return GLMapResourceEmpty;
+      if ([name isEqualToString:@"colors.mapcss"]) {
+        return [sself->_mapView loadResourceFromPath:stylePath name:@"colors_dark.mapcss"];
+      } else if([name isEqualToString:@"noData.png"]) {
+        return [sself->_mapView loadResourceFromPath:stylePath name:@"noData_dark.png"];
+      } else {
+        return [sself->_mapView loadResourceFromPath:stylePath name:name];
+      }
+    }];
+    [_mapView reloadTiles];
+}
+
 - (void)reloadStyle {
     UITextField *urlField = (UITextField *)self.navigationItem.titleView;
 
     NSError *error = nil;
     NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:urlField.text] options:NSDataReadingUncached error:&error];
-
     if (error) {
         [self displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Style downloading error: %@", [error localizedDescription]]];
     } else {
@@ -1208,14 +1228,12 @@
           if ([name isEqualToString:@"Style.mapcss"]) {
               return GLMapResourceWithData(data);
           }
-
           return GLMapResourceEmpty;
         }];
 
         if (!rv) {
             [self displayAlertWithTitle:nil message:@"Style syntax error. Check log for details."];
         }
-
         [_mapView reloadTiles];
     }
 }

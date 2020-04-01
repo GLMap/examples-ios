@@ -26,6 +26,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     let demoCases = [
         Demo.OfflineMap: showOfflineMap,
+        Demo.DarkTheme: loadDarkTheme,
         Demo.EmbeddMap: showEmbedMap,
         Demo.OnlineMap: showOnlineMap,
         Demo.Routing: testRouting,
@@ -1032,6 +1033,22 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             }
             return true
         }
+    }
+    
+    func loadDarkTheme() {
+        let stylePath = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle")!
+        map.loadStyle { [weak self] name in
+            guard let self = self else { return .empty }
+            switch name {
+            case "colors.mapcss":
+                return self.map.loadResource(fromPath: stylePath, name: "colors_dark.mapcss")
+            case "noData.png":
+                return self.map.loadResource(fromPath: stylePath, name: "noData_dark.png")
+            default:
+                return self.map.loadResource(fromPath: stylePath, name: name)
+            }
+        }
+        map.reloadTiles()
     }
 
     @objc func styleReload() {
