@@ -278,7 +278,7 @@
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
 				"${PODS_ROOT}/GLMapStatic/GLMap.framework/default.metallib",
-				"${PODS_ROOT}/GLSearchStatic/icudt64l.dat",
+				"${PODS_ROOT}/GLSearchStatic/icudt65l.dat",
 				"${PODS_ROOT}/GLSearchStatic/categories",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -287,7 +287,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/default.metallib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt64l.dat",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt65l.dat",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/categories",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
