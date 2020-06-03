@@ -12,10 +12,8 @@ import GLRoute
 import GLSearch
 import UIKit
 
-class MapViewController: UIViewController, CLLocationManagerDelegate {
-    let map = GLMapView()
+class MapViewController: MapViewControllerBase {
     let downloadButton = UIButton(type: .system)
-    let locationManager = CLLocationManager()
 
     var trackData: GLMapTrackData?
     var track: GLMapTrack?
@@ -54,22 +52,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-
+        
         title = "Demo map"
-
-        map.frame = view.bounds
-        map.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        if CLLocationManager.authorizationStatus() == .notDetermined {
-            locationManager.requestWhenInUseAuthorization()
-        }
-        locationManager.startUpdatingLocation() // don't forget to stop updating location
-        locationManager.delegate = map
-
-        map.showUserLocation = true
-
-        view.addSubview(map)
 
         downloadButton.setTitle("Download Map", for: .normal)
         downloadButton.addTarget(self, action: #selector(MapViewController.downloadButtonTap), for: .touchUpInside)
@@ -83,7 +67,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             self?.updateDownloadButton()
         }
 
-        map.mapDidMoveBlock = { [weak self] (_: GLMapBBox) in
+        map.mapDidMoveBlock = { [weak self] _ in
             self?.updateDownloadButtonText()
         }
 
@@ -231,8 +215,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         navigationItem.prompt = "Tap on map to select departure and destination points"
 
         var bbox = GLMapBBox.empty
-        bbox.addPoint(GLMapPoint(geoPoint: startPoint))
-        bbox.addPoint(GLMapPoint(geoPoint: endPoint))
+        bbox.add(point: GLMapPoint(geoPoint: startPoint))
+        bbox.add(point: GLMapPoint(geoPoint: endPoint))
         map.mapCenter = bbox.center
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
@@ -309,7 +293,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
     func showRasterOnlineMap() {
         if let osmTileSource = OSMTileSource(cachePath: "/osm.sqlite") {
-            map.rasterTileSources = [osmTileSource]
+            map.tileSources = [osmTileSource]
         }
     }
 
@@ -317,8 +301,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         // get pixel coordinates of geo points
         var bbox = GLMapBBox.empty
 
-        bbox.addPoint(GLMapPoint(lat: 52.5037, lon: 13.4102))
-        bbox.addPoint(GLMapPoint(lat: 53.9024, lon: 27.5618))
+        bbox.add(point: GLMapPoint(lat: 52.5037, lon: 13.4102))
+        bbox.add(point: GLMapPoint(lat: 53.9024, lon: 27.5618))
 
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
         map.mapCenter = bbox.center
@@ -603,7 +587,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
 
                 // Load UK postal codes from GeoJSON
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
-                    if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                    if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         // Put our array of objects into marker layer. It could be any custom array of objects.
                         // Disable clustering in this demo
                         let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius: 0, drawOrder: 2)
@@ -682,13 +666,12 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
             DispatchQueue.global().async {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
-                    if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                    if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                         let bbox = objects.bbox
 
                         DispatchQueue.main.async { [weak self] in
-                            if let wself = self {
-                                let map = wself.map
+                            if let map = self?.map {
                                 map.add(markerLayer)
                                 map.mapCenter = bbox.center
                                 map.mapZoom = map.mapZoom(for: bbox)
@@ -733,7 +716,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
             // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
             DispatchQueue.global().async {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
-                    if let objects = GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                    if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         if let cascadeStyle = GLMapVectorCascadeStyle.createStyle(
                             "node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}" +
                                 "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}" +
@@ -746,8 +729,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
                             let markerLayer = GLMapMarkerLayer(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                             let bbox = objects.bbox
                             DispatchQueue.main.async { [weak self] in
-                                if let wself = self {
-                                    let map = wself.map
+                                if let map = self?.map {
                                     map.add(markerLayer)
                                     map.mapCenter = bbox.center
                                     map.mapZoom = map.mapZoom(for: bbox)
@@ -815,7 +797,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
         do {
             let geojson = try String(contentsOfFile: path)
 
-            guard let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: geojson) else {
+            guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: geojson) else {
                 return
             }
             guard let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}") else {
@@ -836,7 +818,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func geoJsonDemo() {
-        if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
+        if let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
             "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}," +
             "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]") {
@@ -882,7 +864,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func fontsDemo() {
-        if let objects = GLMapVectorObject.createVectorObjects(fromGeoJSON:
+        if let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON:
             "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 64]}, \"properties\": {\"id\": \"1\"}}," +
                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63.6]}, \"properties\": {\"id\": \"2\"}}," +
                 "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 62.3]}, \"properties\": {\"id\": \"3\"}}," +
@@ -1079,31 +1061,29 @@ class MapViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func recordGPSTrack() {
-        // we'll forward location back to mapView. I promise.
-        locationManager.delegate = self
+        let track = GLMapTrack(drawOrder: 2, andTrackData: trackData)
+        track.setStyle(GLMapVectorStyle.createStyle("{width:5pt;}"))
+        map.add(track)
+        self.track = track
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Forward events to GLMapView
-        map.locationManager(manager, didUpdateLocations: locations)
+    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        super.locationManager(manager, didUpdateLocations: locations)
 
-        for location in locations {
-            let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
-            var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
+        if let track = track {
+            for location in locations {
+                let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
+                var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
 
-            if trackData != nil {
-                trackData = GLMapTrackData(data: trackData!, andNewPoint: trackPoint, startNewSegment: false)
-            } else {
-                trackData = GLMapTrackData(points: &trackPoint, count: 1)
+                if trackData != nil {
+                    trackData = GLMapTrackData(data: trackData!, andNewPoint: trackPoint, startNewSegment: false)
+                } else {
+                    trackData = GLMapTrackData(points: &trackPoint, count: 1)
+                }
             }
-        }
-
-        if track == nil {
-            track = GLMapTrack(drawOrder: 2, andTrackData: trackData)
-            track?.setStyle(GLMapVectorStyle.createStyle("{width:5pt;}"))
-            map.add(track!)
-        } else {
-            track?.setTrackData(trackData!)
+            if let trackData = trackData {
+                track.setTrackData(trackData)
+            }
         }
     }
 }
