@@ -112,7 +112,7 @@
         [self testRouting];
         break;
     case Test_RasterOnlineMap:
-        _mapView.rasterTileSources = @[ [[OSMTileSource alloc] init] ];
+        _mapView.tileSources = @[ [[OSMTileSource alloc] init] ];
         break;
     case Test_ZoomToBBox: // zoom to bbox
         [self zoomToBBox];
@@ -201,7 +201,7 @@
                                             "\"properties\": {\"id\": \"6\"}},"
                                             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-20, 55]}, "
                                             "\"properties\": {\"id\": \"7\"}},"
-                                            "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]"];
+                                            "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]" error:nil];
 
         GLMapVectorCascadeStyle *style =
             [GLMapVectorCascadeStyle createStyle:@"node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}"
@@ -756,7 +756,7 @@
 
     // Load UK postal codes from GeoJSON
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
-    GLMapVectorObjectArray *objectArray = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
+    GLMapVectorObjectArray *objectArray = [GLMapVectorObject createVectorObjectsFromFile:dataPath error:nil];
 
     // Put our array of objects into marker layer. It could be any custom array of objects.
     // Disable clustering in this demo
@@ -808,7 +808,7 @@
     // main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
-      GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
+      GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath error:nil];
       GLMapBBox bbox = points.bbox;
       // Create layer with clusteringRadius equal to maxWidht/2. In this case two clusters can overlap half of it's size.
       GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points
@@ -877,7 +877,7 @@
     // main thread only when data is loaded.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"cluster_data" ofType:@"json"];
-      GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath];
+      GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath error:nil];
       GLMapBBox bbox = points.bbox;
       // Create layer with clusteringRadius equal to maxWidht/2. In this case two clusters can overlap half of it's size.
       GLMapMarkerLayer *layer =
@@ -1001,7 +1001,7 @@
                                         "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, "
                                         "52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},"
                                         "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ "
-                                        "[2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]"];
+                                       "[2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]" error:nil];
 
     GLMapVectorCascadeStyle *style =
         [GLMapVectorCascadeStyle createStyle:@"node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));"
@@ -1023,7 +1023,7 @@
 }
 
 - (void)loadPointGeoJSON {
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}"];
+    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}" error:nil];
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects
                      withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"] completion:nil];
@@ -1034,7 +1034,7 @@
 - (void)loadMultiPointGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, "
-                                                          @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
+                                                          @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
 
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects
@@ -1046,7 +1046,7 @@
 - (void)loadLineStringGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, "
-                                                          @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"];
+                                                          @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
 
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects
@@ -1060,7 +1060,7 @@
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
                                        @"{\"type\":\"MultiLineString\",\"coordinates\":"
                                        "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
-                                       " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"];
+                                       " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}" error:nil];
 
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects
@@ -1073,7 +1073,7 @@
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
                                        @"{\"type\":\"Polygon\",\"coordinates\":"
                                        "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
-                                       " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"];
+                                       " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}" error:nil];
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"] completion:nil];
     [_mapView add:drawable];
@@ -1085,7 +1085,7 @@
                         "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
                         "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
-                        "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"];
+                        "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}" error:nil];
 
     GLMapDrawable *drawable = [GLMapDrawable.alloc init];
     [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"] completion:nil];
@@ -1097,7 +1097,7 @@
     NSError *error = nil;
     NSString *geojson = [NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"uk_postcodes" ofType:@"geojson"] encoding:NSUTF8StringEncoding error:&error];
     if (geojson) {
-        GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:geojson];
+        GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:geojson error:nil];
         
         if (objects) {
             GLMapDrawable *drawable = [GLMapDrawable.alloc init];

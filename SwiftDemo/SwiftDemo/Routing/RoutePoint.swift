@@ -25,6 +25,11 @@ class RoutePoint : Equatable {
         self.isCurrentLocation = isCurrentLocation
     }
 
+    init(pt: GLMapGeoPoint, index: Int, isCurrentLocation: Bool) {
+        self.pt = GLRoutePoint(pt: pt, heading: Double.nan, isStop: true, originalIndex: Int32(index))
+        self.isCurrentLocation = isCurrentLocation
+    }
+
     static func == (lhs: RoutePoint, rhs: RoutePoint) -> Bool {
         return lhs === rhs
     }

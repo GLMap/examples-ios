@@ -62,6 +62,8 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
         image.hidden = false
 
         map.animate { anim in
+            anim.duration = 1
+            anim.transition = .linear
             image.position = location
             image.angle = Float(-bearing)
             additionalAnimations(anim)

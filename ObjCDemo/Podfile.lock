@@ -1,13 +1,13 @@
 PODS:
   - "GLMap+DefaultStyle (1.2.2)"
   - "GLMap+WorldMap (20.03)"
-  - GLMapStatic (1.2.2):
+  - GLMapStatic (1.2.4):
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
-  - GLRouteStatic (1.2.2):
-    - GLMapStatic (= 1.2.2)
-  - GLSearchStatic (1.2.2):
-    - GLMapStatic (= 1.2.2)
+  - GLRouteStatic (1.2.4):
+    - GLMapStatic (= 1.2.4)
+  - GLSearchStatic (1.2.4):
+    - GLMapStatic (= 1.2.4)
 
 DEPENDENCIES:
   - GLMapStatic
@@ -25,10 +25,10 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   "GLMap+DefaultStyle": 3ac605128636d172ba20ba6a96a67863a1f8bd87
   "GLMap+WorldMap": 33fef1060f4fa66fea3b2ea7d4d2bbc18a5565f3
-  GLMapStatic: 8047e4504d932e4d241505f8a468bd240c6e1589
-  GLRouteStatic: d5846c24db6cf3cede68b86f6c21de602cf8654a
-  GLSearchStatic: ae1d878cd192c4ea2497ca5b85d839c89fc3924a
+  GLMapStatic: e5a82ca58356fc8085305fe97071d79c8ea98c62
+  GLRouteStatic: 3e1c6cdc5e4f2e1266f7dff329da5c147b26dd13
+  GLSearchStatic: bad980bc3699d1a5e59fbf9221f4cb351f352e1c
 
 PODFILE CHECKSUM: 87c9da37b07e74ad4387ee052931e94145c022ea
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

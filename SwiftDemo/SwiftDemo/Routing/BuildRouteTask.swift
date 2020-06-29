@@ -47,6 +47,9 @@ class BuildRouteTask: Task {
         request.mode = params.mode
         request.locale = "en-US"
         request.unitSystem = .international
+        for pt in params.points {
+            request.add(pt.pt)
+        }
         taskID = request.start { route, error in
             if let error = error {
                 let nsError = error as NSError

@@ -57,9 +57,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [[GLMapManager sharedManager] clearCaches];
-
-    // temporary
-    //[self performSegueWithIdentifier:@"Map" sender:[NSNumber numberWithInteger:13]];
 }
 
 #pragma mark - Table view data source

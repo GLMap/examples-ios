@@ -8,6 +8,7 @@
 
 import GLMapSwift
 import UIKit
+import GLRoute
 
 class ViewController: UITableViewController {
     public enum Demo {
@@ -16,6 +17,7 @@ class ViewController: UITableViewController {
         case EmbeddMap
         case OnlineMap
         case Routing
+        case RouteTracker
         case RasterOnlineMap
         case ZoomToBBox
         case OfflineSearch
@@ -56,12 +58,13 @@ class ViewController: UITableViewController {
         }
     }
 
-    var tableRows = [
+    let tableRows = [
         TableRow(.OfflineMap, name: "Open offline map"),
         TableRow(.DarkTheme, name: "Dark theme"),
         TableRow(.EmbeddMap, name: "Open embedd map"),
         TableRow(.OnlineMap, name: "Open online map", description: "Downloads tiles one by one"),
         TableRow(.Routing, name: "Routing", description: "Offline routing requires downloaded navigation data"),
+        TableRow(.RouteTracker, name: "Route Tracker", description: "Tracking user while it moves along the route"),
         TableRow(.RasterOnlineMap, name: "Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
 
         TableRow(.ZoomToBBox, name: "Zoom to bbox"),
@@ -128,6 +131,27 @@ class ViewController: UITableViewController {
 
         if row.id == Demo.DownloadMap {
             performSegue(withIdentifier: "DownloadMaps", sender: nil)
+        } else if row.id == Demo.RouteTracker {
+            let start = RoutePoint(pt: GLMapGeoPoint(lat:+37.405054, lon:-122.156626),
+                                   index: 0,
+                                   isCurrentLocation: true)
+            let finish = RoutePoint(pt: GLMapGeoPoint(lat:+37.335055, lon:-122.026958),
+                                    index: 1,
+                                    isCurrentLocation: false)
+
+            let params = RouteParams(points: [start, finish], mode: .drive)
+            let task = BuildRouteTask(params: params)
+            task.start { [weak task] in
+                switch task?.result {
+                case let .success(result):
+                    let vc = RouteTrackerViewController(result)
+                    self.navigationController?.pushViewController(vc, animated: true)
+                case let .error(error):
+                    NSLog("Error building route: \(error.localizedDescription)")
+                default:
+                    NSLog("Unexpected result")
+                }
+            }
         } else {
             performSegue(withIdentifier: "Map", sender: row.id)
         }
