@@ -28,6 +28,16 @@
 		6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196A1E0D515500FBCF75 /* cluster_data.json */; };
 		6CB9196D1E0D515500FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196B1E0D515500FBCF75 /* cluster.svgpb */; };
 		6CEA4E231FF4D9F900AC3758 /* ImageGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */; };
+		C1AE26DF24DBEE4E00474C31 /* RouteHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26D624DBEE4E00474C31 /* RouteHelper.swift */; };
+		C1AE26E024DBEE4E00474C31 /* RouteTrackerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C1AE26D724DBEE4E00474C31 /* RouteTrackerViewController.xib */; };
+		C1AE26E124DBEE4E00474C31 /* RoutePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26D824DBEE4E00474C31 /* RoutePoint.swift */; };
+		C1AE26E224DBEE4E00474C31 /* RouteParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26D924DBEE4E00474C31 /* RouteParams.swift */; };
+		C1AE26E324DBEE4E00474C31 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DA24DBEE4E00474C31 /* Utils.swift */; };
+		C1AE26E424DBEE4E00474C31 /* RouteTrackerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DB24DBEE4E00474C31 /* RouteTrackerViewController.swift */; };
+		C1AE26E524DBEE4E00474C31 /* BuildRouteTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DC24DBEE4E00474C31 /* BuildRouteTask.swift */; };
+		C1AE26E624DBEE4E00474C31 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DD24DBEE4E00474C31 /* Formatters.swift */; };
+		C1AE26E724DBEE4E00474C31 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DE24DBEE4E00474C31 /* Route.swift */; };
+		C1AE26E924DBEE6C00474C31 /* MapViewControllerBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */; };
 		F437D9F2453A898A43665EE5 /* Pods_SwiftDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 638C036C602B69428C6D4223 /* Pods_SwiftDemo.framework */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +67,16 @@
 		6CB9196A1E0D515500FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196B1E0D515500FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
 		6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGroup.swift; sourceTree = "<group>"; };
+		C1AE26D624DBEE4E00474C31 /* RouteHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteHelper.swift; sourceTree = "<group>"; };
+		C1AE26D724DBEE4E00474C31 /* RouteTrackerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RouteTrackerViewController.xib; sourceTree = "<group>"; };
+		C1AE26D824DBEE4E00474C31 /* RoutePoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoutePoint.swift; sourceTree = "<group>"; };
+		C1AE26D924DBEE4E00474C31 /* RouteParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteParams.swift; sourceTree = "<group>"; };
+		C1AE26DA24DBEE4E00474C31 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		C1AE26DB24DBEE4E00474C31 /* RouteTrackerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteTrackerViewController.swift; sourceTree = "<group>"; };
+		C1AE26DC24DBEE4E00474C31 /* BuildRouteTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BuildRouteTask.swift; sourceTree = "<group>"; };
+		C1AE26DD24DBEE4E00474C31 /* Formatters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		C1AE26DE24DBEE4E00474C31 /* Route.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
+		C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewControllerBase.swift; sourceTree = "<group>"; };
 		F2083E390792CB74631D51FD /* Pods-SwiftDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftDemo/Pods-SwiftDemo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,17 +121,19 @@
 		6C6C255C1DD9F5F70060A241 /* SwiftDemo */ = {
 			isa = PBXGroup;
 			children = (
+				6C6C26171DDDF1540060A241 /* Resources */,
+				C1AE26D524DBEE4E00474C31 /* Routing */,
 				6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */,
+				6C6C25641DD9F5F80060A241 /* Assets.xcassets */,
 				6C255FB11DF02F3C0083815D /* DownloadMapsViewController.swift */,
 				6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */,
-				6C6C25F41DDC75710060A241 /* MapViewController.swift */,
-				6C255FB21DF02F3C0083815D /* OSMTileSource.swift */,
-				6C6C255F1DD9F5F80060A241 /* ViewController.swift */,
 				6C6C25691DD9F5F80060A241 /* Info.plist */,
-				6C6C25641DD9F5F80060A241 /* Assets.xcassets */,
 				6C6C25661DD9F5F80060A241 /* LaunchScreen.storyboard */,
 				6C6C25611DD9F5F80060A241 /* Main.storyboard */,
-				6C6C26171DDDF1540060A241 /* Resources */,
+				6C6C25F41DDC75710060A241 /* MapViewController.swift */,
+				C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */,
+				6C255FB21DF02F3C0083815D /* OSMTileSource.swift */,
+				6C6C255F1DD9F5F80060A241 /* ViewController.swift */,
 			);
 			path = SwiftDemo;
 			sourceTree = "<group>";
@@ -142,6 +164,22 @@
 				F2083E390792CB74631D51FD /* Pods-SwiftDemo.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		C1AE26D524DBEE4E00474C31 /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+				C1AE26D624DBEE4E00474C31 /* RouteHelper.swift */,
+				C1AE26D724DBEE4E00474C31 /* RouteTrackerViewController.xib */,
+				C1AE26D824DBEE4E00474C31 /* RoutePoint.swift */,
+				C1AE26D924DBEE4E00474C31 /* RouteParams.swift */,
+				C1AE26DA24DBEE4E00474C31 /* Utils.swift */,
+				C1AE26DB24DBEE4E00474C31 /* RouteTrackerViewController.swift */,
+				C1AE26DC24DBEE4E00474C31 /* BuildRouteTask.swift */,
+				C1AE26DD24DBEE4E00474C31 /* Formatters.swift */,
+				C1AE26DE24DBEE4E00474C31 /* Route.swift */,
+			);
+			path = Routing;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -217,6 +255,7 @@
 				6C6C25651DD9F5F80060A241 /* Assets.xcassets in Resources */,
 				6C6C262E1DDDF1540060A241 /* pin3.png in Resources */,
 				6C558A96224B65360095E602 /* uk_postcodes.geojson in Resources */,
+				C1AE26E024DBEE4E00474C31 /* RouteTrackerViewController.xib in Resources */,
 				6C6C262C1DDDF1540060A241 /* pin2.png in Resources */,
 				6C780D0621088724008410F6 /* valhalla.json in Resources */,
 				6C6C262B1DDDF1540060A241 /* pin1@2x.png in Resources */,
@@ -303,9 +342,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C6C25601DD9F5F80060A241 /* ViewController.swift in Sources */,
+				C1AE26E624DBEE4E00474C31 /* Formatters.swift in Sources */,
+				C1AE26E524DBEE4E00474C31 /* BuildRouteTask.swift in Sources */,
+				C1AE26DF24DBEE4E00474C31 /* RouteHelper.swift in Sources */,
 				6CEA4E231FF4D9F900AC3758 /* ImageGroup.swift in Sources */,
+				C1AE26E724DBEE4E00474C31 /* Route.swift in Sources */,
 				6C6C25F51DDC75710060A241 /* MapViewController.swift in Sources */,
+				C1AE26E124DBEE4E00474C31 /* RoutePoint.swift in Sources */,
+				C1AE26E324DBEE4E00474C31 /* Utils.swift in Sources */,
 				6C255FB41DF02F3C0083815D /* OSMTileSource.swift in Sources */,
+				C1AE26E424DBEE4E00474C31 /* RouteTrackerViewController.swift in Sources */,
+				C1AE26E924DBEE6C00474C31 /* MapViewControllerBase.swift in Sources */,
+				C1AE26E224DBEE4E00474C31 /* RouteParams.swift in Sources */,
 				6C255FB31DF02F3C0083815D /* DownloadMapsViewController.swift in Sources */,
 				6C6C255E1DD9F5F80060A241 /* AppDelegate.swift in Sources */,
 			);
