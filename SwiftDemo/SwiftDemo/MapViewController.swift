@@ -49,9 +49,17 @@ class MapViewController: MapViewControllerBase {
     ]
 
     var tilesToDownload: Int = 0
+    var stylePath: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let path = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle") {
+            stylePath = path
+        } else {
+            print("Missing DefaultStyle.bundle inside main bundle")
+            return
+        }
         
         title = "Demo map"
 
@@ -121,11 +129,17 @@ class MapViewController: MapViewControllerBase {
         if map.centerTileState == .noData {
             let mapCenter = map.mapCenter
 
-            mapToDownload = GLMapManager.shared.map(at: mapCenter)
-
-            if let map = mapToDownload {
-                if map.state(for: .map) == .downloaded || map.distance(fromBorder: mapCenter) > 0.0 {
+            guard let maps = GLMapManager.shared.maps(at: mapCenter), maps.count > 0 else {
+                mapToDownload = nil
+                return
+            }
+            
+            for map in maps {
+                if map.state(for: .map) == .downloaded {
                     mapToDownload = nil
+                    break
+                } else {
+                    mapToDownload = map
                 }
             }
 
@@ -163,6 +177,10 @@ class MapViewController: MapViewControllerBase {
     func showOfflineMap() {
         // nonthing to do
     }
+    
+    func loadDarkTheme() {
+        loadStyle(darkTheme: true, carDriving: false)
+    }
 
     func showEmbedMap() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
@@ -179,14 +197,12 @@ class MapViewController: MapViewControllerBase {
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
     var valhallaConfig: String?
-
+    
     func testRouting() {
-        // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
-        guard let stylePath = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle") else {
-            NSLog("Can't find DefaultStyle.bundle in resources")
-            return
+        let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
+        if let style = parser.parseFromResources() {
+            map.setStyle(style)
         }
-        map.loadStyle(fromPaths: [stylePath, Bundle.main.bundlePath])
 
         guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
             NSLog("Can't find valhalla.json in resources")
@@ -263,8 +279,8 @@ class MapViewController: MapViewControllerBase {
             routeRequest.setOfflineWithConfig(valhallaConfig!)
         }
 
-        routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true))
-        routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true))
+        routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true, allowUTurn: false))
+        routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true, allowUTurn: false))
 
         routeRequest.start(completion: { (result: GLRoute?, error: Error?) in
             if let routeData = result {
@@ -717,15 +733,46 @@ class MapViewController: MapViewControllerBase {
             DispatchQueue.global().async {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
                     if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
-                        if let cascadeStyle = GLMapVectorCascadeStyle.createStyle(
-                            "node { icon-image:\"uni0\"; text-priority: 100; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}" +
-                                "node[count>=2]{icon-image:\"uni1\"; text-priority: 101; text:eval(tag(\"count\"));}" +
-                                "node[count>=4]{icon-image:\"uni2\"; text-priority: 102;}" +
-                                "node[count>=8]{icon-image:\"uni3\"; text-priority: 103;}" +
-                                "node[count>=16]{icon-image:\"uni4\"; text-priority: 104;}" +
-                                "node[count>=32]{icon-image:\"uni5\"; text-priority: 105;}" +
-                                "node[count>=64]{icon-image:\"uni6\"; text-priority: 106;}" +
-                                "node[count>=128]{icon-image:\"uni7\"; text-priority: 107;}") {
+                        if let cascadeStyle = GLMapVectorCascadeStyle.createStyle("""
+node {
+    icon-image:"uni0";
+    text-priority: 100;
+    text:eval(tag("name"));
+    text-color:#2E2D2B;
+    font-size:12;
+    font-stroke-width:1pt;
+    font-stroke-color:#FFFFFFEE;
+}
+node[count>=2]{
+    icon-image:"uni1";
+    text-priority: 101;
+    text:eval(tag("count"));
+}
+node[count>=4]{
+    icon-image:"uni2";
+    text-priority: 102;
+}
+node[count>=8]{
+    icon-image:"uni3";
+    text-priority: 103;
+}
+node[count>=16]{
+    icon-image:"uni4";
+    text-priority: 104;
+}
+node[count>=32]{
+    icon-image:"uni5";
+    text-priority: 105;
+}
+node[count>=64]{
+    icon-image:"uni6";
+    text-priority: 106;
+}
+node[count>=128]{
+    icon-image:"uni7";
+    text-priority: 107;
+}
+""") {
                             let markerLayer = GLMapMarkerLayer(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                             let bbox = objects.bbox
                             DispatchQueue.main.async { [weak self] in
@@ -818,26 +865,57 @@ class MapViewController: MapViewControllerBase {
     }
 
     func geoJsonDemo() {
-        if let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [30.5186, 50.4339]}, \"properties\": {\"id\": \"1\", \"text\": \"test1\"}}," +
-            "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [27.7151, 53.8869]}, \"properties\": {\"id\": \"2\", \"text\": \"test2\"}}," +
-            "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}," +
-            "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]") {
-            if let style = GLMapVectorCascadeStyle.createStyle("node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
-                "node|z-9[id=2]{icon-image:\"bus.svgpb\";icon-scale:0.7;icon-tint:blue;;text:eval(tag('text'));text-color:red;font-size:12;text-priority:100;}" +
-                "line{linecap: round; width: 5pt; color:blue; layer:100;}" +
-                "area{fill-color:green; width:1pt; color:red; layer:100;}") {
-                var drawable = GLMapDrawable()
-                drawable.setVectorObject(objects[0], with: style, completion: nil)
-                map.add(drawable)
-                flashObject(object: drawable)
-                objects.removeObject(at: 0)
+        guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: """
+[{"type": "Feature", "geometry": {"type": "Point", "coordinates": [30.5186, 50.4339]}, "properties": {"id": "1", "text": "test1"}},
+{"type": "Feature", "geometry": {"type": "Point", "coordinates": [27.7151, 53.8869]}, "properties": {"id": "2", "text": "test2"}},
+{"type":"LineString", "coordinates": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},
+{"type":"Polygon", "coordinates":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]
+"""),
+              let style = GLMapVectorCascadeStyle.createStyle("""
+node[id=1] {
+    icon-image:"bus.svgpb";
+    icon-scale:0.5;
+    icon-tint:green;
+    text:eval(tag('text'));
+    text-color:red;
+    font-size:12;
+    // add priority to this text over map objects
+    text-priority: 20;
+}
+node|z-9[id=2] {
+    icon-image:"bus.svgpb";
+    icon-scale:0.7;
+    icon-tint:blue;
+    text:eval(tag('text'));
+    text-color:red;
+    font-size:12;
+    // add priority to this text over map objects
+    text-priority: 20;
+}
+line {
+    linecap: round;
+    width: 5pt;
+    color:blue;
+}
+area {
+    fill-color:green;
+    width:1pt;
+    color:red;
+}
+""") else { return }
+        // When GLMapDrawable created without drawOrder:param it's displayed with map objects, and could hide other objects.
+        // When drawOrder is set, then drawable interact with other objects with same drawOrder value.
+        var drawable = GLMapDrawable()
+        drawable.setVectorObject(objects[0], with: style, completion: nil)
+        map.add(drawable)
+        flashObject(object: drawable)
+        objects.removeObject(at: 0)
 
-                drawable = GLMapDrawable()
-                drawable.setVectorObjects(objects, with: style, completion: nil)
-                map.add(drawable)
-            }
-        }
+        drawable = GLMapDrawable()
+        drawable.setVectorObjects(objects, with: style, completion: nil)
+        map.add(drawable)
     }
+        
 
     var flashAdd: Bool = false
     @objc func flashObject(object: GLMapDrawable) {
@@ -864,29 +942,51 @@ class MapViewController: MapViewControllerBase {
     }
 
     func fontsDemo() {
-        if let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON:
-            "[{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 64]}, \"properties\": {\"id\": \"1\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 63.6]}, \"properties\": {\"id\": \"2\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 62.3]}, \"properties\": {\"id\": \"3\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 61]}, \"properties\": {\"id\": \"4\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 60]}, \"properties\": {\"id\": \"5\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 58]}, \"properties\": {\"id\": \"6\"}}," +
-                "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-25, 56]}, \"properties\": {\"id\": \"7\"}}," +
-                "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]") {
-            if let style = GLMapVectorCascadeStyle.createStyle(
-                "node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}" +
-                    "node[id=2]{text:'Test12';text-color:black;font-size:10;text-priority:100;}" +
-                    "node[id=3]{text:'Test12';text-color:black;font-size:15;text-priority:100;}" +
-                    "node[id=4]{text:'Test12';text-color:black;font-size:20;text-priority:100;}" +
-                    "node[id=5]{text:'Test12';text-color:black;font-size:25;text-priority:100;}" +
-                    "node[id=6]{text:'Test12';text-color:black;font-size:30;text-priority:100;}" +
-                    "node[id=7]{text:'Test12';text-color:black;font-size:35;text-priority:100;}" +
-                    "area{fill-color:white; layer:100;}") {
+        guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON:"""
+[{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,64]},"properties":{"id":"1"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,63.6]},"properties":{"id":"2"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,62.3]},"properties":{"id":"3"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,61]},"properties":{"id":"4"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,60]},"properties":{"id":"5"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,58]},"properties":{"id":"6"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,56]},"properties":{"id":"7"}},
+{"type":"Polygon","coordinates":[[[-30,50],[-30,80],[-10,80],[-10,50]]]}]
+"""),
+              let style = GLMapVectorCascadeStyle.createStyle("""
+node {
+    text:'Test12';
+    text-color:black;
+    text-priority:100;
+}
+node[id=1] {
+    font-size:5;
+}
+node[id=2] {
+    font-size:10;
+}
+node[id=3] {
+    font-size:15;
+}
+node[id=4] {
+    font-size:20;
+}
+node[id=5] {
+    font-size:25;
+}
+node[id=6] {
+    font-size:30;
+}
+node[id=7] {
+    font-size:35;
+}
+area {
+    fill-color:white;
+    layer:100;
+}
+""") else { return }
                 let drawable = GLMapDrawable()
                 drawable.setVectorObjects(objects, with: style, completion: nil)
                 map.add(drawable)
-            }
-        }
 
         let testView = UIView(frame: CGRect(x: 350, y: 200, width: 150, height: 200))
         testView.backgroundColor = UIColor.black
@@ -1016,39 +1116,44 @@ class MapViewController: MapViewControllerBase {
             return true
         }
     }
-    
-    func loadDarkTheme() {
-        let stylePath = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle")!
-        map.loadStyle { [weak self] name in
-            guard let self = self else { return .empty }
-            switch name {
-            case "colors.mapcss":
-                return self.map.loadResource(fromPath: stylePath, name: "colors_dark.mapcss")
-            case "noData.png":
-                return self.map.loadResource(fromPath: stylePath, name: "noData_dark.png")
-            default:
-                return self.map.loadResource(fromPath: stylePath, name: name)
-            }
+        
+    func loadStyle(darkTheme: Bool, carDriving: Bool) {
+        let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
+        
+        var options = [String: String]()
+        if carDriving {
+            options["Style"] = "CarDriving"
         }
+        if darkTheme {
+            options["Theme"] = "Dark"
+        }
+        parser.setOptions(options, defaultValue: true)
+        guard let style = parser.parseFromResources() else {
+            NSLog("Can't parse style from resources")
+            return
+        }
+        map.setStyle(style)
         map.reloadTiles()
     }
 
     @objc func styleReload() {
-        let urlField = navigationItem.titleView as! UITextField
+        guard
+            let textView = navigationItem.titleView as? UITextField,
+            let string = textView.text,
+            let url = URL(string: string) else { return }
 
         do {
-            let styleData = try Data(contentsOf: URL(string: urlField.text!)!)
-            if map.loadStyle({ (name) -> GLMapResource in
-                if name == "Style.mapcss" {
-                    return GLMapResource(data: styleData)
-                }
-                return .empty
-            }) {
-                map.reloadTiles()
-            } else {
+            let styleData = try Data(contentsOf: url)
+            let parser = GLMapStyleParser(paths: [Bundle.main.bundlePath, stylePath])
+            parser.parseNextBuffer(styleData)
+            guard let style = parser.finish() else {
                 displayAlert(nil, message: "Style syntax error. Check log for details.")
+                return
             }
-        } catch let error as NSError {
+            
+            map.setStyle(style)
+            map.reloadTiles()
+        } catch {
             displayAlert(nil, message: "Style downloading error: \(error.localizedDescription)")
         }
     }

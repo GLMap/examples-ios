@@ -26,7 +26,7 @@ class RoutePoint : Equatable {
     }
 
     init(pt: GLMapGeoPoint, index: Int, isCurrentLocation: Bool) {
-        self.pt = GLRoutePoint(pt: pt, heading: Double.nan, isStop: true, originalIndex: Int32(index))
+        self.pt = GLRoutePoint(pt: pt, heading: Double.nan, originalIndex: Int32(index), isStop: true, allowUTurn: false)
         self.isCurrentLocation = isCurrentLocation
     }
 

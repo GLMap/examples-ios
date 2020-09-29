@@ -185,8 +185,8 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         }
 
         let cur = GLMapGeoPoint(lat: curLocation.coordinate.latitude, lon: curLocation.coordinate.longitude)
-        var newPoints = [RoutePoint(pt: GLRoutePoint(pt: cur, heading: curLocation.course, isStop: true, originalIndex: 0),
-                                    isCurrentLocation: true)]        
+        var newPoints = [RoutePoint(pt: GLRoutePoint(pt: cur, heading: curLocation.course, originalIndex: 0, isStop: true, allowUTurn: false),
+                                    isCurrentLocation: true)]
         if let newPoint = newPoint {
             newPoints.append(newPoint)
             originalParams = originalParams.adding(newPoint)
