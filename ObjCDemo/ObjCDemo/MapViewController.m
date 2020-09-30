@@ -325,8 +325,8 @@
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
 
     // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
-    [_mapView loadStyleFromPaths:@[[[NSBundle mainBundle] pathForResource:@"DefaultStyle" ofType:@"bundle"], [[NSBundle mainBundle] bundlePath]]];
-    
+    GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[[NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"], NSBundle.mainBundle.bundlePath]];
+    [_mapView setStyle:[parser parseFromResources]];
     __weak GLMapView *wMap = _mapView;
     __weak MapViewController *wself = self;
     _mapView.tapGestureBlock = ^(CGPoint pt) {
@@ -369,8 +369,8 @@
     request.mode = mode;
     request.locale = @"en";
     request.unitSystem = GLUnitSystem_International;
-    [request addPoint:GLRoutePointMake(_startPoint, NAN, YES)];
-    [request addPoint:GLRoutePointMake(_endPoint, NAN, YES)];
+    [request addPoint:GLRoutePointMake(_startPoint, NAN, YES, YES)];
+    [request addPoint:GLRoutePointMake(_endPoint, NAN, YES, YES)];
 
     if(_networkMode.selectedSegmentIndex !=0)
         [request setOfflineWithConfig:_valhallaConfig];
@@ -494,12 +494,14 @@
 - (void)updateDownloadButtonText:(NSNotification *)aNotify {
     if (_mapView.centerTileState == GLMapTileState_NoData) {
         GLMapPoint center = [_mapView mapCenter];
-
-        _mapToDownload = [[GLMapManager sharedManager] mapAtPoint:center];
-
-        if (_mapToDownload && ([_mapToDownload stateForDataSet:GLMapInfoDataSet_Map] == GLMapInfoState_Downloaded ||
-                               [_mapToDownload distanceFromBorder:center] > 0)) {
-            _mapToDownload = nil;
+        NSArray *maps = [GLMapManager.sharedManager mapsAtPoint:center];
+        for(GLMapInfo *map in maps) {
+            if ([map stateForDataSet:GLMapInfoDataSet_Map] == GLMapInfoState_Downloaded) {
+                _mapToDownload = nil;
+                break;
+            } else {
+                _mapToDownload = map;
+            }
         }
 
         if (_mapToDownload) {
@@ -1200,19 +1202,9 @@
 
 - (void)loadDarkTheme {
     NSString *stylePath = [NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"];
-    __weak MapViewController *wself = self;
-    [_mapView loadStyleWithBlock:^GLMapResource(NSString *_Nonnull name) {
-      MapViewController *sself = wself;
-      if(sself == nil)
-          return GLMapResourceEmpty;
-      if ([name isEqualToString:@"colors.mapcss"]) {
-        return [sself->_mapView loadResourceFromPath:stylePath name:@"colors_dark.mapcss"];
-      } else if([name isEqualToString:@"noData.png"]) {
-        return [sself->_mapView loadResourceFromPath:stylePath name:@"noData_dark.png"];
-      } else {
-        return [sself->_mapView loadResourceFromPath:stylePath name:name];
-      }
-    }];
+    GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[stylePath]];
+    [parser setOptions:@{@"Theme": @"Dark"} defaultValue:YES];
+    [_mapView setStyle:[parser parseFromResources]];
     [_mapView reloadTiles];
 }
 
@@ -1224,17 +1216,15 @@
     if (error) {
         [self displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Style downloading error: %@", [error localizedDescription]]];
     } else {
-        BOOL rv = [_mapView loadStyleWithBlock:^GLMapResource(NSString *_Nonnull name) {
-          if ([name isEqualToString:@"Style.mapcss"]) {
-              return GLMapResourceWithData(data);
-          }
-          return GLMapResourceEmpty;
-        }];
-
-        if (!rv) {
-            [self displayAlertWithTitle:nil message:@"Style syntax error. Check log for details."];
+        GLMapStyleParser *parser = [GLMapStyleParser.alloc init];
+        [parser parseNextBuffer:data];
+        GLMapVectorCascadeStyle *style = [parser finish];
+        if (style) {
+            [_mapView setStyle:style];
+            [_mapView reloadTiles];
+        } else {
+            [self displayAlertWithTitle:nil message:parser.error.localizedDescription];
         }
-        [_mapView reloadTiles];
     }
 }
 
