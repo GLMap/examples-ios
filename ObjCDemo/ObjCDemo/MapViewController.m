@@ -779,13 +779,13 @@
                                            GLMapColorMake(223, 180, 19, 255), GLMapColorMake(255, 0, 0, 255)};
 
     // Create style collection - it's storage for all images possible to use for markers and clusters
-    GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
+    GLMapMarkerStyleCollection *styleCollection = [GLMapMarkerStyleCollection.alloc init];
     // Render possible images from svgpb
     NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
     double maxSize = 0;
     for (int i = 0; i < unionCount; i++) {
         float scale = 0.2 + 0.1 * i;
-        UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
+        UIImage *img = [GLMapVectorImageFactory.sharedFactory imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
         if (maxSize < img.size.width)
             maxSize = img.size.width;
         uint32_t styleIndex = [styleCollection addStyleWithImage:img];
@@ -795,9 +795,9 @@
     }
 
     // Create cascade style that will select style from collection
-    GLMapVectorCascadeStyle *cascadeStyle =
-        [GLMapVectorCascadeStyle createStyle:@"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12; "
-                                             @"font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
+    GLMapVectorCascadeStyle *cascadeStyle = [GLMapVectorCascadeStyle createStyle:
+                                             @"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12;"
+                                              "font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
                                               "node[count>=2]{icon-image:\"uni1\"; text:eval(tag(\"count\"));}"
                                               "node[count>=4]{icon-image:\"uni2\";}"
                                               "node[count>=8]{icon-image:\"uni3\";}"
@@ -1096,11 +1096,10 @@
 }
 
 - (void)loadGeoJSONPostcode {
-    NSError *error = nil;
-    NSString *geojson = [NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"uk_postcodes" ofType:@"geojson"] encoding:NSUTF8StringEncoding error:&error];
-    if (geojson) {
-        GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:geojson error:nil];
-        
+    NSString *path = [NSBundle.mainBundle pathForResource:@"uk_postcodes" ofType:@"geojson"];
+    if (path) {
+        NSError *error = nil;
+        GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromFile:path error:&error];
         if (objects) {
             GLMapDrawable *drawable = [GLMapDrawable.alloc init];
             [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
