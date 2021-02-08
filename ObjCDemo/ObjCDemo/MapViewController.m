@@ -93,7 +93,7 @@
     int scenario = _demoScenario.intValue;
     switch (scenario) {
     case Test_OfflineMap: // open map
-        // nothing to do. just start rendering inside viewWillAppear
+        // nothing to do.
         break;
     case Test_DarkTheme:
         [self loadDarkTheme];
@@ -112,7 +112,7 @@
         [self testRouting];
         break;
     case Test_RasterOnlineMap:
-        _mapView.tileSources = @[ [[OSMTileSource alloc] init] ];
+        _mapView.base = [[OSMTileSource alloc] init];
         break;
     case Test_ZoomToBBox: // zoom to bbox
         [self zoomToBBox];

@@ -309,7 +309,7 @@ class MapViewController: MapViewControllerBase {
 
     func showRasterOnlineMap() {
         if let osmTileSource = OSMTileSource(cachePath: "/osm.sqlite") {
-            map.tileSources = [osmTileSource]
+            map.base = osmTileSource
         }
     }
 
