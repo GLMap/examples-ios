@@ -54,7 +54,7 @@ class MapViewController: MapViewControllerBase {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let path = Bundle.main.path(forResource: "DefaultStyle", ofType: "bundle") {
+        if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
             stylePath = path
         } else {
             print("Missing DefaultStyle.bundle inside main bundle")
@@ -242,12 +242,11 @@ class MapViewController: MapViewControllerBase {
                 if !menu.isMenuVisible {
                     sself.menuPoint = GLMapGeoPoint(point: sself.map.makeMapPoint(fromDisplay: pt))
                     sself.becomeFirstResponder()
-                    menu.setTargetRect(CGRect(x: pt.x, y: pt.y, width: 1, height: 1), in: sself.map)
                     menu.menuItems = [
                         UIMenuItem(title: "Departure", action: #selector(MapViewController.setDeparture)),
                         UIMenuItem(title: "Destination", action: #selector(MapViewController.setDestination)),
                     ]
-                    menu.setMenuVisible(true, animated: true)
+                    menu.showMenu(from: sself.map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
                 }
             }
         }
@@ -524,9 +523,8 @@ class MapViewController: MapViewControllerBase {
                 self?.becomeFirstResponder()
 
                 if let map = self?.map {
-                    menu.setTargetRect(CGRect(origin: point, size: CGSize(width: 1, height: 1)), in: map)
                     menu.menuItems = [UIMenuItem(title: "Add pin", action: #selector(MapViewController.addPin))]
-                    menu.setMenuVisible(true, animated: true)
+                    menu.showMenu(from: map, rect: CGRect(origin: point, size: CGSize(width: 1, height: 1)))
                 }
             }
         }
@@ -540,9 +538,8 @@ class MapViewController: MapViewControllerBase {
                         let pinPos = map.makeDisplayPoint(from: pin.position)
                         self?.pinToDelete = pin
                         self?.becomeFirstResponder()
-                        menu.setTargetRect(CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)), in: map)
                         menu.menuItems = [UIMenuItem(title: "Delete pin", action: #selector(MapViewController.deletePin))]
-                        menu.setMenuVisible(true, animated: true)
+                        menu.showMenu(from: map, rect: CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)))
                     }
                 }
             }

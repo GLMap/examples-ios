@@ -31,7 +31,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
         let image: GLMapDrawable
         if(bearing >= 0) {
             image = movementImage ?? {
-                let path = Bundle.main.path(forResource: "arrow-new", ofType: "svgpb", inDirectory: "DefaultStyle.bundle")!
+                let path = GLMapManager.shared.resourcesBundle.path(forResource: "arrow-new", ofType: "svgpb", inDirectory: "DefaultStyle.bundle")!
                 let img = GLMapVectorImageFactory.shared.image(fromSvgpb: path)!
                 let rv = GLMapDrawable(drawOrder: 101)
                 self.movementImage = rv
@@ -44,7 +44,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
             }()
         } else {
             image = stopImage ?? {
-                let path = Bundle.main.path(forResource: "circle-new", ofType: "svgpb", inDirectory: "DefaultStyle.bundle")!
+                let path = GLMapManager.shared.resourcesBundle.path(forResource: "circle-new", ofType: "svgpb", inDirectory: "DefaultStyle.bundle")!
                 let img = GLMapVectorImageFactory.shared.image(fromSvgpb: path)!
                 let rv = GLMapDrawable(drawOrder: 101)
                 self.stopImage = rv
