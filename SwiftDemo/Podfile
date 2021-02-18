@@ -1,8 +1,9 @@
-platform :ios, '9.0'
+platform :ios, '11.0'
 use_frameworks!
 
 target 'SwiftDemo' do
-    pod 'GLMapSwift'
-    pod 'GLSearch'
-    pod 'GLRoute'
+   pod 'GLMapSwift'
+   pod 'GLMap'
+   pod 'GLSearch'
+   pod 'GLRoute'
 end

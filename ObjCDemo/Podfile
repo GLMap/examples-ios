@@ -2,11 +2,7 @@ platform :ios, '9.0'
 use_frameworks!
 
 target 'ObjCDemo' do
-# Use *Static pods if you want to use static lib instead of dynamic framework
-   pod 'GLMapStatic'
-   pod 'GLSearchStatic'
-   pod 'GLRouteStatic'
-#   pod 'GLMap'
-#   pod 'GLSearch'
-#   pod 'GLRoute'
+   pod 'GLMap'
+   pod 'GLSearch'
+   pod 'GLRoute'
 end

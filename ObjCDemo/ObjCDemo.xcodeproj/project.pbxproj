@@ -179,6 +179,7 @@
 				6C6C25B41DDA04840060A241 /* Frameworks */,
 				6C6C25B51DDA04840060A241 /* Resources */,
 				F5CA6D59D9C0BB5155F295E8 /* [CP] Copy Pods Resources */,
+				CBF7965385142DDEBA48A30C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -267,6 +268,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		CBF7965385142DDEBA48A30C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLMap/GLMap.framework/GLMap",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLRoute/GLRoute.framework/GLRoute",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLSearch/GLSearch.framework/GLSearch",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLRoute.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLSearch.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		F5CA6D59D9C0BB5155F295E8 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,18 +300,12 @@
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
-				"${PODS_ROOT}/GLMapStatic/GLMap.framework/default.metallib",
-				"${PODS_ROOT}/GLSearchStatic/icudt67l.dat",
-				"${PODS_ROOT}/GLSearchStatic/categories",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DefaultStyle.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/default.metallib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icudt67l.dat",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/categories",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
