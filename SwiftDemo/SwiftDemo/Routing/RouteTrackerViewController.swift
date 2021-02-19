@@ -148,10 +148,11 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        GLMapManager.shared.tileDownloadingAllowed = true
 
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-
+        
         routeChanged(.success(result: route))
         routeParamsChanged()
         routeIsUpdatingChanged()
