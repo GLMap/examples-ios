@@ -13,7 +13,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Insert your API key from https://user.getyourmap.com/apps
-    [GLMapManager sharedManager].apiKey = <#API key#>;
+    [GLMapManager activateWithApiKey:<#API key#> resourcesBundle:nil andStoragePath:nil];
 
     return YES;
 }
