@@ -1,13 +1,17 @@
 PODS:
-  - GLMap (1.4.0):
+  - GLMap (1.4.2):
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
   - "GLMap+DefaultStyle (1.4.0)"
   - "GLMap+WorldMap (21.02)"
-  - GLRoute (1.4.0):
-    - GLMap (= 1.4.0)
-  - GLSearch (1.4.0):
-    - GLMap (= 1.4.0)
+  - GLRoute (1.4.2):
+    - GLMap (= 1.4.2)
+    - "GLRoute+Valhalla2"
+    - "GLRoute+Valhalla3"
+  - "GLRoute+Valhalla2 (2.7.0)"
+  - "GLRoute+Valhalla3 (3.1.0)"
+  - GLSearch (1.4.2):
+    - GLMap (= 1.4.2)
 
 DEPENDENCIES:
   - GLMap
@@ -20,14 +24,18 @@ SPEC REPOS:
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
     - GLRoute
+    - "GLRoute+Valhalla2"
+    - "GLRoute+Valhalla3"
     - GLSearch
 
 SPEC CHECKSUMS:
-  GLMap: 811e56cc0b8254ec425833221a8252ba45162343
+  GLMap: 78b821e57a09f8c5131f0f24dcbda10392df1713
   "GLMap+DefaultStyle": 8e7de04fcbb31a077f139306cc2ce30ee601624f
   "GLMap+WorldMap": b43dd1529667206a4f2705e0e37ebcef031f3806
-  GLRoute: 7178e007a987d67aeb5d57a5eb767681c9c40863
-  GLSearch: d67fe256e0fa90b707be64f6059a2267ea561eed
+  GLRoute: cfebab9e5e04bcc73b18a9bcc06880045be880a6
+  "GLRoute+Valhalla2": 2f7ac20d31821329025003aa74bd812b520f258f
+  "GLRoute+Valhalla3": ac3332206f327b2c510e675b6fae433f1e748f8f
+  GLSearch: 5dafe34f731fd35d57304307f3fc62b7e7ea156b
 
 PODFILE CHECKSUM: 78d07a43047c6327fcfe41f58c093cf9d95a7b51
 

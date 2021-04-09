@@ -33,7 +33,7 @@
     UISegmentedControl *_routingMode, *_networkMode;
     GLMapGeoPoint _startPoint, _endPoint, _menuPoint;
     GLMapTrack *_routeTrack;
-    NSString *_valhallaConfig;
+    NSString *_valhallaConfig, *_valhallaLegacyConfig;
 }
 
 - (void)viewDidLoad {
@@ -296,10 +296,14 @@
 
 - (void)testRouting {
     NSError *error = nil;
-    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
-    
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla3" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
     if (error) {
-        NSLog(@"Can't load valhalla.json");
+        NSLog(@"Can't load valhalla3.json");
+        return;
+    }
+    _valhallaLegacyConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla2" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
+    if (error) {
+        NSLog(@"Can't load valhalla2.json");
         return;
     }
     
@@ -372,8 +376,10 @@
     [request addPoint:GLRoutePointMake(_startPoint, NAN, YES, YES)];
     [request addPoint:GLRoutePointMake(_endPoint, NAN, YES, YES)];
 
-    if(_networkMode.selectedSegmentIndex !=0)
+    if(_networkMode.selectedSegmentIndex !=0) {
         [request setOfflineWithConfig:_valhallaConfig];
+        [request setOfflineWithLegacyConfig:_valhallaLegacyConfig];
+    }
 
     [request startWithCompletion:^(GLRoute *result, NSError *error) {
         if (result) {

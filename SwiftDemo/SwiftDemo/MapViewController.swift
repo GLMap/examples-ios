@@ -197,22 +197,35 @@ class MapViewController: MapViewControllerBase {
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
     var valhallaConfig: String?
-    
+    var valhallaLegacyConfig: String? // legacy valhalla used when user uses old valhalla data from valhalla v2
+                                      // we have to support both versions to switch before binary incompatible versions of valhalla
     func testRouting() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
         if let style = parser.parseFromResources() {
             map.setStyle(style)
         }
 
-        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
-            NSLog("Can't find valhalla.json in resources")
+        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla3", ofType: "json") else {
+            NSLog("Can't find valhalla3.json in resources")
             return
         }
 
         do {
             valhallaConfig = try String(contentsOfFile: valhallaConfigPath)
         } catch {
-            NSLog("Can't read contents of valhalla.json")
+            NSLog("Can't read contents of valhalla3.json")
+            return
+        }
+        
+        guard let valhallaLegacyConfigPath = Bundle.main.path(forResource: "valhalla2", ofType: "json") else {
+            NSLog("Can't find valhalla2.json in resources")
+            return
+        }
+
+        do {
+            valhallaLegacyConfig = try String(contentsOfFile: valhallaLegacyConfigPath)
+        } catch {
+            NSLog("Can't read contents of valhalla2.json")
             return
         }
 
@@ -277,6 +290,7 @@ class MapViewController: MapViewControllerBase {
 
         if networkMode?.selectedSegmentIndex != 0 {
             routeRequest.setOfflineWithConfig(valhallaConfig!)
+            routeRequest.setOfflineWithLegacyConfig(valhallaLegacyConfig!)
         }
 
         routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true, allowUTurn: false))
@@ -341,7 +355,7 @@ class MapViewController: MapViewControllerBase {
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
-            let category = GLSearchCategories.shared.categoriesStarted(with: ["restaurant"], localeSettings: GLMapLocaleSettings(localesOrder: ["en"]))
+            let category = GLSearchCategories.shared.categoriesStarted(with: ["restaurant"], localeSettings: GLMapLocaleSettings.system())
             if category.count == 0 {
                 return
             }

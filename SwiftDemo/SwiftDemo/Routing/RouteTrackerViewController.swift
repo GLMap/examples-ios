@@ -163,7 +163,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
-        map.setScaleRulerStyle(.international, placement: .hidden, paddings: .zero, maxWidth: 200)
+        map.setScaleRulerPlacement(.hidden, paddings: .zero, maxWidth: 200)
     }
     
     override func viewDidDisappear(_ animated: Bool) {

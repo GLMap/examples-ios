@@ -23,7 +23,6 @@
 		6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26211DDDF1540060A241 /* pin2@2x.png */; };
 		6C6C262E1DDDF1540060A241 /* pin3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26221DDDF1540060A241 /* pin3.png */; };
 		6C6C262F1DDDF1540060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26231DDDF1540060A241 /* pin3@2x.png */; };
-		6C780D0621088724008410F6 /* valhalla.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D0421088724008410F6 /* valhalla.json */; };
 		6C780D0721088724008410F6 /* track-arrow.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D0521088724008410F6 /* track-arrow.svgpb */; };
 		6C9F244A25E01147001BE2DB /* icon_gps_ipad.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C9F242825E01147001BE2DB /* icon_gps_ipad.svgpb */; };
 		6C9F244B25E01147001BE2DB /* arrow-join.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C9F242925E01147001BE2DB /* arrow-join.svgpb */; };
@@ -96,7 +95,6 @@
 		6C6C26211DDDF1540060A241 /* pin2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin2@2x.png"; sourceTree = "<group>"; };
 		6C6C26221DDDF1540060A241 /* pin3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin3.png; sourceTree = "<group>"; };
 		6C6C26231DDDF1540060A241 /* pin3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin3@2x.png"; sourceTree = "<group>"; };
-		6C780D0421088724008410F6 /* valhalla.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla.json; path = ../../../Resources/valhalla.json; sourceTree = "<group>"; };
 		6C780D0521088724008410F6 /* track-arrow.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = "track-arrow.svgpb"; path = "../../../Resources/track-arrow.svgpb"; sourceTree = "<group>"; };
 		6C9F242825E01147001BE2DB /* icon_gps_ipad.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = icon_gps_ipad.svgpb; path = ../../../Resources/icon_gps_ipad.svgpb; sourceTree = "<group>"; };
 		6C9F242925E01147001BE2DB /* arrow-join.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = "arrow-join.svgpb"; path = "../../../Resources/arrow-join.svgpb"; sourceTree = "<group>"; };
@@ -254,7 +252,6 @@
 				6C9F243A25E01147001BE2DB /* route_pause.svgpb */,
 				6C780D0521088724008410F6 /* track-arrow.svgpb */,
 				6C558A95224B65360095E602 /* uk_postcodes.geojson */,
-				6C780D0421088724008410F6 /* valhalla.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -376,7 +373,6 @@
 				C1AE26E024DBEE4E00474C31 /* RouteTrackerViewController.xib in Resources */,
 				6C9F245425E01147001BE2DB /* arrow-left-45-plus.svgpb in Resources */,
 				6C6C262C1DDDF1540060A241 /* pin2.png in Resources */,
-				6C780D0621088724008410F6 /* valhalla.json in Resources */,
 				6C9F245D25E01147001BE2DB /* nav_map_start.svgpb in Resources */,
 				6C9F245725E01147001BE2DB /* arrow-right-45.svgpb in Resources */,
 				6C6C262B1DDDF1540060A241 /* pin1@2x.png in Resources */,
@@ -436,12 +432,16 @@
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
+				"${PODS_ROOT}/GLRoute+Valhalla2/valhalla2.json",
+				"${PODS_ROOT}/GLRoute+Valhalla3/valhalla3.json",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DefaultStyle.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/valhalla2.json",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/valhalla3.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -458,6 +458,8 @@
 				"${BUILT_PRODUCTS_DIR}/GLMapSwift/GLMapSwift.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLMap/GLMap.framework/GLMap",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLRoute/GLRoute.framework/GLRoute",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/valhalla2_micro/valhalla2_micro.framework/valhalla2_micro",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/valhalla_micro/valhalla_micro.framework/valhalla_micro",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLSearch/GLSearch.framework/GLSearch",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -465,6 +467,8 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMapSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLRoute.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/valhalla2_micro.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/valhalla_micro.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLSearch.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

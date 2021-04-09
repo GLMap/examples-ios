@@ -25,7 +25,6 @@
 		6C6C26141DDDF0520060A241 /* pin2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26081DDDF0520060A241 /* pin2@2x.png */; };
 		6C6C26151DDDF0520060A241 /* pin3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26091DDDF0520060A241 /* pin3.png */; };
 		6C6C26161DDDF0520060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C260A1DDDF0520060A241 /* pin3@2x.png */; };
-		6C780D01210886EE008410F6 /* valhalla.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D00210886EE008410F6 /* valhalla.json */; };
 		6C780D03210886F4008410F6 /* track-arrow.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6C780D02210886F4008410F6 /* track-arrow.svgpb */; };
 		6CB919701E0D516100FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196E1E0D516100FBCF75 /* cluster_data.json */; };
 		6CB919711E0D516100FBCF75 /* cluster.svgpb in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196F1E0D516100FBCF75 /* cluster.svgpb */; };
@@ -59,7 +58,6 @@
 		6C6C26081DDDF0520060A241 /* pin2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin2@2x.png"; sourceTree = "<group>"; };
 		6C6C26091DDDF0520060A241 /* pin3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin3.png; sourceTree = "<group>"; };
 		6C6C260A1DDDF0520060A241 /* pin3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin3@2x.png"; sourceTree = "<group>"; };
-		6C780D00210886EE008410F6 /* valhalla.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla.json; path = ../../../Resources/valhalla.json; sourceTree = "<group>"; };
 		6C780D02210886F4008410F6 /* track-arrow.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; name = "track-arrow.svgpb"; path = "../../../Resources/track-arrow.svgpb"; sourceTree = "<group>"; };
 		6CB9196E1E0D516100FBCF75 /* cluster_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cluster_data.json; sourceTree = "<group>"; };
 		6CB9196F1E0D516100FBCF75 /* cluster.svgpb */ = {isa = PBXFileReference; lastKnownFileType = file; path = cluster.svgpb; sourceTree = "<group>"; };
@@ -136,7 +134,6 @@
 			children = (
 				6C558A97224B65EC0095E602 /* uk_postcodes.geojson */,
 				6CB9196E1E0D516100FBCF75 /* cluster_data.json */,
-				6C780D00210886EE008410F6 /* valhalla.json */,
 				6C6C26051DDDF0520060A241 /* pin1.png */,
 				6C6C26061DDDF0520060A241 /* pin1@2x.png */,
 				6C6C26071DDDF0520060A241 /* pin2.png */,
@@ -239,7 +236,6 @@
 				6C6C26151DDDF0520060A241 /* pin3.png in Resources */,
 				6C558A98224B65EC0095E602 /* uk_postcodes.geojson in Resources */,
 				6C6C26131DDDF0520060A241 /* pin2.png in Resources */,
-				6C780D01210886EE008410F6 /* valhalla.json in Resources */,
 				6C6C26121DDDF0520060A241 /* pin1@2x.png in Resources */,
 				6C6C26161DDDF0520060A241 /* pin3@2x.png in Resources */,
 				6C6C25C51DDA04840060A241 /* Main.storyboard in Resources */,
@@ -277,12 +273,16 @@
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLMap/GLMap.framework/GLMap",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLRoute/GLRoute.framework/GLRoute",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/valhalla2_micro/valhalla2_micro.framework/valhalla2_micro",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/valhalla_micro/valhalla_micro.framework/valhalla_micro",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLSearch/GLSearch.framework/GLSearch",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLRoute.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/valhalla2_micro.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/valhalla_micro.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLSearch.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,12 +300,16 @@
 				"${PODS_ROOT}/GLMap+DefaultStyle/DefaultStyle.bundle",
 				"${PODS_ROOT}/GLMap+DefaultStyle/fonts",
 				"${PODS_ROOT}/GLMap+WorldMap/world.vm",
+				"${PODS_ROOT}/GLRoute+Valhalla2/valhalla2.json",
+				"${PODS_ROOT}/GLRoute+Valhalla3/valhalla3.json",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DefaultStyle.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fonts",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/world.vm",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/valhalla2.json",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/valhalla3.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
