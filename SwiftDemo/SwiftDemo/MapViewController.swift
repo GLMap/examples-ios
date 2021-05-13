@@ -340,7 +340,7 @@ class MapViewController: MapViewControllerBase {
             // Set locale settings. Used to boost results with locales native to user
             searchOffline.setLocaleSettings(map.localeSettings)
 
-            let category = GLSearchCategories.shared.categoriesStarted(with: ["restaurant"], localeSettings: GLMapLocaleSettings(localesOrder: ["en"]))
+            let category = GLSearchCategories.shared.categoriesStarted(with: ["restaurant"], localeSettings: GLMapLocaleSettings(localesOrder: ["en"], unitSystem: .international))
             if category.count == 0 {
                 return
             }

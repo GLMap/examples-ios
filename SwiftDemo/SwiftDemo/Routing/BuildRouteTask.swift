@@ -53,7 +53,7 @@ class BuildRouteTask: Task {
         taskID = request.start { route, error in
             if let error = error {
                 let nsError = error as NSError
-                if nsError.domain == "Valhalla" || nsError.code == GLMapError.cancelled.rawValue {
+                if nsError.domain == "Valhalla" || nsError.code == ECANCELED {
                     self.result = .error(error: error)
                     self.onFinish?()
                 } else { //Network error. Try to build offline
@@ -64,7 +64,7 @@ class BuildRouteTask: Task {
                         } else if let route = route {
                             self.result = .success(result: Route(route: route, params: self.params))
                         } else {
-                            let error = NSError(domain: GLMapViewErrorDomain, code: Int(GLMapError.invalidResponse.rawValue))
+                            let error = NSError(domain: GLMapViewErrorDomain, code: 2)
                             self.result = .error(error: error)
                         }
                         self.onFinish?()
@@ -74,7 +74,7 @@ class BuildRouteTask: Task {
                 self.result = .success(result: Route(route: route, params: self.params))
                 self.onFinish?()
             } else {
-                let error = NSError(domain: GLMapViewErrorDomain, code: Int(GLMapError.invalidResponse.rawValue))
+                let error = NSError(domain: GLMapViewErrorDomain, code: 2)
                 self.result = .error(error: error)
                 self.onFinish?()
             }

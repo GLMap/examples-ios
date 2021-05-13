@@ -163,7 +163,6 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
-        map.setScaleRulerStyle(.international, placement: .hidden, paddings: .zero, maxWidth: 200)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -210,18 +209,6 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("nav_bottom_finish"))
         }
         return drawMiddlePoint(bgName: svgpbFullPath("nav_bottom_start"), index: "\(pt.index)", textSize: 15)
-    }
-
-    private func drawableKey(for pt: RoutePoint, finishPoint: RoutePoint?) -> String? {
-        if pt.isCurrentLocation {
-            return nil
-        }
-        if pt.index == 0 {
-            return "nav_map_start"
-        } else if pt === finishPoint {
-            return "nav_map_finish"
-        }
-        return "\(pt.index)"
     }
 
     private func mapImage(key: String) -> UIImage {
