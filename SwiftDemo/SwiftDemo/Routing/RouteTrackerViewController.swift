@@ -6,9 +6,9 @@
 //  Copyright © 2020 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
-import GLRoute
 import GLMapSwift
+import GLRoute
+import UIKit
 
 extension GLManeuverType {
     var imageName: String {
@@ -45,8 +45,8 @@ extension GLManeuverType {
 private let colors: [GLMapColor] = [
     GLMapColor(red: 115, green: 204, blue: 41, alpha: 230), // green
     GLMapColor(red: 236, green: 237, blue: 26, alpha: 230), // yellow
-    GLMapColor(red: 250, green: 72, blue: 102, alpha: 230) //red
-];
+    GLMapColor(red: 250, green: 72, blue: 102, alpha: 230), // red
+]
 
 private func mix(from: UInt8, to: UInt8, k: Double) -> UInt8 {
     var rv = Double(from) * (1.0 - k)
@@ -62,13 +62,13 @@ private func mix(from: GLMapColor, to: GLMapColor, k: Double) -> GLMapColor {
 }
 
 private func colorForAltitude(min: Double, delta: Double, val: Double) -> GLMapColor {
-    var k = (val-min)/delta;
+    var k = (val - min) / delta
     if !k.isFinite {
         k = 0
     }
     return val < 0.5 ?
         mix(from: colors[0], to: colors[1], k: k * 2) :
-        mix(from: colors[1], to: colors[2], k: (k-0.5)*2)
+        mix(from: colors[1], to: colors[2], k: (k - 0.5) * 2)
 }
 
 private func svgpbFullPath(_ name: String) -> String {
@@ -124,6 +124,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private var observers = [NSKeyValueObservation]()
 
     override var canBecomeFirstResponder: Bool { return true }
+    @available(*, unavailable)
     required init?(coder _: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     init(_ route: Route) {
@@ -152,7 +153,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-        
+
         routeChanged(.success(result: route))
         routeParamsChanged()
         routeIsUpdatingChanged()
@@ -164,7 +165,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         super.viewWillAppear(animated)
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         helper.cancel()
@@ -177,7 +178,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     }
 
     private func updateRoute(newPoint: RoutePoint? = nil, deletePoint: RoutePoint? = nil) {
-        guard let index = originalParams.points.firstIndex(of: targetPoint),let curLocation = lastLocation else { return }
+        guard let index = originalParams.points.firstIndex(of: targetPoint), let curLocation = lastLocation else { return }
 
         if let deletePoint = deletePoint {
             originalParams = originalParams.deleting(deletePoint)
@@ -199,6 +200,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     }
 
     // MARK: Route point image
+
     private func image(for pt: RoutePoint) -> UIImage? {
         if pt.isCurrentLocation {
             return nil
@@ -397,7 +399,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
     // MARK: User actions
 
-    /*override func tap(onMap location: CGPoint) {
+    /* override func tap(onMap location: CGPoint) {
      guard let mapView = mapView else { return }
      let mapPt = mapView.makeMapPoint(fromDisplay: location)
 
@@ -429,7 +431,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
      @objc private func menuAddMiddlePoint() {
      updateRoute(newPoint: RoutePoint(position: menuPoint, name: nil))
-     }*/
+     } */
 
     @IBAction private func nextTargetPoint(_: Any) {
         let points = originalParams.points
@@ -477,7 +479,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             }
         } else {
             if maneuverStatus == .final {
-                self.navigationController?.popViewController(animated: true)
+                navigationController?.popViewController(animated: true)
             } else {
                 let vc = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                 vc.popoverPresentationController?.sourceView = sender
@@ -492,8 +494,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         }
     }
 
-
-    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    override func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             lastLocation = location
             locationChanged(location)
@@ -533,10 +534,11 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         } else {
             let curTime = NSDate.timeIntervalSinceReferenceDate
             if abs(curTime - lastRequestTime) > ReRoute_MinTimeBetween,
-                !helper.isUpdating,
-                routeTracker.distanceToLastPoint > ReRoute_DistanceToLastPoint,
-                routeTracker.distanceFromRoute > ReRoute_DistanceFromRoute,
-                location.horizontalAccuracy < ReRoute_MaxAccuracy {
+               !helper.isUpdating,
+               routeTracker.distanceToLastPoint > ReRoute_DistanceToLastPoint,
+               routeTracker.distanceFromRoute > ReRoute_DistanceFromRoute,
+               location.horizontalAccuracy < ReRoute_MaxAccuracy
+            {
                 lastRequestTime = curTime
                 updateRoute()
             }
@@ -546,7 +548,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             userBearing = Double.nan
         }
 
-        display(location: userLocation, bearing: userBearing, additionalAnimations: { anim in
+        display(location: userLocation, bearing: userBearing, additionalAnimations: { _ in
             self.routeTrack?.progressIndex = self.routeTracker.progressIndex
         })
 

@@ -88,7 +88,7 @@ class Task: Equatable {
     @AtomicRW var isCancelled = false
 
     func start(_: @escaping () -> Void) {}
-    
+
     func cancel() {
         isCancelled = true
     }

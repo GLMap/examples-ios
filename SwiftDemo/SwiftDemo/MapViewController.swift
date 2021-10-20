@@ -53,14 +53,14 @@ class MapViewController: MapViewControllerBase {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
             stylePath = path
         } else {
             print("Missing DefaultStyle.bundle inside main bundle")
             return
         }
-        
+
         title = "Demo map"
 
         downloadButton.setTitle("Download Map", for: .normal)
@@ -133,7 +133,7 @@ class MapViewController: MapViewControllerBase {
                 mapToDownload = nil
                 return
             }
-            
+
             for map in maps {
                 if map.state(for: .map) == .downloaded {
                     mapToDownload = nil
@@ -177,7 +177,7 @@ class MapViewController: MapViewControllerBase {
     func showOfflineMap() {
         // nonthing to do
     }
-    
+
     func loadDarkTheme() {
         loadStyle(darkTheme: true, carDriving: false)
     }
@@ -197,7 +197,7 @@ class MapViewController: MapViewControllerBase {
     var menuPoint: GLMapGeoPoint?
     var routeTrack: GLMapTrack?
     var valhallaConfig: String?
-    
+
     func testRouting() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
         if let style = parser.parseFromResources() {
@@ -374,7 +374,7 @@ class MapViewController: MapViewControllerBase {
         styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: GLMapColor(red: 0xFF, green: 0, blue: 0, alpha: 0xFF))!)
 
         // If marker layer constructed using array with object of any type you need to set markerLocationBlock
-        styles.setMarkerLocationBlock { (marker) -> GLMapPoint in
+        styles.setMarkerLocationBlock { marker -> GLMapPoint in
             if let obj = marker as? GLMapVectorObject {
                 return obj.point
             }
@@ -410,7 +410,7 @@ class MapViewController: MapViewControllerBase {
         }
     }
 
-    var mapDrawable: GLMapDrawable = GLMapDrawable(drawOrder: 3)
+    var mapDrawable = GLMapDrawable(drawOrder: 3)
 
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
@@ -731,45 +731,45 @@ class MapViewController: MapViewControllerBase {
                 if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
                     if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
                         if let cascadeStyle = GLMapVectorCascadeStyle.createStyle("""
-node {
-    icon-image:"uni0";
-    text-priority: 100;
-    text:eval(tag("name"));
-    text-color:#2E2D2B;
-    font-size:12;
-    font-stroke-width:1pt;
-    font-stroke-color:#FFFFFFEE;
-}
-node[count>=2]{
-    icon-image:"uni1";
-    text-priority: 101;
-    text:eval(tag("count"));
-}
-node[count>=4]{
-    icon-image:"uni2";
-    text-priority: 102;
-}
-node[count>=8]{
-    icon-image:"uni3";
-    text-priority: 103;
-}
-node[count>=16]{
-    icon-image:"uni4";
-    text-priority: 104;
-}
-node[count>=32]{
-    icon-image:"uni5";
-    text-priority: 105;
-}
-node[count>=64]{
-    icon-image:"uni6";
-    text-priority: 106;
-}
-node[count>=128]{
-    icon-image:"uni7";
-    text-priority: 107;
-}
-""") {
+                        node {
+                            icon-image:"uni0";
+                            text-priority: 100;
+                            text:eval(tag("name"));
+                            text-color:#2E2D2B;
+                            font-size:12;
+                            font-stroke-width:1pt;
+                            font-stroke-color:#FFFFFFEE;
+                        }
+                        node[count>=2]{
+                            icon-image:"uni1";
+                            text-priority: 101;
+                            text:eval(tag("count"));
+                        }
+                        node[count>=4]{
+                            icon-image:"uni2";
+                            text-priority: 102;
+                        }
+                        node[count>=8]{
+                            icon-image:"uni3";
+                            text-priority: 103;
+                        }
+                        node[count>=16]{
+                            icon-image:"uni4";
+                            text-priority: 104;
+                        }
+                        node[count>=32]{
+                            icon-image:"uni5";
+                            text-priority: 105;
+                        }
+                        node[count>=64]{
+                            icon-image:"uni6";
+                            text-priority: 106;
+                        }
+                        node[count>=128]{
+                            icon-image:"uni7";
+                            text-priority: 107;
+                        }
+                        """) {
                             let markerLayer = GLMapMarkerLayer(vectorObjects: objects, cascadeStyle: cascadeStyle, styleCollection: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                             let bbox = objects.bbox
                             DispatchQueue.main.async { [weak self] in
@@ -815,12 +815,12 @@ node[count>=128]{
         let radiusInner = 5.0
         let sectorSize = 2 * Double.pi / Double(pointCount)
 
-        let outerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
+        let outerRing = GLMapPointArray(count: UInt(pointCount)) { i -> GLMapPoint in
             GLMapPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radiusOuter,
                        lon: centerPoint.lon + sin(sectorSize * Double(i)) * radiusOuter)
         }
 
-        let innerRing = GLMapPointArray(count: UInt(pointCount)) { (i) -> GLMapPoint in
+        let innerRing = GLMapPointArray(count: UInt(pointCount)) { i -> GLMapPoint in
             GLMapPoint(lat: centerPoint.lat + cos(sectorSize * Double(i)) * radiusInner,
                        lon: centerPoint.lon + sin(sectorSize * Double(i)) * radiusInner)
         }
@@ -863,43 +863,43 @@ node[count>=128]{
 
     func geoJsonDemo() {
         guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: """
-[{"type": "Feature", "geometry": {"type": "Point", "coordinates": [30.5186, 50.4339]}, "properties": {"id": "1", "text": "test1"}},
-{"type": "Feature", "geometry": {"type": "Point", "coordinates": [27.7151, 53.8869]}, "properties": {"id": "2", "text": "test2"}},
-{"type":"LineString", "coordinates": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},
-{"type":"Polygon", "coordinates":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]
-"""),
-              let style = GLMapVectorCascadeStyle.createStyle("""
-node[id=1] {
-    icon-image:"bus.svgpb";
-    icon-scale:0.5;
-    icon-tint:green;
-    text:eval(tag('text'));
-    text-color:red;
-    font-size:12;
-    // add priority to this text over map objects
-    text-priority: 20;
-}
-node|z-9[id=2] {
-    icon-image:"bus.svgpb";
-    icon-scale:0.7;
-    icon-tint:blue;
-    text:eval(tag('text'));
-    text-color:red;
-    font-size:12;
-    // add priority to this text over map objects
-    text-priority: 20;
-}
-line {
-    linecap: round;
-    width: 5pt;
-    color:blue;
-}
-area {
-    fill-color:green;
-    width:1pt;
-    color:red;
-}
-""") else { return }
+        [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [30.5186, 50.4339]}, "properties": {"id": "1", "text": "test1"}},
+        {"type": "Feature", "geometry": {"type": "Point", "coordinates": [27.7151, 53.8869]}, "properties": {"id": "2", "text": "test2"}},
+        {"type":"LineString", "coordinates": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},
+        {"type":"Polygon", "coordinates":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]
+        """),
+            let style = GLMapVectorCascadeStyle.createStyle("""
+            node[id=1] {
+                icon-image:"bus.svgpb";
+                icon-scale:0.5;
+                icon-tint:green;
+                text:eval(tag('text'));
+                text-color:red;
+                font-size:12;
+                // add priority to this text over map objects
+                text-priority: 20;
+            }
+            node|z-9[id=2] {
+                icon-image:"bus.svgpb";
+                icon-scale:0.7;
+                icon-tint:blue;
+                text:eval(tag('text'));
+                text-color:red;
+                font-size:12;
+                // add priority to this text over map objects
+                text-priority: 20;
+            }
+            line {
+                linecap: round;
+                width: 5pt;
+                color:blue;
+            }
+            area {
+                fill-color:green;
+                width:1pt;
+                color:red;
+            }
+            """) else { return }
         // When GLMapDrawable created without drawOrder:param it's displayed with map objects, and could hide other objects.
         // When drawOrder is set, then drawable interact with other objects with same drawOrder value.
         var drawable = GLMapDrawable()
@@ -912,7 +912,6 @@ area {
         drawable.setVectorObjects(objects, with: style, completion: nil)
         map.add(drawable)
     }
-        
 
     var flashAdd: Bool = false
     @objc func flashObject(object: GLMapDrawable) {
@@ -939,51 +938,51 @@ area {
     }
 
     func fontsDemo() {
-        guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON:"""
-[{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,64]},"properties":{"id":"1"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,63.6]},"properties":{"id":"2"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,62.3]},"properties":{"id":"3"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,61]},"properties":{"id":"4"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,60]},"properties":{"id":"5"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,58]},"properties":{"id":"6"}},
-{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,56]},"properties":{"id":"7"}},
-{"type":"Polygon","coordinates":[[[-30,50],[-30,80],[-10,80],[-10,50]]]}]
-"""),
-              let style = GLMapVectorCascadeStyle.createStyle("""
-node {
-    text:'Test12';
-    text-color:black;
-    text-priority:100;
-}
-node[id=1] {
-    font-size:5;
-}
-node[id=2] {
-    font-size:10;
-}
-node[id=3] {
-    font-size:15;
-}
-node[id=4] {
-    font-size:20;
-}
-node[id=5] {
-    font-size:25;
-}
-node[id=6] {
-    font-size:30;
-}
-node[id=7] {
-    font-size:35;
-}
-area {
-    fill-color:white;
-    layer:100;
-}
-""") else { return }
-                let drawable = GLMapDrawable()
-                drawable.setVectorObjects(objects, with: style, completion: nil)
-                map.add(drawable)
+        guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: """
+        [{"type":"Feature","geometry":{"type":"Point","coordinates":[-25,64]},"properties":{"id":"1"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,63.6]},"properties":{"id":"2"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,62.3]},"properties":{"id":"3"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,61]},"properties":{"id":"4"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,60]},"properties":{"id":"5"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,58]},"properties":{"id":"6"}},
+        {"type":"Feature","geometry":{"type":"Point","coordinates":[-25,56]},"properties":{"id":"7"}},
+        {"type":"Polygon","coordinates":[[[-30,50],[-30,80],[-10,80],[-10,50]]]}]
+        """),
+            let style = GLMapVectorCascadeStyle.createStyle("""
+            node {
+                text:'Test12';
+                text-color:black;
+                text-priority:100;
+            }
+            node[id=1] {
+                font-size:5;
+            }
+            node[id=2] {
+                font-size:10;
+            }
+            node[id=3] {
+                font-size:15;
+            }
+            node[id=4] {
+                font-size:20;
+            }
+            node[id=5] {
+                font-size:25;
+            }
+            node[id=6] {
+                font-size:30;
+            }
+            node[id=7] {
+                font-size:35;
+            }
+            area {
+                fill-color:white;
+                layer:100;
+            }
+            """) else { return }
+        let drawable = GLMapDrawable()
+        drawable.setVectorObjects(objects, with: style, completion: nil)
+        map.add(drawable)
 
         let testView = UIView(frame: CGRect(x: 350, y: 200, width: 150, height: 200))
         testView.backgroundColor = UIColor.black
@@ -1102,7 +1101,7 @@ area {
         }
 
         tilesToDownload = allTiles.count
-        manager.cacheTiles(allTiles) { (tile, error) -> Bool in
+        manager.cacheTiles(allTiles) { tile, error -> Bool in
             NSLog("Tile downloaded:%llu error:%@", tile, error?.localizedDescription ?? "no error")
             self.tilesToDownload -= 1
             if self.tilesToDownload == 0 {
@@ -1113,10 +1112,10 @@ area {
             return true
         }
     }
-        
+
     func loadStyle(darkTheme: Bool, carDriving: Bool) {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        
+
         var options = [String: String]()
         if carDriving {
             options["Style"] = "CarDriving"
@@ -1147,7 +1146,7 @@ area {
                 displayAlert(nil, message: "Style syntax error. Check log for details.")
                 return
             }
-            
+
             map.setStyle(style)
             map.reloadTiles()
         } catch {

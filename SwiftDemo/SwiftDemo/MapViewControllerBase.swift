@@ -6,8 +6,8 @@
 //  Copyright © 2020 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
 import GLMap
+import UIKit
 
 class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
     @IBOutlet var map: GLMapView!
@@ -27,20 +27,20 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
         locationManager.stopUpdatingLocation()
     }
 
-    func display(location: GLMapPoint, bearing: Double, additionalAnimations: (GLMapAnimation) -> Void)  {
+    func display(location: GLMapPoint, bearing: Double, additionalAnimations: (GLMapAnimation) -> Void) {
         let image: GLMapDrawable
-        if(bearing >= 0) {
+        if bearing >= 0 {
             image = movementImage ?? {
                 let path = GLMapManager.shared.resourcesBundle.path(forResource: "arrow-new", ofType: "svgpb", inDirectory: "DefaultStyle.bundle")!
                 let img = GLMapVectorImageFactory.shared.image(fromSvgpb: path)!
                 let rv = GLMapDrawable(drawOrder: 101)
                 self.movementImage = rv
-                rv.setImage(img, for:map, completion: nil)
+                rv.setImage(img, for: map, completion: nil)
                 rv.rotatesWithMap = true
                 rv.position = location
-                rv.offset = CGPoint(x: img.size.width/2,y: img.size.height/2);
+                rv.offset = CGPoint(x: img.size.width / 2, y: img.size.height / 2)
                 map.add(rv)
-                return rv;
+                return rv
             }()
         } else {
             image = stopImage ?? {
@@ -48,12 +48,12 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
                 let img = GLMapVectorImageFactory.shared.image(fromSvgpb: path)!
                 let rv = GLMapDrawable(drawOrder: 101)
                 self.stopImage = rv
-                rv.setImage(img, for:map, completion: nil)
+                rv.setImage(img, for: map, completion: nil)
                 rv.rotatesWithMap = true
                 rv.position = location
-                rv.offset = CGPoint(x: img.size.width/2,y: img.size.height/2);
+                rv.offset = CGPoint(x: img.size.width / 2, y: img.size.height / 2)
                 map.add(rv)
-                return rv;
+                return rv
             }()
         }
 
@@ -70,9 +70,9 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         let pt = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
-        display(location: pt, bearing: location.course, additionalAnimations: {_ in })
+        display(location: pt, bearing: location.course, additionalAnimations: { _ in })
     }
 }

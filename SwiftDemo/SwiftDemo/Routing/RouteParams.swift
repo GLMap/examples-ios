@@ -45,7 +45,7 @@ class RouteParams: Equatable {
     }
 
     func deleting(_ point: RoutePoint) -> RouteParams {
-        var newPoints = self.points
+        var newPoints = points
         if let index = points.firstIndex(of: point) {
             newPoints.remove(at: index)
         }

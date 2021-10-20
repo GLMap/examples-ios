@@ -7,8 +7,8 @@
 //
 
 import GLMapSwift
-import UIKit
 import GLRoute
+import UIKit
 
 class ViewController: UITableViewController {
     public enum Demo {
@@ -132,10 +132,10 @@ class ViewController: UITableViewController {
         if row.id == Demo.DownloadMap {
             performSegue(withIdentifier: "DownloadMaps", sender: nil)
         } else if row.id == Demo.RouteTracker {
-            let start = RoutePoint(pt: GLMapGeoPoint(lat:+37.405054, lon:-122.156626),
+            let start = RoutePoint(pt: GLMapGeoPoint(lat: +37.405054, lon: -122.156626),
                                    index: 0,
                                    isCurrentLocation: true)
-            let finish = RoutePoint(pt: GLMapGeoPoint(lat:+37.335055, lon:-122.026958),
+            let finish = RoutePoint(pt: GLMapGeoPoint(lat: +37.335055, lon: -122.026958),
                                     index: 1,
                                     isCurrentLocation: false)
 
