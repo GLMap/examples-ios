@@ -71,8 +71,8 @@ private func colorForAltitude(min: Double, delta: Double, val: Double) -> GLMapC
         mix(from: colors[1], to: colors[2], k: (k - 0.5) * 2)
 }
 
-private func svgpbFullPath(_ name: String) -> String {
-    return Bundle.main.path(forResource: name, ofType: "svgpb")!
+private func svgFullPath(_ name: String) -> String {
+    return Bundle.main.path(forResource: name, ofType: "svg")!
 }
 
 private let ReRoute_MinTimeBetween = 10.0
@@ -99,7 +99,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private var routePoints = [String: GLMapDrawable]()
     private var routeTrackData: GLMapTrackData?
     private var routeTrack: GLMapTrack?
-    private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svgpb\";}")!
+    private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
 
     private var resumeTracking = false, wasOnRoute = false
     private var pauseTracking = false { didSet { updateStopButton() } }
@@ -206,23 +206,35 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             return nil
         }
         if pt.index == 0 {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("nav_bottom_start"))
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("nav_bottom_start"))
         } else if pt === originalParams.finishPoint {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("nav_bottom_finish"))
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("nav_bottom_finish"))
         }
-        return drawMiddlePoint(bgName: svgpbFullPath("nav_bottom_start"), index: "\(pt.index)", textSize: 15)
+        return drawMiddlePoint(bgName: svgFullPath("nav_bottom_start"), index: "\(pt.index)", textSize: 15)
     }
 
     private func mapImage(key: String) -> UIImage {
         if key == "nav_map_start" || key == "nav_map_finish" {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(key))!
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(key))!
         } else {
             return drawMiddlePoint(bgName: "nav_map_start", index: key, textSize: 20)
         }
     }
 
+    private func drawableKey(for pt: RoutePoint, finishPoint: RoutePoint?) -> String? {
+        if pt.isCurrentLocation {
+            return nil
+        }
+        if pt.index == 0 {
+            return "nav_map_start"
+        } else if pt === finishPoint {
+            return "nav_map_finish"
+        }
+        return "\(pt.index)"
+    }
+
     private func drawMiddlePoint(bgName: String, index: String, textSize: CGFloat) -> UIImage {
-        let bg = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(bgName), withScale: 1.0)!
+        let bg = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(bgName), withScale: 1.0)!
         UIGraphicsBeginImageContextWithOptions(bg.size, false, bg.scale)
         bg.draw(at: .zero)
         let str = NSAttributedString(string: index,
@@ -241,14 +253,14 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         let factory = GLMapVectorImageFactory.shared
         let actionButtonsColor = GLMapColor(uiColor: #colorLiteral(red: 0.3333333333, green: 0.3333333333, blue: 0.3333333333, alpha: 1))
 
-        imgRouteSpeedBackground.image = factory.image(fromSvgpb: svgpbFullPath("gray_circle"), withScale: 1)
-        btnPrevPoint.setImage(factory.image(fromSvgpb: svgpbFullPath("nav_point_prev"),
+        imgRouteSpeedBackground.image = factory.image(fromSvg: svgFullPath("gray_circle"), withScale: 1)
+        btnPrevPoint.setImage(factory.image(fromSvg: svgFullPath("nav_point_prev"),
                                             withScale: 1, andTintColor: actionButtonsColor), for: .normal)
-        btnNextPoint.setImage(factory.image(fromSvgpb: svgpbFullPath("nav_point_next"),
+        btnNextPoint.setImage(factory.image(fromSvg: svgFullPath("nav_point_next"),
                                             withScale: 1, andTintColor: actionButtonsColor), for: .normal)
 
-        btnStop.setBackgroundImage(factory.image(fromSvgpb: svgpbFullPath("route_button")), for: .normal)
-        btnStop.setBackgroundImage(factory.image(fromSvgpb: svgpbFullPath("route_button_act")), for: .highlighted)
+        btnStop.setBackgroundImage(factory.image(fromSvg: svgFullPath("route_button")), for: .normal)
+        btnStop.setBackgroundImage(factory.image(fromSvg: svgFullPath("route_button_act")), for: .highlighted)
 
         updateStopButton()
     }
@@ -336,26 +348,26 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private func updateStopButton() {
         let img: UIImage?
         if pauseTracking {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("icon_gps_ipad"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("icon_gps_ipad"),
                                                        withScale: 1.0, andTintColor: .white)
         } else if maneuverStatus == .final {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("route_finish"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("route_finish"),
                                                        withScale: 1.0, andTintColor: .white)
         } else {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("route_pause"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("route_pause"),
                                                        withScale: 1.0, andTintColor: .white)
         }
         btnStop.setImage(img, for: .normal)
     }
 
     private func showManeuverImage(_ maneuverType: GLManeuverType) {
-        imgManeuver.image = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(maneuverType.imageName),
+        imgManeuver.image = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(maneuverType.imageName),
                                                                  withScale: 1.0, andTintColor: .white)
     }
 
     private func showSecondaryManeuverImage(_ maneuver: GLRouteManeuver?) {
         if let maneuver = maneuver {
-            imgSecondaryManeuver.image = GLMapVectorImageFactory.shared.image(fromSvgpb: maneuver.type.imageName,
+            imgSecondaryManeuver.image = GLMapVectorImageFactory.shared.image(fromSvg: maneuver.type.imageName,
                                                                               withScale: 1.0, andTintColor: .white)
             if imgSecondaryManeuver.alpha != 1 {
                 UIView.animate(withDuration: 0.5) { self.imgSecondaryManeuver.alpha = 1 }

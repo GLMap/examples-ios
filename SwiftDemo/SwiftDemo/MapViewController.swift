@@ -204,15 +204,15 @@ class MapViewController: MapViewControllerBase {
             map.setStyle(style)
         }
 
-        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
-            NSLog("Can't find valhalla.json in resources")
+        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla3", ofType: "json") else {
+            NSLog("Can't find valhalla3.json in resources")
             return
         }
 
         do {
             valhallaConfig = try String(contentsOfFile: valhallaConfigPath)
         } catch {
-            NSLog("Can't read contents of valhalla.json")
+            NSLog("Can't read contents of valhalla3.json")
             return
         }
 
@@ -371,7 +371,7 @@ class MapViewController: MapViewControllerBase {
 
     func displaySearchResults(results: GLMapVectorObjectArray) {
         let styles = GLMapMarkerStyleCollection()
-        styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvgpb: Bundle.main.path(forResource: "cluster", ofType: "svgpb")!, withScale: 0.2, andTintColor: GLMapColor(red: 0xFF, green: 0, blue: 0, alpha: 0xFF))!)
+        styles.addStyle(with: GLMapVectorImageFactory.shared.image(fromSvg: Bundle.main.path(forResource: "cluster", ofType: "svg")!, withScale: 0.2, andTintColor: GLMapColor(red: 0xFF, green: 0, blue: 0, alpha: 0xFF))!)
 
         // If marker layer constructed using array with object of any type you need to set markerLocationBlock
         styles.setMarkerLocationBlock { marker -> GLMapPoint in
@@ -581,8 +581,8 @@ class MapViewController: MapViewControllerBase {
 
     func markerLayer() {
         // Create marker image
-        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
-            if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: 0.2) {
+        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") {
+            if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: 0.2) {
                 // Create style collection - it's storage for all images possible to use for markers
                 let style = GLMapMarkerStyleCollection()
                 style.addStyle(with: image)
@@ -616,7 +616,7 @@ class MapViewController: MapViewControllerBase {
     }
 
     func markerLayerWithClustering() {
-        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
+        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") {
             // We use different colours for our clusters
             let tintColors = [
                 GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
@@ -636,7 +636,7 @@ class MapViewController: MapViewControllerBase {
             var maxWidth = 0.0
             for i in 0 ..< tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i]) {
+                if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: scale, andTintColor: tintColors[i]) {
                     if maxWidth < Double(image.size.width) {
                         maxWidth = Double(image.size.width)
                     }
@@ -697,7 +697,7 @@ class MapViewController: MapViewControllerBase {
     }
 
     func markerLayerWithMapCSSClustering() {
-        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svgpb") {
+        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") {
             // We use different colours for our clusters
             let tintColors = [
                 GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
@@ -717,7 +717,7 @@ class MapViewController: MapViewControllerBase {
             var maxWidth = 0.0
             for i in 0 ..< tintColors.count {
                 let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared.image(fromSvgpb: imagePath, withScale: scale, andTintColor: tintColors[i]) {
+                if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: scale, andTintColor: tintColors[i]) {
                     if maxWidth < Double(image.size.width) {
                         maxWidth = Double(image.size.width)
                     }
@@ -870,7 +870,7 @@ class MapViewController: MapViewControllerBase {
         """),
             let style = GLMapVectorCascadeStyle.createStyle("""
             node[id=1] {
-                icon-image:"bus.svgpb";
+                icon-image:"bus.svg";
                 icon-scale:0.5;
                 icon-tint:green;
                 text:eval(tag('text'));
@@ -880,7 +880,7 @@ class MapViewController: MapViewControllerBase {
                 text-priority: 20;
             }
             node|z-9[id=2] {
-                icon-image:"bus.svgpb";
+                icon-image:"bus.svg";
                 icon-scale:0.7;
                 icon-tint:blue;
                 text:eval(tag('text'));

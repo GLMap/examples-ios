@@ -296,10 +296,10 @@
 
 - (void)testRouting {
     NSError *error = nil;
-    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla3" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        NSLog(@"Can't load valhalla.json");
+        NSLog(@"Can't load valhalla3.json");
         return;
     }
     
@@ -457,7 +457,7 @@
 - (void)displaySearchResults:(GLMapVectorObjectArray *)results {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
     [style addStyleWithImage:[[GLMapVectorImageFactory sharedFactory]
-                                 imageFromSvgpb:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"]
+                                 imageFromSvg:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svg"]
                                       withScale:0.2
                                    andTintColor:GLMapColorMake(0xFF, 0, 0, 0xFF)]];
 
@@ -738,8 +738,8 @@
 // Minimal usage example of marker layer
 - (void)addMarkers {
     // Create marker image
-    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
-    UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:0.2];
+    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svg"];
+    UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvg:imagePath withScale:0.2];
 
     // Create style collection - it's storage for all images possible to use for markers
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
@@ -781,11 +781,11 @@
     // Create style collection - it's storage for all images possible to use for markers and clusters
     GLMapMarkerStyleCollection *styleCollection = [GLMapMarkerStyleCollection.alloc init];
     // Render possible images from svgpb
-    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
+    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svg"];
     double maxSize = 0;
     for (int i = 0; i < unionCount; i++) {
         float scale = 0.2 + 0.1 * i;
-        UIImage *img = [GLMapVectorImageFactory.sharedFactory imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
+        UIImage *img = [GLMapVectorImageFactory.sharedFactory imageFromSvg:imagePath withScale:scale andTintColor:unionColours[i]];
         if (maxSize < img.size.width)
             maxSize = img.size.width;
         uint32_t styleIndex = [styleCollection addStyleWithImage:img];
@@ -839,10 +839,10 @@
 
     // Render possible images from svgpb
     double maxWidth = 0;
-    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svgpb"];
+    NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svg"];
     for (int i = 0; i < unionCount; i++) {
         float scale = 0.2 + 0.1 * i;
-        UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvgpb:imagePath withScale:scale andTintColor:unionColours[i]];
+        UIImage *img = [[GLMapVectorImageFactory sharedFactory] imageFromSvg:imagePath withScale:scale andTintColor:unionColours[i]];
         if (maxWidth < img.size.width)
             maxWidth = img.size.width;
 
