@@ -16,6 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Insert your API key from https://user.getyourmap.com/apps
         GLMapManager.activate(apiKey: <#API key#>, resources: nil, storage: nil)
+
+        if #available(iOS 15, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.backgroundColor = .systemFill
+            appearance.configureWithOpaqueBackground()
+            UINavigationBar.appearance().standardAppearance = appearance
+            UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        }
         return true
     }
 }

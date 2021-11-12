@@ -15,6 +15,13 @@
     // Insert your API key from https://user.getyourmap.com/apps
     [GLMapManager activateWithApiKey:<#API key#> resourcesBundle:nil andStoragePath:nil];
 
+    if (@available(iOS 15.0, *)) {
+        UINavigationBarAppearance *navBarAppearance = [[UINavigationBarAppearance alloc] init];
+        navBarAppearance.backgroundColor = UIColor.systemFillColor;
+        [navBarAppearance configureWithOpaqueBackground];
+        [UINavigationBar appearance].standardAppearance = navBarAppearance;
+        [UINavigationBar appearance].scrollEdgeAppearance = navBarAppearance;
+    }
     return YES;
 }
 
