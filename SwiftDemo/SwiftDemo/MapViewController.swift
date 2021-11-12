@@ -288,7 +288,7 @@ class MapViewController: MapViewControllerBase {
                         track.setTrackData(trackData)
                     } else {
                         let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
-                        track.setStyle(GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svgpb\";}"))
+                        track.setStyle(GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}"))
                         self.map.add(track)
                         self.routeTrack = track
                     }

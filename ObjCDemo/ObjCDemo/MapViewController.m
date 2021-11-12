@@ -382,7 +382,7 @@
                 [self->_routeTrack setTrackData:trackData];
             else {
                 self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-                [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svgpb\";}"]];
+                [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svg\";}"]];
                 [self->_mapView add:self->_routeTrack];
             }
         }
