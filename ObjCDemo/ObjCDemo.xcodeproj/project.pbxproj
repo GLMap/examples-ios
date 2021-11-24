@@ -607,7 +607,7 @@
 				DEVELOPMENT_TEAM = AS56W2YHKU;
 				INFOPLIST_FILE = ObjCDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.ObjCDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.demo.objc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -620,7 +620,7 @@
 				DEVELOPMENT_TEAM = AS56W2YHKU;
 				INFOPLIST_FILE = ObjCDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.ObjCDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.demo.objc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -20,7 +20,8 @@
       "trace_attributes",
       "transit_available",
       "expansion",
-      "centroid"
+      "centroid",
+      "status"
     ],
     "logging": {
       "color": false,
@@ -176,6 +177,10 @@
       "max_matrix_distance": 200000.0,
       "max_matrix_locations": 50
     },
+    "centroid": {
+      "max_distance": 200000.0,
+      "max_locations": 5
+    },
     "hov": {
       "max_distance": 2000000.0,
       "max_locations": 20,
@@ -189,11 +194,6 @@
       "max_locations": 1,
       "max_time_contour": 120
     },
-    "max_alternates": 2,
-    "max_avoid_locations": 50,
-    "max_radius": 200,
-    "max_reachability": 100,
-    "max_timedep_distance": 500000,
     "motor_scooter": {
       "max_distance": 500000.0,
       "max_locations": 50,
@@ -224,6 +224,9 @@
       "max_shape": 750000,
       "min_resample": 10.0
     },
+    "status": {
+      "allow_verbose": false
+    },
     "taxi": {
       "max_distance": 5000000.0,
       "max_locations": 20,
@@ -249,7 +252,13 @@
       "max_locations": 20,
       "max_matrix_distance": 400000.0,
       "max_matrix_locations": 50
-    }
+    },
+    "max_alternates": 2,
+    "max_exclude_locations": 50,
+    "max_exclude_polygons_length": 10000,
+    "max_radius": 200,
+    "max_reachability": 100,
+    "max_timedep_distance": 500000
   },
   "thor": {
     "logging": {
@@ -258,6 +267,7 @@
       "long_request": 110.0,
       "type": "std_out"
     },
+    "extended_search": false,
     "max_reserved_labels_count": 1000000,
     "service": {
       "proxy": "ipc:///tmp/thor"
