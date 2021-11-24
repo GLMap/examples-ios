@@ -356,7 +356,6 @@
 }
 
 - (void)updateRoute {
-
     GLRouteMode mode;
     if (_routingMode.selectedSegmentIndex == 0)
         mode = GLRouteMode_Drive;
