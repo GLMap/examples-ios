@@ -8,9 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6C1DA9EF274C31B4001C162B /* route_finish.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9C8274C31B4001C162B /* route_finish.svg */; };
-		6C1DA9F0274C31B4001C162B /* valhalla3.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9C9274C31B4001C162B /* valhalla3.json */; };
 		6C1DA9F1274C31B4001C162B /* arrow_right_90.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CA274C31B4001C162B /* arrow_right_90.svg */; };
-		6C1DA9F2274C31B4001C162B /* valhalla2.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CB274C31B4001C162B /* valhalla2.json */; };
 		6C1DA9F3274C31B4001C162B /* arrow_left_135.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CC274C31B4001C162B /* arrow_left_135.svg */; };
 		6C1DA9F4274C31B4001C162B /* arrow_right.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CD274C31B4001C162B /* arrow_right.svg */; };
 		6C1DA9F5274C31B4001C162B /* route_pause.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CE274C31B4001C162B /* route_pause.svg */; };
@@ -48,9 +46,6 @@
 		6C1DAA15274C31B4001C162B /* icon_gps_ipad.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9EE274C31B4001C162B /* icon_gps_ipad.svg */; };
 		6C255FB31DF02F3C0083815D /* DownloadMapsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C255FB11DF02F3C0083815D /* DownloadMapsViewController.swift */; };
 		6C255FB41DF02F3C0083815D /* OSMTileSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C255FB21DF02F3C0083815D /* OSMTileSource.swift */; };
-		6C37B0E325DE6E70008D49B8 /* GLMap in Frameworks */ = {isa = PBXBuildFile; productRef = 6C37B0E225DE6E70008D49B8 /* GLMap */; };
-		6C37B0E525DE6E70008D49B8 /* GLRoute in Frameworks */ = {isa = PBXBuildFile; productRef = 6C37B0E425DE6E70008D49B8 /* GLRoute */; };
-		6C37B0E725DE6E70008D49B8 /* GLSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 6C37B0E625DE6E70008D49B8 /* GLSearch */; };
 		6C558A96224B65360095E602 /* uk_postcodes.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 6C558A95224B65360095E602 /* uk_postcodes.geojson */; };
 		6C6C255E1DD9F5F80060A241 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */; };
 		6C6C25601DD9F5F80060A241 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C255F1DD9F5F80060A241 /* ViewController.swift */; };
@@ -65,6 +60,9 @@
 		6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26211DDDF1540060A241 /* pin2@2x.png */; };
 		6C6C262E1DDDF1540060A241 /* pin3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26221DDDF1540060A241 /* pin3.png */; };
 		6C6C262F1DDDF1540060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26231DDDF1540060A241 /* pin3@2x.png */; };
+		6CAA98E82754D8FB000FB998 /* GLMap in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98E72754D8FB000FB998 /* GLMap */; };
+		6CAA98EA2754D8FB000FB998 /* GLRoute in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98E92754D8FB000FB998 /* GLRoute */; };
+		6CAA98EC2754D8FB000FB998 /* GLSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98EB2754D8FB000FB998 /* GLSearch */; };
 		6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196A1E0D515500FBCF75 /* cluster_data.json */; };
 		6CEA4E231FF4D9F900AC3758 /* ImageGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */; };
 		C1AE26DF24DBEE4E00474C31 /* RouteHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26D624DBEE4E00474C31 /* RouteHelper.swift */; };
@@ -121,7 +119,6 @@
 		6C1DA9EE274C31B4001C162B /* icon_gps_ipad.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = icon_gps_ipad.svg; path = ../../../Resources/icon_gps_ipad.svg; sourceTree = "<group>"; };
 		6C255FB11DF02F3C0083815D /* DownloadMapsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadMapsViewController.swift; sourceTree = "<group>"; };
 		6C255FB21DF02F3C0083815D /* OSMTileSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSMTileSource.swift; sourceTree = "<group>"; };
-		6C37B0DD25DE6CD3008D49B8 /* GLMapSwift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLMapSwift; path = ../../../GLMapSwift; sourceTree = "<group>"; };
 		6C558A95224B65360095E602 /* uk_postcodes.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = uk_postcodes.geojson; path = ../../../Resources/uk_postcodes.geojson; sourceTree = "<group>"; };
 		6C6C255A1DD9F5F70060A241 /* SwiftDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -157,9 +154,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C37B0E325DE6E70008D49B8 /* GLMap in Frameworks */,
-				6C37B0E725DE6E70008D49B8 /* GLSearch in Frameworks */,
-				6C37B0E525DE6E70008D49B8 /* GLRoute in Frameworks */,
+				6CAA98E82754D8FB000FB998 /* GLMap in Frameworks */,
+				6CAA98EC2754D8FB000FB998 /* GLSearch in Frameworks */,
+				6CAA98EA2754D8FB000FB998 /* GLRoute in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,7 +190,6 @@
 		6C6C255C1DD9F5F70060A241 /* SwiftDemo */ = {
 			isa = PBXGroup;
 			children = (
-				6C37B0DD25DE6CD3008D49B8 /* GLMapSwift */,
 				6C6C26171DDDF1540060A241 /* Resources */,
 				C1AE26D524DBEE4E00474C31 /* Routing */,
 				6C6C255D1DD9F5F80060A241 /* AppDelegate.swift */,
@@ -299,9 +295,9 @@
 			);
 			name = SwiftDemo;
 			packageProductDependencies = (
-				6C37B0E225DE6E70008D49B8 /* GLMap */,
-				6C37B0E425DE6E70008D49B8 /* GLRoute */,
-				6C37B0E625DE6E70008D49B8 /* GLSearch */,
+				6CAA98E72754D8FB000FB998 /* GLMap */,
+				6CAA98E92754D8FB000FB998 /* GLRoute */,
+				6CAA98EB2754D8FB000FB998 /* GLSearch */,
 			);
 			productName = SwiftDemo;
 			productReference = 6C6C255A1DD9F5F70060A241 /* SwiftDemo.app */;
@@ -334,6 +330,9 @@
 				Base,
 			);
 			mainGroup = 6C6C25511DD9F5F70060A241;
+			packageReferences = (
+				6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */,
+			);
 			productRefGroup = 6C6C255B1DD9F5F70060A241 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -348,7 +347,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C1DA9F2274C31B4001C162B /* valhalla2.json in Resources */,
 				6C1DA9F3274C31B4001C162B /* arrow_left_135.svg in Resources */,
 				6C1DAA0B274C31B4001C162B /* route_button.svg in Resources */,
 				6C1DA9F1274C31B4001C162B /* arrow_right_90.svg in Resources */,
@@ -378,7 +376,6 @@
 				6C1DA9F8274C31B4001C162B /* arrow_join.svg in Resources */,
 				6C1DA9FB274C31B4001C162B /* arrow_left_45.svg in Resources */,
 				6C1DAA0E274C31B4001C162B /* finish.svg in Resources */,
-				6C1DA9F0274C31B4001C162B /* valhalla3.json in Resources */,
 				6C1DAA14274C31B4001C162B /* track-arrow.svg in Resources */,
 				C1AE26E024DBEE4E00474C31 /* RouteTrackerViewController.xib in Resources */,
 				6C1DA9FA274C31B4001C162B /* arrow_left_180.svg in Resources */,
@@ -621,17 +618,31 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GLMap/GLMapSwift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
-		6C37B0E225DE6E70008D49B8 /* GLMap */ = {
+		6CAA98E72754D8FB000FB998 /* GLMap */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLMap;
 		};
-		6C37B0E425DE6E70008D49B8 /* GLRoute */ = {
+		6CAA98E92754D8FB000FB998 /* GLRoute */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLRoute;
 		};
-		6C37B0E625DE6E70008D49B8 /* GLSearch */ = {
+		6CAA98EB2754D8FB000FB998 /* GLSearch */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLSearch;
 		};
 /* End XCSwiftPackageProductDependency section */
