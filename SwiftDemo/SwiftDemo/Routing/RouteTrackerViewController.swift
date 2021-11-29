@@ -6,34 +6,34 @@
 //  Copyright © 2020 Evgen Bodunov. All rights reserved.
 //
 
-import UIKit
-import GLRoute
 import GLMapSwift
+import GLRoute
+import UIKit
 
 extension GLManeuverType {
     var imageName: String {
         switch self {
-        case .start, .becomes, .continue, .rampStraight, .stayStraight: return "arrow-straight"
-        case .startRight: return "arrow-rigth"
-        case .startLeft: return "arrow-left"
-        case .slightRight: return "arrow-right-45"
-        case .slightLeft: return "arrow-left-45"
-        case .rampRight, .exitRight, .stayRight: return "arrow-right-45-plus"
-        case .rampLeft, .exitLeft, .stayLeft: return "arrow-left-45-plus"
-        case .right: return "arrow-right-90"
-        case .left: return "arrow-left-90"
-        case .sharpRight: return "arrow-right-135"
-        case .sharpLeft: return "arrow-left-135"
-        case .uturnRight: return "arrow-right-180"
-        case .uturnLeft: return "arrow-left-180"
+        case .start, .becomes, .continue, .rampStraight, .stayStraight: return "arrow_straight"
+        case .startRight: return "arrow_rigth"
+        case .startLeft: return "arrow_left"
+        case .slightRight: return "arrow_right_45"
+        case .slightLeft: return "arrow_left_45"
+        case .rampRight, .exitRight, .stayRight: return "arrow_right_45_plus"
+        case .rampLeft, .exitLeft, .stayLeft: return "arrow_left_45_plus"
+        case .right: return "arrow_right_90"
+        case .left: return "arrow_left_90"
+        case .sharpRight: return "arrow_right_135"
+        case .sharpLeft: return "arrow_left_135"
+        case .uturnRight: return "arrow_right_180"
+        case .uturnLeft: return "arrow_left_180"
         case .destination: return "finish"
-        case .destinationRight: return "finish-right"
-        case .destinationLeft: return "finish-left"
-        case .merge: return "arrow-join"
-        case .ferryEnter: return "ferry-enter"
-        case .ferryExit: return "ferry-exit"
-        case .roundaboutEnter: return "roundabout-enter"
-        case .roundaboutExit: return "roundabout-exit"
+        case .destinationRight: return "finish_right"
+        case .destinationLeft: return "finish_left"
+        case .merge: return "arrow_join"
+        case .ferryEnter: return "ferry_enter"
+        case .ferryExit: return "ferry_exit"
+        case .roundaboutEnter: return "roundabout_enter"
+        case .roundaboutExit: return "roundabout_exit"
         // TODO:
         case .none, .transit, .transitTransfer, .transitRemainOn, .transitConnectionStart,
              .transitConnectionTransfer, .transitConnectionDestination, .postTransitConnectionDestination:
@@ -45,8 +45,8 @@ extension GLManeuverType {
 private let colors: [GLMapColor] = [
     GLMapColor(red: 115, green: 204, blue: 41, alpha: 230), // green
     GLMapColor(red: 236, green: 237, blue: 26, alpha: 230), // yellow
-    GLMapColor(red: 250, green: 72, blue: 102, alpha: 230) //red
-];
+    GLMapColor(red: 250, green: 72, blue: 102, alpha: 230), // red
+]
 
 private func mix(from: UInt8, to: UInt8, k: Double) -> UInt8 {
     var rv = Double(from) * (1.0 - k)
@@ -62,17 +62,17 @@ private func mix(from: GLMapColor, to: GLMapColor, k: Double) -> GLMapColor {
 }
 
 private func colorForAltitude(min: Double, delta: Double, val: Double) -> GLMapColor {
-    var k = (val-min)/delta;
+    var k = (val - min) / delta
     if !k.isFinite {
         k = 0
     }
     return val < 0.5 ?
         mix(from: colors[0], to: colors[1], k: k * 2) :
-        mix(from: colors[1], to: colors[2], k: (k-0.5)*2)
+        mix(from: colors[1], to: colors[2], k: (k - 0.5) * 2)
 }
 
-private func svgpbFullPath(_ name: String) -> String {
-    return Bundle.main.path(forResource: name, ofType: "svgpb")!
+private func svgFullPath(_ name: String) -> String {
+    return Bundle.main.path(forResource: name, ofType: "svg")!
 }
 
 private let ReRoute_MinTimeBetween = 10.0
@@ -99,7 +99,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private var routePoints = [String: GLMapDrawable]()
     private var routeTrackData: GLMapTrackData?
     private var routeTrack: GLMapTrack?
-    private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svgpb\";}")!
+    private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
 
     private var resumeTracking = false, wasOnRoute = false
     private var pauseTracking = false { didSet { updateStopButton() } }
@@ -124,6 +124,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private var observers = [NSKeyValueObservation]()
 
     override var canBecomeFirstResponder: Bool { return true }
+    @available(*, unavailable)
     required init?(coder _: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     init(_ route: Route) {
@@ -152,7 +153,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-        
+
         routeChanged(.success(result: route))
         routeParamsChanged()
         routeIsUpdatingChanged()
@@ -163,9 +164,8 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
-        map.setScaleRulerPlacement(.hidden, paddings: .zero, maxWidth: 200)
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         helper.cancel()
@@ -178,7 +178,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     }
 
     private func updateRoute(newPoint: RoutePoint? = nil, deletePoint: RoutePoint? = nil) {
-        guard let index = originalParams.points.firstIndex(of: targetPoint),let curLocation = lastLocation else { return }
+        guard let index = originalParams.points.firstIndex(of: targetPoint), let curLocation = lastLocation else { return }
 
         if let deletePoint = deletePoint {
             originalParams = originalParams.deleting(deletePoint)
@@ -200,16 +200,25 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     }
 
     // MARK: Route point image
+
     private func image(for pt: RoutePoint) -> UIImage? {
         if pt.isCurrentLocation {
             return nil
         }
         if pt.index == 0 {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("nav_bottom_start"))
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("nav_bottom_start"))
         } else if pt === originalParams.finishPoint {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("nav_bottom_finish"))
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("nav_bottom_finish"))
         }
-        return drawMiddlePoint(bgName: svgpbFullPath("nav_bottom_start"), index: "\(pt.index)", textSize: 15)
+        return drawMiddlePoint(bgName: svgFullPath("nav_bottom_start"), index: "\(pt.index)", textSize: 15)
+    }
+
+    private func mapImage(key: String) -> UIImage {
+        if key == "nav_map_start" || key == "nav_map_finish" {
+            return GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(key))!
+        } else {
+            return drawMiddlePoint(bgName: "nav_map_start", index: key, textSize: 20)
+        }
     }
 
     private func drawableKey(for pt: RoutePoint, finishPoint: RoutePoint?) -> String? {
@@ -224,16 +233,8 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         return "\(pt.index)"
     }
 
-    private func mapImage(key: String) -> UIImage {
-        if key == "nav_map_start" || key == "nav_map_finish" {
-            return GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(key))!
-        } else {
-            return drawMiddlePoint(bgName: "nav_map_start", index: key, textSize: 20)
-        }
-    }
-
     private func drawMiddlePoint(bgName: String, index: String, textSize: CGFloat) -> UIImage {
-        let bg = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(bgName), withScale: 1.0)!
+        let bg = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(bgName), withScale: 1.0)!
         UIGraphicsBeginImageContextWithOptions(bg.size, false, bg.scale)
         bg.draw(at: .zero)
         let str = NSAttributedString(string: index,
@@ -252,14 +253,14 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         let factory = GLMapVectorImageFactory.shared
         let actionButtonsColor = GLMapColor(uiColor: #colorLiteral(red: 0.3333333333, green: 0.3333333333, blue: 0.3333333333, alpha: 1))
 
-        imgRouteSpeedBackground.image = factory.image(fromSvgpb: svgpbFullPath("gray_circle"), withScale: 1)
-        btnPrevPoint.setImage(factory.image(fromSvgpb: svgpbFullPath("nav_point_prev"),
+        imgRouteSpeedBackground.image = factory.image(fromSvg: svgFullPath("gray_circle"), withScale: 1)
+        btnPrevPoint.setImage(factory.image(fromSvg: svgFullPath("nav_point_prev"),
                                             withScale: 1, andTintColor: actionButtonsColor), for: .normal)
-        btnNextPoint.setImage(factory.image(fromSvgpb: svgpbFullPath("nav_point_next"),
+        btnNextPoint.setImage(factory.image(fromSvg: svgFullPath("nav_point_next"),
                                             withScale: 1, andTintColor: actionButtonsColor), for: .normal)
 
-        btnStop.setBackgroundImage(factory.image(fromSvgpb: svgpbFullPath("route_button")), for: .normal)
-        btnStop.setBackgroundImage(factory.image(fromSvgpb: svgpbFullPath("route_button_act")), for: .highlighted)
+        btnStop.setBackgroundImage(factory.image(fromSvg: svgFullPath("route_button")), for: .normal)
+        btnStop.setBackgroundImage(factory.image(fromSvg: svgFullPath("route_button_act")), for: .highlighted)
 
         updateStopButton()
     }
@@ -347,26 +348,26 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private func updateStopButton() {
         let img: UIImage?
         if pauseTracking {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("icon_gps_ipad"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("icon_gps_ipad"),
                                                        withScale: 1.0, andTintColor: .white)
         } else if maneuverStatus == .final {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("route_finish"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("route_finish"),
                                                        withScale: 1.0, andTintColor: .white)
         } else {
-            img = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath("route_pause"),
+            img = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath("route_pause"),
                                                        withScale: 1.0, andTintColor: .white)
         }
         btnStop.setImage(img, for: .normal)
     }
 
     private func showManeuverImage(_ maneuverType: GLManeuverType) {
-        imgManeuver.image = GLMapVectorImageFactory.shared.image(fromSvgpb: svgpbFullPath(maneuverType.imageName),
+        imgManeuver.image = GLMapVectorImageFactory.shared.image(fromSvg: svgFullPath(maneuverType.imageName),
                                                                  withScale: 1.0, andTintColor: .white)
     }
 
     private func showSecondaryManeuverImage(_ maneuver: GLRouteManeuver?) {
         if let maneuver = maneuver {
-            imgSecondaryManeuver.image = GLMapVectorImageFactory.shared.image(fromSvgpb: maneuver.type.imageName,
+            imgSecondaryManeuver.image = GLMapVectorImageFactory.shared.image(fromSvg: maneuver.type.imageName,
                                                                               withScale: 1.0, andTintColor: .white)
             if imgSecondaryManeuver.alpha != 1 {
                 UIView.animate(withDuration: 0.5) { self.imgSecondaryManeuver.alpha = 1 }
@@ -410,7 +411,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
     // MARK: User actions
 
-    /*override func tap(onMap location: CGPoint) {
+    /* override func tap(onMap location: CGPoint) {
      guard let mapView = mapView else { return }
      let mapPt = mapView.makeMapPoint(fromDisplay: location)
 
@@ -442,7 +443,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
      @objc private func menuAddMiddlePoint() {
      updateRoute(newPoint: RoutePoint(position: menuPoint, name: nil))
-     }*/
+     } */
 
     @IBAction private func nextTargetPoint(_: Any) {
         let points = originalParams.points
@@ -490,7 +491,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             }
         } else {
             if maneuverStatus == .final {
-                self.navigationController?.popViewController(animated: true)
+                navigationController?.popViewController(animated: true)
             } else {
                 let vc = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                 vc.popoverPresentationController?.sourceView = sender
@@ -505,8 +506,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         }
     }
 
-
-    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    override func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             lastLocation = location
             locationChanged(location)
@@ -546,10 +546,11 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         } else {
             let curTime = NSDate.timeIntervalSinceReferenceDate
             if abs(curTime - lastRequestTime) > ReRoute_MinTimeBetween,
-                !helper.isUpdating,
-                routeTracker.distanceToLastPoint > ReRoute_DistanceToLastPoint,
-                routeTracker.distanceFromRoute > ReRoute_DistanceFromRoute,
-                location.horizontalAccuracy < ReRoute_MaxAccuracy {
+               !helper.isUpdating,
+               routeTracker.distanceToLastPoint > ReRoute_DistanceToLastPoint,
+               routeTracker.distanceFromRoute > ReRoute_DistanceFromRoute,
+               location.horizontalAccuracy < ReRoute_MaxAccuracy
+            {
                 lastRequestTime = curTime
                 updateRoute()
             }
@@ -559,7 +560,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             userBearing = Double.nan
         }
 
-        display(location: userLocation, bearing: userBearing, additionalAnimations: { anim in
+        display(location: userLocation, bearing: userBearing, additionalAnimations: { _ in
             self.routeTrack?.progressIndex = self.routeTracker.progressIndex
         })
 

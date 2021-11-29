@@ -18,8 +18,8 @@ class BuildRouteTask: Task {
     }
 
     private static let OfflineValhallaConfig: String = {
-        guard let path = Bundle.main.path(forResource: "valhalla", ofType: "json"),
-            let rv = try? String(contentsOfFile: path) else { fatalError("Error reading valhalla config") }
+        guard let path = Bundle.main.path(forResource: "valhalla3", ofType: "json"),
+              let rv = try? String(contentsOfFile: path) else { fatalError("Error reading valhalla config") }
         return rv
     }()
 
@@ -38,7 +38,7 @@ class BuildRouteTask: Task {
     }
 
     override func isEqual(to: Task) -> Bool {
-        return params == (to as?  BuildRouteTask)?.params
+        return params == (to as? BuildRouteTask)?.params
     }
 
     override func start(_ onFinish: @escaping () -> Void) {
@@ -53,10 +53,10 @@ class BuildRouteTask: Task {
         taskID = request.start { route, error in
             if let error = error {
                 let nsError = error as NSError
-                if nsError.domain == "Valhalla" || nsError.code == POSIXErrorCode.ECANCELED.rawValue {
+                if nsError.domain == "Valhalla" || nsError.code == ECANCELED {
                     self.result = .error(error: error)
                     self.onFinish?()
-                } else { //Network error. Try to build offline
+                } else { // Network error. Try to build offline
                     request.setOfflineWithConfig(BuildRouteTask.OfflineValhallaConfig)
                     self.taskID = request.start { route, error in
                         if let error = error {

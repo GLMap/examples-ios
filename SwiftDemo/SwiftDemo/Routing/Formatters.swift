@@ -63,7 +63,8 @@ class Formatters {
         let hours = minutes / 60
         minutes -= hours * 60
         if let hoursStr = nfNoFract.string(from: NSNumber(value: hours)),
-            let minutesStr = nfNoFract.string(from: NSNumber(value: minutes)) {
+           let minutesStr = nfNoFract.string(from: NSNumber(value: minutes))
+        {
             if hours == 0 {
                 return "\(minutesStr) min"
             } else if hours < 10 {

@@ -9,7 +9,7 @@
 import Foundation
 import GLRoute
 
-class RoutePoint : Equatable {
+class RoutePoint: Equatable {
     let pt: GLRoutePoint
     let isCurrentLocation: Bool
 
@@ -17,7 +17,7 @@ class RoutePoint : Equatable {
     var index: Int { return Int(pt.originalIndex) }
 
     lazy var name = {
-        return "Point \(index)"
+        "Point \(index)"
     }()
 
     init(pt: GLRoutePoint, isCurrentLocation: Bool) {
