@@ -184,7 +184,7 @@ class MapViewController: MapViewControllerBase {
 
     func showEmbedMap() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
-            GLMapManager.shared.addMap(mapPath)
+            GLMapManager.shared.add(.map, path: mapPath, bbox: .empty)
             map.mapGeoCenter = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
             map.mapZoomLevel = 14
         }
@@ -326,7 +326,7 @@ class MapViewController: MapViewControllerBase {
 
     func offlineSearch() {
         if let mapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
-            GLMapManager.shared.addMap(mapPath)
+            GLMapManager.shared.add(.map, path: mapPath, bbox: .empty)
             let center = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
             map.mapGeoCenter = center
             map.mapZoomLevel = 14
@@ -1049,68 +1049,87 @@ class MapViewController: MapViewControllerBase {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(styleReload))
     }
 
-    func tilesBulkDownload() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(startBulkDownload))
-        map.mapCenter = GLMapPoint(lat: 53, lon: 27)
-        map.mapZoom = pow(2, 12.5)
+    // MARK: Bulk download
+    var bulkDownloadBBox : GLMapBBox {
+        var bbox = GLMapBBox.empty
+        bbox.add(point: GLMapPoint(lat: 53, lon: 27))
+        bbox.add(point: GLMapPoint(lat: 53.5, lon: 27.5))
+        return bbox;
     }
 
-    @objc func startBulkDownload() {
-        let bbox = map.bbox
-        let manager = GLMapManager.shared
-        let allTiles = manager.vectorTiles(at: bbox)
+    var bulkMapPath : String {
+        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+        return cachesPath.appendingPathComponent("test.vmtar")
+    }
 
-        let niceTileGridVisualization = true
-        if niceTileGridVisualization {
-            if allTiles.count > 100_000 {
-                NSLog("Too many tiles")
-                return
-            }
+    var bulkNavPath : String {
+        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+        return cachesPath.appendingPathComponent("test.navtar")
+    }
 
-            let notCachedTiles = manager.notCachedVectorTiles(at: bbox)
-            NSLog("Total tiles %d tiles to cache: %d", allTiles.count, notCachedTiles.count)
+    var bulkElePath : String {
+        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+        return cachesPath.appendingPathComponent("test.eletar")
+    }
 
-            let notDownloadedTiles = GLMapPointArray()
-            let downloadedTiles = GLMapPointArray()
+    @objc
+    private func bulkDownloadMap() {
+        GLMapManager.shared.downloadDataSet(.map, path: self.bulkMapPath, bbox: self.bulkDownloadBBox) { total, current, speed in
+            NSLog("%d %f", current, speed)
+        } completion: { error in
+            self.tilesBulkDownload()
+        }
+    }
 
-            for tile in allTiles {
-                let tileBBox = manager.bbox(forTile: tile.uint64Value)
+    @objc
+    private func bulkDownloadNav() {
+        GLMapManager.shared.downloadDataSet(.navigation, path: self.bulkNavPath, bbox: self.bulkDownloadBBox) { total, current, speed in
+            NSLog("%d %f", current, speed)
+        } completion: { error in
+            self.tilesBulkDownload()
+        }
+    }
 
-                let pts = [
-                    tileBBox.origin,
-                    GLMapPoint(x: tileBBox.origin.x, y: tileBBox.origin.y + tileBBox.size.y),
-                    GLMapPoint(x: tileBBox.origin.x + tileBBox.size.x, y: tileBBox.origin.y + tileBBox.size.y),
-                    GLMapPoint(x: tileBBox.origin.x + tileBBox.size.x, y: tileBBox.origin.y),
-                    tileBBox.origin,
-                ]
+    @objc
+    private func bulkDownloadEle() {
+        GLMapManager.shared.downloadDataSet(.elevation, path: self.bulkElePath, bbox: self.bulkDownloadBBox) { total, current, speed in
+            NSLog("%d %f", current, speed)
+        } completion: { error in
+            self.tilesBulkDownload()
+        }
+    }
 
-                if notCachedTiles.contains(tile) {
-                    notDownloadedTiles.addPoints(pts)
-                } else {
-                    downloadedTiles.addPoints(pts)
-                }
-            }
+    func tilesBulkDownload() {
+        let bbox = self.bulkDownloadBBox
+        let manager = FileManager.default
+        let mapManager = GLMapManager.shared
 
-            let downloaded = GLMapDrawable(drawOrder: 4)
-            downloaded.setVectorObject(GLMapVectorObject(polygonOuterRings: [downloadedTiles], innerRings: nil), with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: green;}")!, completion: nil)
-            map.add(downloaded)
-
-            let notDownloaded = GLMapDrawable(drawOrder: 5)
-            notDownloaded.setVectorObject(GLMapVectorObject(polygonOuterRings: [notDownloadedTiles], innerRings: nil), with: GLMapVectorCascadeStyle.createStyle("area{width: 2pt; color: red;}")!, completion: nil)
-            map.add(notDownloaded)
+        var button : UIBarButtonItem? = nil;
+        if manager.fileExists(atPath: bulkElePath) {
+            mapManager.add(.elevation, path: bulkElePath, bbox: bbox)
+        } else {
+            button = UIBarButtonItem(title: "Download ele data", style: .plain, target: self, action: #selector(bulkDownloadEle))
         }
 
-        tilesToDownload = allTiles.count
-        manager.cacheTiles(allTiles) { tile, error -> Bool in
-            NSLog("Tile downloaded:%llu error:%@", tile, error?.localizedDescription ?? "no error")
-            self.tilesToDownload -= 1
-            if self.tilesToDownload == 0 {
-                DispatchQueue.main.async {
-                    self.map.reloadTiles()
-                }
-            }
-            return true
+        if manager.fileExists(atPath: bulkNavPath) {
+            mapManager.add(.navigation, path: bulkNavPath, bbox: bbox)
+        } else {
+            button = UIBarButtonItem(title: "Download nav data", style: .plain, target: self, action: #selector(bulkDownloadNav))
         }
+
+        if manager.fileExists(atPath: bulkMapPath) {
+            mapManager.add(.map, path: bulkMapPath, bbox: bbox)
+        } else {
+            button = UIBarButtonItem(title: "Download map data", style: .plain, target: self, action: #selector(bulkDownloadMap))
+        }
+
+        navigationItem.rightBarButtonItem = button;
+
+        map.mapCenter = bbox.center
+        map.mapZoom = map.mapZoom(for: bbox)
+        map.drawElevationLines = true
+        map.drawHillshades = true
+        map.reloadTiles()
     }
 
     func loadStyle(darkTheme: Bool, carDriving: Bool) {

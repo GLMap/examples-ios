@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import <GLMap/GLMap.h>
+#import <GLMapCore/GLMapCore.h>
 
 @implementation AppDelegate
 

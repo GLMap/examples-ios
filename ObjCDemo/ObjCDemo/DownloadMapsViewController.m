@@ -8,6 +8,7 @@
 
 #import "DownloadMapsViewController.h"
 #import <GLMap/GLMap.h>
+#import <GLMapCore/GLMapCore.h>
 
 @implementation DownloadMapsViewController
 

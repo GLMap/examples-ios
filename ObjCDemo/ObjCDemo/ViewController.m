@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "MapViewController.h"
 #import <GLMap/GLMap.h>
+#import <GLMapCore/GLMapCore.h>
 
 @interface ViewController ()
 @end
