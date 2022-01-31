@@ -412,6 +412,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCDemo/Pods-ObjCDemo-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLMap/GLMap.framework/GLMap",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLMapCore/GLMapCore.framework/GLMapCore",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLRoute/GLRoute.framework/GLRoute",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLRoute+Valhalla3/valhalla_micro.framework/valhalla_micro",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GLSearch/GLSearch.framework/GLSearch",
@@ -419,6 +420,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMap.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLMapCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLRoute.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/valhalla_micro.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GLSearch.framework",
