@@ -6,6 +6,7 @@
 //  Copyright © 2016 Evgen Bodunov. All rights reserved.
 //
 
+import GLMapSwift
 import GLMap
 import UIKit
 
@@ -15,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Insert your API key from https://user.getyourmap.com/apps
-        GLMapManager.activate(apiKey: <#API key#>, resources: nil, storage: nil)
+        GLMapManager.activate(apiKey: <#API key#>)
 
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()

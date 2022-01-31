@@ -44,7 +44,7 @@ class MapViewController: MapViewControllerBase {
         Demo.Screenshot: screenshotDemo,
         Demo.Fonts: fontsDemo,
         Demo.FlyTo: flyToDemo,
-        Demo.TilesBulkDownload: tilesBulkDownload,
+        Demo.DownloadInBBox: downloadInBBox,
         Demo.StyleReload: styleReloadDemo,
     ]
 
@@ -1049,84 +1049,84 @@ class MapViewController: MapViewControllerBase {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Reload style", style: .plain, target: self, action: #selector(styleReload))
     }
 
-    // MARK: Bulk download
-    var bulkDownloadBBox : GLMapBBox {
+    // MARK: BBox download
+    var downloadBBox : GLMapBBox {
         var bbox = GLMapBBox.empty
         bbox.add(point: GLMapPoint(lat: 53, lon: 27))
         bbox.add(point: GLMapPoint(lat: 53.5, lon: 27.5))
         return bbox;
     }
 
-    var bulkMapPath : String {
+    var mapPath : String {
         let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.vmtar")
     }
 
-    var bulkNavPath : String {
+    var navigationPath : String {
         let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.navtar")
     }
 
-    var bulkElePath : String {
+    var elevationPath : String {
         let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.eletar")
     }
 
     @objc
-    private func bulkDownloadMap() {
-        GLMapManager.shared.downloadDataSet(.map, path: self.bulkMapPath, bbox: self.bulkDownloadBBox) { total, current, speed in
+    private func downloadMapInBBox() {
+        GLMapManager.shared.downloadDataSet(.map, path: self.mapPath, bbox: self.downloadBBox) { total, current, speed in
             NSLog("%d %f", current, speed)
         } completion: { error in
-            self.tilesBulkDownload()
+            self.downloadInBBox()
         }
     }
 
     @objc
-    private func bulkDownloadNav() {
-        GLMapManager.shared.downloadDataSet(.navigation, path: self.bulkNavPath, bbox: self.bulkDownloadBBox) { total, current, speed in
+    private func downloadNavigationInBBox() {
+        GLMapManager.shared.downloadDataSet(.navigation, path: self.navigationPath, bbox: self.downloadBBox) { total, current, speed in
             NSLog("%d %f", current, speed)
         } completion: { error in
-            self.tilesBulkDownload()
+            self.downloadInBBox()
         }
     }
 
     @objc
-    private func bulkDownloadEle() {
-        GLMapManager.shared.downloadDataSet(.elevation, path: self.bulkElePath, bbox: self.bulkDownloadBBox) { total, current, speed in
+    private func downloadElevationInBBox() {
+        GLMapManager.shared.downloadDataSet(.elevation, path: self.elevationPath, bbox: self.downloadBBox) { total, current, speed in
             NSLog("%d %f", current, speed)
         } completion: { error in
-            self.tilesBulkDownload()
+            self.downloadInBBox()
         }
     }
 
-    func tilesBulkDownload() {
-        let bbox = self.bulkDownloadBBox
+    func downloadInBBox() {
+        let bbox = self.downloadBBox
         let manager = FileManager.default
         let mapManager = GLMapManager.shared
 
         var button : UIBarButtonItem? = nil;
-        if manager.fileExists(atPath: bulkElePath) {
-            mapManager.add(.elevation, path: bulkElePath, bbox: bbox)
+        if manager.fileExists(atPath: elevationPath) {
+            mapManager.add(.elevation, path: elevationPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download ele data", style: .plain, target: self, action: #selector(bulkDownloadEle))
+            button = UIBarButtonItem(title: "Download ele data", style: .plain, target: self, action: #selector(downloadElevationInBBox))
         }
 
-        if manager.fileExists(atPath: bulkNavPath) {
-            mapManager.add(.navigation, path: bulkNavPath, bbox: bbox)
+        if manager.fileExists(atPath: navigationPath) {
+            mapManager.add(.navigation, path: navigationPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download nav data", style: .plain, target: self, action: #selector(bulkDownloadNav))
+            button = UIBarButtonItem(title: "Download nav data", style: .plain, target: self, action: #selector(downloadNavigationInBBox))
         }
 
-        if manager.fileExists(atPath: bulkMapPath) {
-            mapManager.add(.map, path: bulkMapPath, bbox: bbox)
+        if manager.fileExists(atPath: mapPath) {
+            mapManager.add(.map, path: mapPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download map data", style: .plain, target: self, action: #selector(bulkDownloadMap))
+            button = UIBarButtonItem(title: "Download map data", style: .plain, target: self, action: #selector(downloadMapInBBox))
         }
 
         navigationItem.rightBarButtonItem = button;
 
+        map.enableClipping(bbox, minLevel: 9, maxLevel: 16)
         map.mapCenter = bbox.center
-        map.mapZoom = map.mapZoom(for: bbox)
         map.drawElevationLines = true
         map.drawHillshades = true
         map.reloadTiles()
