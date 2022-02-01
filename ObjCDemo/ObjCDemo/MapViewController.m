@@ -250,12 +250,8 @@
         break;
     }
 
-    case Test_TilesBulkDownload: {
-        UIBarButtonItem *barButton =
-            [UIBarButtonItem.alloc initWithTitle:@"Download" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownload)];
-        self.navigationItem.rightBarButtonItem = barButton;
-        _mapView.mapCenter = GLMapPointMakeFromGeoCoordinates(53, 27);
-        _mapView.mapZoomLevel = 12.5;
+    case Test_DownloadInBBox: {
+        [self downloadInBBox];
         break;
     }
     case Test_StyleReload: {
@@ -287,7 +283,8 @@
 
 // Example how to add map from resources.
 - (void)loadEmbedMap {
-    [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
+    NSString *path = [NSBundle.mainBundle pathForResource:@"Montenegro" ofType:@"vm"];
+    [GLMapManager.sharedManager addDataSet:GLMapInfoDataSet_Map path:path bbox:GLMapBBoxEmpty];
     //[[GLMapManager manager] addMapWithPath:[[NSBundle mainBundle] pathForResource:@"Belarus" ofType:@"vm"]];
     // Move map to the Montenegro capital
     _mapView.mapGeoCenter = GLMapGeoPointMake(42.4341, 19.26);
@@ -406,7 +403,8 @@
 
 - (void)offlineSearch {
     // Offline search works only with offline maps. Online tiles does not contains search index
-    [[GLMapManager sharedManager] addMap:[[NSBundle mainBundle] pathForResource:@"Montenegro" ofType:@"vm"]];
+    NSString *path = [NSBundle.mainBundle pathForResource:@"Montenegro" ofType:@"vm"];
+    [GLMapManager.sharedManager addDataSet:GLMapInfoDataSet_Map path:path bbox:GLMapBBoxEmpty];
 
     // Move map to the Montenegro capital
     GLMapGeoPoint center = GLMapGeoPointMake(42.4341, 19.26);
@@ -423,8 +421,9 @@
     // Set locale settings. Used to boost results with locales native to user
     searchOffline.localeSettings = _mapView.localeSettings;
 
+    GLMapLocaleSettings *enLocale = [GLMapLocaleSettings.alloc initWithLocalesOrder:@[@"en"] unitSystem:GLUnitSystem_International];
     NSArray<GLSearchCategory *> *category =
-        [GLSearchCategories.sharedCategories categoriesStartedWith:@[@"restaurant"] localeSettings:_mapView.localeSettings]; // find categories by name
+        [GLSearchCategories.sharedCategories categoriesStartedWith:@[@"restaurant"] localeSettings:enLocale]; // find categories by name
     if (category.count == 0)
         return;
 
@@ -1140,62 +1139,88 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)bulkDownload {
-    GLMapManager *manager = [GLMapManager sharedManager];
-    NSArray *allTiles = [manager vectorTilesAtBBox:_mapView.bbox];
+#pragma mark Bulk download
+- (GLMapBBox) downloadBBox {
+    GLMapBBox bbox = GLMapBBoxEmpty;
+    bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53, 27));
+    bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.5, 27.5));
+    return bbox;
+}
 
-    BOOL niceTileGridVisualization = YES;
-    if (niceTileGridVisualization) {
-        if (allTiles.count > 100000) {
-            NSLog(@"Too many tiles");
-            return;
-        }
-        NSArray *notCachedTiles = [manager notCachedVectorTilesAtBBox:_mapView.bbox];
-        NSLog(@"Total tiles %d tiles to cache: %d", (int)allTiles.count, (int)notCachedTiles.count);
+- (NSString *) mapPath {
+    NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
+    return [cachesPath stringByAppendingPathComponent:@"test.vmtar"];
+}
 
-        NSMutableArray<GLMapPointArray *> *notDownloadedPoly = [NSMutableArray.alloc init];
-        NSMutableArray<GLMapPointArray *> *downloadedPoly = [NSMutableArray.alloc init];
+- (NSString *) navigationPath {
+    NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
+    return [cachesPath stringByAppendingPathComponent:@"test.navtar"];
+}
 
-        for (NSNumber *tile in allTiles) {
-            GLMapBBox tileBBox = [manager bboxForTile:tile.unsignedLongLongValue];
-            GLMapPoint pts[5];
-            pts[0] = tileBBox.origin;
-            pts[1] = GLMapPointMake(tileBBox.origin.x, tileBBox.origin.y + tileBBox.size.y);
-            pts[2] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y + tileBBox.size.y);
-            pts[3] = GLMapPointMake(tileBBox.origin.x + tileBBox.size.x, tileBBox.origin.y);
-            pts[4] = tileBBox.origin;
-            GLMapPointArray *poly = [GLMapPointArray.alloc initWithPoints:pts count:5];
-            if ([notCachedTiles containsObject:tile])
-                [notDownloadedPoly addObject:poly];
-            else
-                [downloadedPoly addObject:poly];
-        }
+- (NSString *) elevationPath {
+    NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
+    return [cachesPath stringByAppendingPathComponent:@"test.eletar"];
+}
 
-        GLMapDrawable *downloaded = [GLMapDrawable.alloc initWithDrawOrder:4];
-        [downloaded setVectorObject:[GLMapVectorObject.alloc initWithPolygonOuterRings:downloadedPoly innerRings:nil]
-                          withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:green;}"]
-                         completion:nil];
-        [_mapView add:downloaded];
-
-        GLMapDrawable *notDownloaded = [GLMapDrawable.alloc initWithDrawOrder:5];
-        [notDownloaded setVectorObject:[GLMapVectorObject.alloc initWithPolygonOuterRings:notDownloadedPoly innerRings:nil]
-                             withStyle:[GLMapVectorCascadeStyle createStyle:@"area{width:2pt; color:red;}"]
-                            completion:nil];
-        [_mapView add:notDownloaded];
+- (void)downloadMapInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:[self downloadBBox]
+                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        NSLog(@"Download map stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
     }
+                                     completion:^(NSError * _Nullable error) {
+        [self downloadInBBox];
+    }];
+}
 
-    __block NSUInteger count = allTiles.count;
-    [manager cacheTiles:allTiles
-          progressBlock:^BOOL(uint64_t tile, NSError *error) {
-            NSLog(@"Tile downloaded:%llu error:%@", tile, error);
-            count--;
-            if (count == 0) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                  [self->_mapView reloadTiles];
-                });
-            }
-            return YES;
-          }];
+- (void)downloadNavigationInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:[self downloadBBox]
+                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        NSLog(@"Download nav stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+    }
+                                     completion:^(NSError * _Nullable error) {
+        [self downloadInBBox];
+    }];
+}
+
+- (void)downloadElevationInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:[self downloadBBox]
+                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        NSLog(@"Download ele stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+    }
+                                     completion:^(NSError * _Nullable error) {
+        [self downloadInBBox];
+    }];
+}
+
+- (void)downloadInBBox {
+    GLMapBBox bbox = [self downloadBBox];
+
+    NSFileManager *manager = NSFileManager.defaultManager;
+    GLMapManager *mapManager = GLMapManager.sharedManager;
+
+    UIBarButtonItem *button = nil;
+    if([manager fileExistsAtPath:[self elevationPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:bbox];
+    else
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download elevation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadElevationInBBox)];
+
+    if([manager fileExistsAtPath:[self navigationPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:bbox];
+    else
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download navigation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadNavigationInBBox)];
+
+    if([manager fileExistsAtPath:[self mapPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:bbox];
+    else
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download map" style:UIBarButtonItemStylePlain target:self action:@selector(downloadMapInBBox)];
+
+    self.navigationItem.rightBarButtonItem = button;
+
+    [_mapView enableClipping:bbox minLevel:9 maxLevel:16];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
+    _mapView.drawElevationLines = YES;
+    _mapView.drawHillshades = YES;
+    [_mapView reloadTiles];
 }
 
 - (void)loadDarkTheme {

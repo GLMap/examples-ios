@@ -7,6 +7,8 @@
 //
 
 import GLMapSwift
+import GLMap
+import GLMapCore
 import GLRoute
 import UIKit
 

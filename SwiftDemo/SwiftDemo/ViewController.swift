@@ -34,7 +34,7 @@ class ViewController: UITableViewController {
         case Screenshot
         case Fonts
         case FlyTo
-        case TilesBulkDownload
+        case DownloadInBBox
         case StyleReload
 
         case DownloadMap
@@ -86,7 +86,7 @@ class ViewController: UITableViewController {
         TableRow(.Fonts, name: "Fonts"),
         TableRow(.FlyTo, name: "Fly to"),
 
-        TableRow(.TilesBulkDownload, name: "Tiles bulk download"),
+        TableRow(.DownloadInBBox, name: "Download data in bounding box"),
         TableRow(.StyleReload, name: "Style live reload"),
 
         TableRow(.DownloadMap, name: "Download offline map"),
