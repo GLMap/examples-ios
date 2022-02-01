@@ -48,7 +48,7 @@
         @{@"name" : @"Fonts"},
         @{@"name" : @"Fly to"},
 
-        @{@"name" : @"Bulk tiles download"},
+        @{@"name" : @"Download data in bounding box"},
 
         @{@"name" : @"Style live reload"},
         @{@"name" : @"Download offline map"}

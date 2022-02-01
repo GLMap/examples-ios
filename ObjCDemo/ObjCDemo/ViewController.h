@@ -30,7 +30,7 @@ enum Test {
     Test_Screenshot,
     Test_Fonts,
     Test_FlyTo,
-    Test_TilesBulkDownload,
+    Test_DownloadInBBox,
 
     Test_StyleReload,
     Test_DownloadMap,

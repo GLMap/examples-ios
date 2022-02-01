@@ -250,8 +250,8 @@
         break;
     }
 
-    case Test_TilesBulkDownload: {
-        [self bulkDownload];
+    case Test_DownloadInBBox: {
+        [self downloadInBBox];
         break;
     }
     case Test_StyleReload: {
@@ -1140,82 +1140,84 @@
 }
 
 #pragma mark Bulk download
-- (GLMapBBox) bulkDownloadBBox {
+- (GLMapBBox) downloadBBox {
     GLMapBBox bbox = GLMapBBoxEmpty;
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53, 27));
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.5, 27.5));
     return bbox;
 }
 
-- (NSString *) bulkMapPath {
+- (NSString *) mapPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.vmtar"];
 }
 
-- (NSString *) bulkNavPath {
+- (NSString *) navigationPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.navtar"];
 }
 
-- (NSString *) bulkElePath {
+- (NSString *) elevationPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.eletar"];
 }
 
-- (void)bulkDownloadMap {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map path:[self bulkMapPath] bbox:[self bulkDownloadBBox]
+- (void)downloadMapInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:[self downloadBBox]
                                         progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        NSLog(@"Download map stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
     }
                                      completion:^(NSError * _Nullable error) {
-        [self bulkDownload];
+        [self downloadInBBox];
     }];
 }
 
-- (void)bulkDownloadNav {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation path:[self bulkMapPath] bbox:[self bulkDownloadBBox]
+- (void)downloadNavigationInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:[self downloadBBox]
                                         progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        NSLog(@"Download nav stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
     }
                                      completion:^(NSError * _Nullable error) {
-        [self bulkDownload];
+        [self downloadInBBox];
     }];
 }
 
-- (void)bulkDownloadEle {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation path:[self bulkMapPath] bbox:[self bulkDownloadBBox]
+- (void)downloadElevationInBBox {
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:[self downloadBBox]
                                         progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        NSLog(@"Download ele stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
     }
                                      completion:^(NSError * _Nullable error) {
-        [self bulkDownload];
+        [self downloadInBBox];
     }];
 }
 
-- (void)bulkDownload {
-    GLMapBBox bbox = [self bulkDownloadBBox];
+- (void)downloadInBBox {
+    GLMapBBox bbox = [self downloadBBox];
 
     NSFileManager *manager = NSFileManager.defaultManager;
     GLMapManager *mapManager = GLMapManager.sharedManager;
 
     UIBarButtonItem *button = nil;
-    if([manager fileExistsAtPath:[self bulkElePath]])
-        [mapManager addDataSet:GLMapInfoDataSet_Elevation path:[self bulkElePath] bbox:bbox];
+    if([manager fileExistsAtPath:[self elevationPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download ele data" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownloadEle)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download elevation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadElevationInBBox)];
 
-    if([manager fileExistsAtPath:[self bulkNavPath]])
-        [mapManager addDataSet:GLMapInfoDataSet_Navigation path:[self bulkNavPath] bbox:bbox];
+    if([manager fileExistsAtPath:[self navigationPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download nav data" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownloadNav)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download navigation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadNavigationInBBox)];
 
-    if([manager fileExistsAtPath:[self bulkMapPath]])
-        [mapManager addDataSet:GLMapInfoDataSet_Map path:[self bulkMapPath] bbox:bbox];
+    if([manager fileExistsAtPath:[self mapPath]])
+        [mapManager addDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download map data" style:UIBarButtonItemStylePlain target:self action:@selector(bulkDownloadMap)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download map" style:UIBarButtonItemStylePlain target:self action:@selector(downloadMapInBBox)];
 
     self.navigationItem.rightBarButtonItem = button;
 
+    [_mapView enableClipping:bbox minLevel:9 maxLevel:16];
+    _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.drawElevationLines = YES;
     _mapView.drawHillshades = YES;
     [_mapView reloadTiles];

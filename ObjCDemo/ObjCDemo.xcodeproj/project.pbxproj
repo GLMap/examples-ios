@@ -169,6 +169,8 @@
 		6C6C25B91DDA04840060A241 /* ObjCDemo */ = {
 			isa = PBXGroup;
 			children = (
+				6C6C25FE1DDDF0520060A241 /* Resources */,
+				6C6C25BA1DDA04840060A241 /* Supporting Files */,
 				6C6C25BD1DDA04840060A241 /* AppDelegate.h */,
 				6C6C25BE1DDA04840060A241 /* AppDelegate.m */,
 				6C6C25D41DDB4BE20060A241 /* DownloadMapsViewController.h */,
@@ -179,14 +181,12 @@
 				6C6C25D21DDB48DA0060A241 /* MapViewController.m */,
 				6C6C25D71DDB4C640060A241 /* OSMTileSource.h */,
 				6C6C25D81DDB4C640060A241 /* OSMTileSource.m */,
+				6C6C25C01DDA04840060A241 /* ViewController.h */,
+				6C6C25C11DDA04840060A241 /* ViewController.m */,
 				6C6C25C61DDA04840060A241 /* Assets.xcassets */,
 				6C6C25CB1DDA04840060A241 /* Info.plist */,
 				6C6C25C81DDA04840060A241 /* LaunchScreen.storyboard */,
 				6C6C25C31DDA04840060A241 /* Main.storyboard */,
-				6C6C25FE1DDDF0520060A241 /* Resources */,
-				6C6C25BA1DDA04840060A241 /* Supporting Files */,
-				6C6C25C01DDA04840060A241 /* ViewController.h */,
-				6C6C25C11DDA04840060A241 /* ViewController.m */,
 			);
 			path = ObjCDemo;
 			sourceTree = "<group>";

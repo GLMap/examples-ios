@@ -1075,7 +1075,7 @@ class MapViewController: MapViewControllerBase {
     @objc
     private func downloadMapInBBox() {
         GLMapManager.shared.downloadDataSet(.map, path: self.mapPath, bbox: self.downloadBBox) { total, current, speed in
-            NSLog("%d %f", current, speed)
+            NSLog("Download map stats: %d %f", current, speed)
         } completion: { error in
             self.downloadInBBox()
         }
@@ -1084,7 +1084,7 @@ class MapViewController: MapViewControllerBase {
     @objc
     private func downloadNavigationInBBox() {
         GLMapManager.shared.downloadDataSet(.navigation, path: self.navigationPath, bbox: self.downloadBBox) { total, current, speed in
-            NSLog("%d %f", current, speed)
+            NSLog("Download nav stats: %d %f", current, speed)
         } completion: { error in
             self.downloadInBBox()
         }
@@ -1093,7 +1093,7 @@ class MapViewController: MapViewControllerBase {
     @objc
     private func downloadElevationInBBox() {
         GLMapManager.shared.downloadDataSet(.elevation, path: self.elevationPath, bbox: self.downloadBBox) { total, current, speed in
-            NSLog("%d %f", current, speed)
+            NSLog("Download ele stats: %d %f", current, speed)
         } completion: { error in
             self.downloadInBBox()
         }
@@ -1108,19 +1108,19 @@ class MapViewController: MapViewControllerBase {
         if manager.fileExists(atPath: elevationPath) {
             mapManager.add(.elevation, path: elevationPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download ele data", style: .plain, target: self, action: #selector(downloadElevationInBBox))
+            button = UIBarButtonItem(title: "Download elevation", style: .plain, target: self, action: #selector(downloadElevationInBBox))
         }
 
         if manager.fileExists(atPath: navigationPath) {
             mapManager.add(.navigation, path: navigationPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download nav data", style: .plain, target: self, action: #selector(downloadNavigationInBBox))
+            button = UIBarButtonItem(title: "Download navigation", style: .plain, target: self, action: #selector(downloadNavigationInBBox))
         }
 
         if manager.fileExists(atPath: mapPath) {
             mapManager.add(.map, path: mapPath, bbox: bbox)
         } else {
-            button = UIBarButtonItem(title: "Download map data", style: .plain, target: self, action: #selector(downloadMapInBBox))
+            button = UIBarButtonItem(title: "Download map", style: .plain, target: self, action: #selector(downloadMapInBBox))
         }
 
         navigationItem.rightBarButtonItem = button;
