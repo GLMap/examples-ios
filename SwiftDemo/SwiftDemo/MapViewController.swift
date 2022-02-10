@@ -1050,61 +1050,62 @@ class MapViewController: MapViewControllerBase {
     }
 
     // MARK: BBox download
-    var downloadBBox : GLMapBBox {
+
+    var downloadBBox: GLMapBBox {
         var bbox = GLMapBBox.empty
         bbox.add(point: GLMapPoint(lat: 53, lon: 27))
         bbox.add(point: GLMapPoint(lat: 53.5, lon: 27.5))
-        return bbox;
+        return bbox
     }
 
-    var mapPath : String {
-        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+    var mapPath: String {
+        let cachesPath: NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.vmtar")
     }
 
-    var navigationPath : String {
-        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+    var navigationPath: String {
+        let cachesPath: NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.navtar")
     }
 
-    var elevationPath : String {
-        let cachesPath : NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+    var elevationPath: String {
+        let cachesPath: NSString = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
         return cachesPath.appendingPathComponent("test.eletar")
     }
 
     @objc
     private func downloadMapInBBox() {
-        GLMapManager.shared.downloadDataSet(.map, path: self.mapPath, bbox: self.downloadBBox) { total, current, speed in
+        GLMapManager.shared.downloadDataSet(.map, path: mapPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download map stats: %d %f", current, speed)
-        } completion: { error in
+        } completion: { _ in
             self.downloadInBBox()
         }
     }
 
     @objc
     private func downloadNavigationInBBox() {
-        GLMapManager.shared.downloadDataSet(.navigation, path: self.navigationPath, bbox: self.downloadBBox) { total, current, speed in
+        GLMapManager.shared.downloadDataSet(.navigation, path: navigationPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download nav stats: %d %f", current, speed)
-        } completion: { error in
+        } completion: { _ in
             self.downloadInBBox()
         }
     }
 
     @objc
     private func downloadElevationInBBox() {
-        GLMapManager.shared.downloadDataSet(.elevation, path: self.elevationPath, bbox: self.downloadBBox) { total, current, speed in
+        GLMapManager.shared.downloadDataSet(.elevation, path: elevationPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download ele stats: %d %f", current, speed)
-        } completion: { error in
+        } completion: { _ in
             self.downloadInBBox()
         }
     }
 
     func downloadInBBox() {
-        let bbox = self.downloadBBox
+        let bbox = downloadBBox
         let manager = FileManager.default
         let mapManager = GLMapManager.shared
 
-        var button : UIBarButtonItem? = nil;
+        var button: UIBarButtonItem?
         if manager.fileExists(atPath: elevationPath) {
             mapManager.add(.elevation, path: elevationPath, bbox: bbox)
         } else {
@@ -1123,7 +1124,7 @@ class MapViewController: MapViewControllerBase {
             button = UIBarButtonItem(title: "Download map", style: .plain, target: self, action: #selector(downloadMapInBBox))
         }
 
-        navigationItem.rightBarButtonItem = button;
+        navigationItem.rightBarButtonItem = button
 
         map.enableClipping(bbox, minLevel: 9, maxLevel: 16)
         map.mapCenter = bbox.center

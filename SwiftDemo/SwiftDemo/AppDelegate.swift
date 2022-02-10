@@ -6,8 +6,8 @@
 //  Copyright © 2016 Evgen Bodunov. All rights reserved.
 //
 
-import GLMapSwift
 import GLMap
+import GLMapSwift
 import UIKit
 
 @UIApplicationMain

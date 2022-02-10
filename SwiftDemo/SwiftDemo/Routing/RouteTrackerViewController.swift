@@ -6,9 +6,9 @@
 //  Copyright © 2020 Evgen Bodunov. All rights reserved.
 //
 
-import GLMapSwift
 import GLMap
 import GLMapCore
+import GLMapSwift
 import GLRoute
 import UIKit
 

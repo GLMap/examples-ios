@@ -16,9 +16,7 @@ class RoutePoint: Equatable {
     var location: GLMapGeoPoint { return pt.pt }
     var index: Int { return Int(pt.originalIndex) }
 
-    lazy var name = {
-        "Point \(index)"
-    }()
+    lazy var name = "Point \(index)"
 
     init(pt: GLRoutePoint, isCurrentLocation: Bool) {
         self.pt = pt
