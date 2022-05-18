@@ -5,5 +5,4 @@ target 'ObjCDemo' do
    pod 'GLMap'
    pod 'GLSearch'
    pod 'GLRoute'
-   pod 'GLRoute+Valhalla3'
 end
