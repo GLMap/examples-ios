@@ -410,7 +410,7 @@ class MapViewController: MapViewControllerBase {
         }
     }
 
-    var mapDrawable = GLMapDrawable(drawOrder: 3)
+    var mapDrawable = GLMapImage(drawOrder: 3)
 
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
@@ -438,7 +438,7 @@ class MapViewController: MapViewControllerBase {
         let tileSize = GLMapPointMax / tilesForZoom
 
         // Drawables created using default constructor is added on map as polygon with layer:0; and z-index:0;
-        let drawable = GLMapDrawable()
+        let drawable = GLMapImage()
         drawable.transformMode = .custom
         drawable.rotatesWithMap = true
         drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
@@ -460,7 +460,7 @@ class MapViewController: MapViewControllerBase {
         let tileSize = GLMapPointMax / tilesForZoom
 
         // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
-        let drawable = GLMapDrawable(drawOrder: 0)
+        let drawable = GLMapImage(drawOrder: 0)
         drawable.transformMode = .custom
         drawable.rotatesWithMap = true
         drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
@@ -472,7 +472,7 @@ class MapViewController: MapViewControllerBase {
         }
     }
 
-    func loadImage(atUrl url: URL, intoDrawable drawable: GLMapDrawable) {
+    func loadImage(atUrl url: URL, intoDrawable drawable: GLMapImage) {
         URLSession.shared.dataTask(with: url) { data, _, _ in
             if let data = data {
                 if let image = UIImage(data: data) {
@@ -802,7 +802,7 @@ class MapViewController: MapViewControllerBase {
             ]),
         ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
-            let drawable = GLMapDrawable()
+            let drawable = GLMapVectorLayer()
             drawable.setVectorObject(GLMapVectorObject(multiline: multiline), with: style, completion: nil)
             map.add(drawable)
         }
@@ -826,7 +826,7 @@ class MapViewController: MapViewControllerBase {
         }
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
-            let drawable = GLMapDrawable()
+            let drawable = GLMapVectorLayer()
             drawable.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style, completion: nil)
             map.add(drawable)
         }
@@ -848,7 +848,7 @@ class MapViewController: MapViewControllerBase {
                 return
             }
 
-            let drawable = GLMapDrawable()
+            let drawable = GLMapVectorLayer()
             drawable.setVectorObjects(objects, with: style, completion: nil)
             map.add(drawable)
 
@@ -902,13 +902,13 @@ class MapViewController: MapViewControllerBase {
             """) else { return }
         // When GLMapDrawable created without drawOrder:param it's displayed with map objects, and could hide other objects.
         // When drawOrder is set, then drawable interact with other objects with same drawOrder value.
-        var drawable = GLMapDrawable()
+        var drawable = GLMapVectorLayer()
         drawable.setVectorObject(objects[0], with: style, completion: nil)
         map.add(drawable)
         flashObject(object: drawable)
         objects.removeObject(at: 0)
 
-        drawable = GLMapDrawable()
+        drawable = GLMapVectorLayer()
         drawable.setVectorObjects(objects, with: style, completion: nil)
         map.add(drawable)
     }
@@ -980,7 +980,7 @@ class MapViewController: MapViewControllerBase {
                 layer:100;
             }
             """) else { return }
-        let drawable = GLMapDrawable()
+        let drawable = GLMapVectorLayer()
         drawable.setVectorObjects(objects, with: style, completion: nil)
         map.add(drawable)
 

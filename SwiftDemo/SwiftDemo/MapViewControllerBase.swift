@@ -33,7 +33,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
             image = movementImage ?? {
                 let path = Bundle.main.path(forResource: "arrow_new", ofType: "svg")!
                 let img = GLMapVectorImageFactory.shared.image(fromSvg: path)!
-                let rv = GLMapDrawable(drawOrder: 101)
+                let rv = GLMapImage(drawOrder: 101)
                 self.movementImage = rv
                 rv.setImage(img, for: map, completion: nil)
                 rv.rotatesWithMap = true
@@ -46,7 +46,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
             image = stopImage ?? {
                 let path = Bundle.main.path(forResource: "circle_new", ofType: "svg")!
                 let img = GLMapVectorImageFactory.shared.image(fromSvg: path)!
-                let rv = GLMapDrawable(drawOrder: 101)
+                let rv = GLMapImage(drawOrder: 101)
                 self.stopImage = rv
                 rv.setImage(img, for: map, completion: nil)
                 rv.rotatesWithMap = true

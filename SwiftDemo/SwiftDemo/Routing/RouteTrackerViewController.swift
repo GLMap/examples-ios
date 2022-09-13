@@ -98,7 +98,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
     private var targetPoint: RoutePoint { didSet { updateCurrentTarget() } }
     private var originalParams: RouteParams { didSet { updateTargetPoints() } }
 
-    private var routePoints = [String: GLMapDrawable]()
+    private var routePoints = [String: GLMapImage]()
     private var routeTrackData: GLMapTrackData?
     private var routeTrack: GLMapTrack?
     private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
@@ -277,11 +277,11 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
                 if routePoints[key] != nil {
                     continue
                 }
-                let drawable: GLMapDrawable
+                let drawable: GLMapImage
                 if let tmp = oldPoints.removeValue(forKey: key) {
                     drawable = tmp
                 } else {
-                    drawable = GLMapDrawable(drawOrder: 100)
+                    drawable = GLMapImage(drawOrder: 100)
                     let image = mapImage(key: key)
                     drawable.setImage(image, for: map, completion: nil)
                     drawable.offset = CGPoint(x: image.size.width / 2, y: image.size.height / 2)
@@ -537,7 +537,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         let nextManeuver = maneuver != nil ? routeData.getNextManeuver(maneuver!) : nil
         let maneuverType = maneuver?.type ?? .none
 
-        lblManeuverStreet.text = maneuver?.streetNames?.first
+        lblManeuverStreet.text = maneuver?.shortInstruction
         lblManeuverDistance.text = fmt.format(distance: distanceToNextManeuver)
         showManeuverImage(maneuverType)
         showSecondaryManeuverImage((distanceToNextManeuver < 300 && (maneuver?.length ?? 0) < 150) ? nextManeuver : nil)
