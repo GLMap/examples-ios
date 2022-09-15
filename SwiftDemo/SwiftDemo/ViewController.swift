@@ -12,32 +12,31 @@ import UIKit
 
 class ViewController: UITableViewController {
     public enum Demo {
-        case OfflineMap
-        case DarkTheme
-        case EmbeddMap
-        case OnlineMap
-        case Routing
-        case RouteTracker
-        case RasterOnlineMap
-        case ZoomToBBox
-        case OfflineSearch
-        case Notifications
-        case SingleImage
-        case MultiImage
-        case MarkerLayer
-        case MarkerLayerWithClustering
-        case MarkerLayerWithMapCSSClustering
-        case Track
-        case MultiLine
-        case Polygon
-        case GeoJSON
-        case Screenshot
-        case Fonts
-        case FlyTo
-        case DownloadInBBox
-        case StyleReload
-
-        case DownloadMap
+        case offlineMap
+        case darkTheme
+        case embeddMap
+        case onlineMap
+        case routing
+        case routeTracker
+        case rasterOnlineMap
+        case zoomToBBox
+        case offlineSearch
+        case notifications
+        case singleImage
+        case multiImage
+        case markerLayer
+        case markerLayerWithClustering
+        case markerLayerWithMapCSSClustering
+        case track
+        case multiLine
+        case polygon
+        case geoJSON
+        case screenshot
+        case fonts
+        case flyTo
+        case downloadInBBox
+        case styleReload
+        case downloadMap
     }
 
     struct TableRow {
@@ -59,37 +58,37 @@ class ViewController: UITableViewController {
     }
 
     let tableRows = [
-        TableRow(.OfflineMap, name: "Open offline map"),
-        TableRow(.DarkTheme, name: "Dark theme"),
-        TableRow(.EmbeddMap, name: "Open embedd map"),
-        TableRow(.OnlineMap, name: "Open online map", description: "Downloads tiles one by one"),
-        TableRow(.Routing, name: "Routing", description: "Offline routing requires downloaded navigation data"),
-        TableRow(.RouteTracker, name: "Route Tracker", description: "Tracking user while it moves along the route"),
-        TableRow(.RasterOnlineMap, name: "Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
+        TableRow(.offlineMap, name: "Open offline map"),
+        TableRow(.darkTheme, name: "Dark theme"),
+        TableRow(.embeddMap, name: "Open embedd map"),
+        TableRow(.onlineMap, name: "Open online map", description: "Downloads tiles one by one"),
+        TableRow(.routing, name: "Routing", description: "Offline routing requires downloaded navigation data"),
+        TableRow(.routeTracker, name: "Route Tracker", description: "Tracking user while it moves along the route"),
+        TableRow(.rasterOnlineMap, name: "Raster online map", description: "Downloads raster tiles one by one from custom tile source"),
 
-        TableRow(.ZoomToBBox, name: "Zoom to bbox"),
-        TableRow(.OfflineSearch, name: "Offline search"),
-        TableRow(.Notifications, name: "Notification test"),
-        TableRow(.SingleImage, name: "GLMapDrawable demo", description: "For one pin or any other image"),
-        TableRow(.MultiImage, name: "GLMapImageGroup demo", description: "For large set of pins with smaller set of images"),
+        TableRow(.zoomToBBox, name: "Zoom to bbox"),
+        TableRow(.offlineSearch, name: "Offline search"),
+        TableRow(.notifications, name: "Notification test"),
+        TableRow(.singleImage, name: "GLMapDrawable demo", description: "For one pin or any other image"),
+        TableRow(.multiImage, name: "GLMapImageGroup demo", description: "For large set of pins with smaller set of images"),
 
-        TableRow(.MarkerLayer, name: "GLMapMarkerLayer demo"),
-        TableRow(.MarkerLayerWithClustering, name: "GLMapMarkerLayer with clustering"),
-        TableRow(.MarkerLayerWithMapCSSClustering, name: "GLMapMarkerLayer with MapCSS clustering"),
+        TableRow(.markerLayer, name: "GLMapMarkerLayer demo"),
+        TableRow(.markerLayerWithClustering, name: "GLMapMarkerLayer with clustering"),
+        TableRow(.markerLayerWithMapCSSClustering, name: "GLMapMarkerLayer with MapCSS clustering"),
 
-        TableRow(.Track, name: "GPS track recording"),
-        TableRow(.MultiLine, name: "Add multiline"),
+        TableRow(.track, name: "GPS track recording"),
+        TableRow(.multiLine, name: "Add multiline"),
 
-        TableRow(.Polygon, name: "Add polygon"),
-        TableRow(.GeoJSON, name: "Load GeoJSON"),
-        TableRow(.Screenshot, name: "Take screenshot"),
-        TableRow(.Fonts, name: "Fonts"),
-        TableRow(.FlyTo, name: "Fly to"),
+        TableRow(.polygon, name: "Add polygon"),
+        TableRow(.geoJSON, name: "Load GeoJSON"),
+        TableRow(.screenshot, name: "Take screenshot"),
+        TableRow(.fonts, name: "Fonts"),
+        TableRow(.flyTo, name: "Fly to"),
 
-        TableRow(.DownloadInBBox, name: "Download data in bounding box"),
-        TableRow(.StyleReload, name: "Style live reload"),
+        TableRow(.downloadInBBox, name: "Download data in bounding box"),
+        TableRow(.styleReload, name: "Style live reload"),
 
-        TableRow(.DownloadMap, name: "Download offline map"),
+        TableRow(.downloadMap, name: "Download offline map"),
     ]
 
     override func viewDidLoad() {
@@ -129,9 +128,9 @@ class ViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = tableRows[indexPath.row]
 
-        if row.id == Demo.DownloadMap {
+        if row.id == Demo.downloadMap {
             performSegue(withIdentifier: "DownloadMaps", sender: nil)
-        } else if row.id == Demo.RouteTracker {
+        } else if row.id == Demo.routeTracker {
             let start = RoutePoint(pt: GLMapGeoPoint(lat: +37.405054, lon: -122.156626),
                                    index: 0,
                                    isCurrentLocation: true)

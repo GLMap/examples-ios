@@ -20,32 +20,32 @@ class MapViewController: MapViewControllerBase {
 
     typealias Demo = ViewController.Demo
 
-    var currentDemo: Demo = .OfflineMap
+    var currentDemo: Demo = .offlineMap
 
     let demoCases = [
-        Demo.OfflineMap: showOfflineMap,
-        Demo.DarkTheme: loadDarkTheme,
-        Demo.EmbeddMap: showEmbedMap,
-        Demo.OnlineMap: showOnlineMap,
-        Demo.Routing: testRouting,
-        Demo.RasterOnlineMap: showRasterOnlineMap,
-        Demo.ZoomToBBox: zoomToBBox,
-        Demo.OfflineSearch: offlineSearch,
-        Demo.Notifications: testNotifications,
-        Demo.SingleImage: singleImageDemo,
-        Demo.MultiImage: multiImageDemo,
-        Demo.MarkerLayer: markerLayer,
-        Demo.MarkerLayerWithClustering: markerLayerWithClustering,
-        Demo.MarkerLayerWithMapCSSClustering: markerLayerWithMapCSSClustering,
-        Demo.MultiLine: multiLineDemo,
-        Demo.Track: recordGPSTrack,
-        Demo.Polygon: polygonDemo,
-        Demo.GeoJSON: geoJsonDemoPostcodes,
-        Demo.Screenshot: screenshotDemo,
-        Demo.Fonts: fontsDemo,
-        Demo.FlyTo: flyToDemo,
-        Demo.DownloadInBBox: downloadInBBox,
-        Demo.StyleReload: styleReloadDemo,
+        Demo.offlineMap: showOfflineMap,
+        Demo.darkTheme: loadDarkTheme,
+        Demo.embeddMap: showEmbedMap,
+        Demo.onlineMap: showOnlineMap,
+        Demo.routing: testRouting,
+        Demo.rasterOnlineMap: showRasterOnlineMap,
+        Demo.zoomToBBox: zoomToBBox,
+        Demo.offlineSearch: offlineSearch,
+        Demo.notifications: testNotifications,
+        Demo.singleImage: singleImageDemo,
+        Demo.multiImage: multiImageDemo,
+        Demo.markerLayer: markerLayer,
+        Demo.markerLayerWithClustering: markerLayerWithClustering,
+        Demo.markerLayerWithMapCSSClustering: markerLayerWithMapCSSClustering,
+        Demo.multiLine: multiLineDemo,
+        Demo.track: recordGPSTrack,
+        Demo.polygon: polygonDemo,
+        Demo.geoJSON: geoJsonDemoPostcodes,
+        Demo.screenshot: screenshotDemo,
+        Demo.fonts: fontsDemo,
+        Demo.flyTo: flyToDemo,
+        Demo.downloadInBBox: downloadInBBox,
+        Demo.styleReload: styleReloadDemo,
     ]
 
     var tilesToDownload: Int = 0
