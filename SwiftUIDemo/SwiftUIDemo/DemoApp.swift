@@ -12,6 +12,7 @@ import SwiftUI
 @main
 struct DemoApp: App {
     init() {
+        // Insert your API key from https://user.getyourmap.com/apps
         GLMapManager.activate(apiKey: <#API key#>)
     }
 
