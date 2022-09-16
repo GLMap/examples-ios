@@ -623,7 +623,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GLMap/GLMapSwift";
 			requirement = {
-				branch = master;
+				branch = dev;
 				kind = branch;
 			};
 		};
