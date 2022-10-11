@@ -204,15 +204,15 @@ class MapViewController: MapViewControllerBase {
             map.setStyle(style)
         }
 
-        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla3", ofType: "json") else {
-            NSLog("Can't find valhalla3.json in resources")
+        guard let valhallaConfigPath = Bundle.main.path(forResource: "valhalla", ofType: "json") else {
+            NSLog("Can't find valhalla.json in resources")
             return
         }
 
         do {
             valhallaConfig = try String(contentsOfFile: valhallaConfigPath)
         } catch {
-            NSLog("Can't read contents of valhalla3.json")
+            NSLog("Can't read contents of valhalla.json")
             return
         }
 

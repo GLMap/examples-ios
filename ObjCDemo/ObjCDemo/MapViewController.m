@@ -293,10 +293,10 @@
 
 - (void)testRouting {
     NSError *error = nil;
-    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla3" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        NSLog(@"Can't load valhalla3.json");
+        NSLog(@"Can't load valhalla.json");
         return;
     }
     

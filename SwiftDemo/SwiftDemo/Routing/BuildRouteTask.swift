@@ -18,7 +18,7 @@ class BuildRouteTask: Task {
     }
 
     private static let OfflineValhallaConfig: String = {
-        guard let path = Bundle.main.path(forResource: "valhalla3", ofType: "json"),
+        guard let path = Bundle.main.path(forResource: "valhalla", ofType: "json"),
               let rv = try? String(contentsOfFile: path) else { fatalError("Error reading valhalla config") }
         return rv
     }()
