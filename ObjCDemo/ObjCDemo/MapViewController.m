@@ -20,7 +20,7 @@
     UIButton *_downloadButton;
 
     GLMapView *_mapView;
-    GLMapDrawable *_mapImage;
+    GLMapImage *_mapImage;
     GLMapInfo *_mapToDownload;
     BOOL _flashAdd;
 
@@ -54,7 +54,7 @@
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:_mapView];
 
-    _locationManager = [[CLLocationManager alloc] init];
+    _locationManager = [CLLocationManager.alloc init];
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
         [_locationManager requestWhenInUseAuthorization];
     }
@@ -112,7 +112,7 @@
         [self testRouting];
         break;
     case Test_RasterOnlineMap:
-        _mapView.base = [[OSMTileSource alloc] init];
+        _mapView.base = [OSMTileSource.alloc init];
         break;
     case Test_ZoomToBBox: // zoom to bbox
         [self zoomToBBox];
@@ -213,12 +213,12 @@
                                                   "node[id=6]{text:'Test12';text-color:black;font-size:60;text-priority:100;}"
                                                   "area{fill-color:white; layer:100;}"];
 
-        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
+        GLMapVectorLayer *drawable = [GLMapVectorLayer.alloc init];
         [drawable setVectorObjects:objects withStyle:style completion:nil];
         [_mapView add:drawable];
 
-        UIView *testView = [[UIView alloc] initWithFrame:CGRectMake(350, 200, 150, 200)];
-        UIView *testView2 = [[UIView alloc] initWithFrame:CGRectMake(200, 200, 150, 200)];
+        UIView *testView = [UIView.alloc initWithFrame:CGRectMake(350, 200, 150, 200)];
+        UIView *testView2 = [UIView.alloc initWithFrame:CGRectMake(200, 200, 150, 200)];
         testView.backgroundColor = [UIColor blackColor];
         testView2.backgroundColor = [UIColor whiteColor];
         float y = 0;
@@ -226,7 +226,7 @@
         for (int i = 0; i < 7; ++i) {
             UIFont *font = [UIFont fontWithName:@"NotoSans" size:5 + 5 * i];
 
-            UILabel *lbl = [[UILabel alloc] init];
+            UILabel *lbl = [UILabel.alloc init];
             lbl.text = @"Test12";
             lbl.font = font;
             lbl.textColor = [UIColor whiteColor];
@@ -234,7 +234,7 @@
             lbl.frame = CGRectMake(0, y, lbl.frame.size.width, lbl.frame.size.height);
             [testView addSubview:lbl];
 
-            UILabel *lbl2 = [[UILabel alloc] init];
+            UILabel *lbl2 = [UILabel.alloc init];
             lbl2.text = @"Test12";
             lbl2.font = font;
             lbl2.textColor = [UIColor blackColor];
@@ -300,11 +300,11 @@
         return;
     }
     
-    _routingMode = [[UISegmentedControl alloc] initWithItems:@[ @"Auto", @"Bike", @"Walk" ]];
+    _routingMode = [UISegmentedControl.alloc initWithItems:@[ @"Auto", @"Bike", @"Walk" ]];
     _routingMode.selectedSegmentIndex = 0;
     [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
 
-    _networkMode = [[UISegmentedControl alloc] initWithItems:@[ @"Online", @"Offline" ]];
+    _networkMode = [UISegmentedControl.alloc initWithItems:@[ @"Online", @"Offline" ]];
     _networkMode.selectedSegmentIndex = 0;
     [_networkMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
 
@@ -549,12 +549,12 @@
     }
 }
 
-- (void)loadImageAtURL:(NSURL *)url intoDrawable:(GLMapDrawable *)drawable {
+- (void)loadImageAtURL:(NSURL *)url mapImage:(GLMapImage *)mapImage {
     [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (data) {
             UIImage *img = [UIImage imageWithData:data];
             if (img) {
-                [drawable setImage:img forMapView:self->_mapView completion:nil];
+                [mapImage setImage:img forMapView:self->_mapView completion:nil];
             }
         }
     }] resume];
@@ -578,24 +578,24 @@
         int tilesForZoom = (1 << tilePosZ);
         int32_t tileSize = GLMapPointMax / tilesForZoom;
 
-        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-        drawable.transformMode = GLMapTransformMode_Custom;
-        drawable.rotatesWithMap = YES;
-        drawable.scale = GLMapPointMax / (tilesForZoom * 256);
-        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
-        [_mapView add:drawable];
+        GLMapImage *mapImage = [GLMapImage.alloc init];
+        mapImage.transformMode = GLMapTransformMode_Custom;
+        mapImage.rotatesWithMap = YES;
+        mapImage.scale = GLMapPointMax / (tilesForZoom * 256);
+        mapImage.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
+        [_mapView add:mapImage];
 
-        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/2.png"] intoDrawable:drawable];
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/2.png"] mapImage:mapImage];
     }
 
     // Drawable can draw a text
     {
-        GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-        [drawable setText:@"Text2"
+        GLMapLabel *mapLabel = [GLMapLabel.alloc init];
+        [mapLabel setText:@"Text2"
                 withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
                completion:nil];
-        drawable.position = GLMapPointMakeFromGeoCoordinates(54, 0);
-        [_mapView add:drawable];
+        mapLabel.position = GLMapPointMakeFromGeoCoordinates(54, 0);
+        [_mapView add:mapLabel];
     }
 
     // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
@@ -606,23 +606,23 @@
         int tilesForZoom = (1 << tilePosZ);
         int32_t tileSize = GLMapPointMax / tilesForZoom;
 
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
-        drawable.transformMode = GLMapTransformMode_Custom;
-        drawable.rotatesWithMap = YES;
-        drawable.scale = GLMapPointMax / (tilesForZoom * 256);
-        drawable.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
-        [_mapView add:drawable];
+        GLMapImage *mapImage = [GLMapImage.alloc initWithDrawOrder:0];
+        mapImage.transformMode = GLMapTransformMode_Custom;
+        mapImage.rotatesWithMap = YES;
+        mapImage.scale = GLMapPointMax / (tilesForZoom * 256);
+        mapImage.position = GLMapPointMake(tileSize * tilePosX, (tilesForZoom - tilePosY - 1) * tileSize);
+        [_mapView add:mapImage];
 
-        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/3.png"] intoDrawable:drawable];
+        [self loadImageAtURL:[NSURL URLWithString:@"https://tile.openstreetmap.org/3/4/3.png"] mapImage:mapImage];
     }
 
     {
-        GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:0];
-        [drawable setText:@"Text1"
+        GLMapLabel *mapLabel = [GLMapLabel.alloc initWithDrawOrder:0];
+        [mapLabel setText:@"Text1"
                 withStyle:[GLMapVectorStyle createStyle:@"{text-color:red;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
                completion:nil];
-        drawable.position = GLMapPointMakeFromGeoCoordinates(60, 0);
-        [_mapView add:drawable];
+        mapLabel.position = GLMapPointMakeFromGeoCoordinates(60, 0);
+        [_mapView add:mapLabel];
     }
 }
 
@@ -633,7 +633,7 @@
 
     UIImage *img = [UIImage imageNamed:@"pin1.png"];
     if (img) {
-        _mapImage = [[GLMapDrawable alloc] initWithDrawOrder:3];
+        _mapImage = [GLMapImage.alloc initWithDrawOrder:3];
         // This is optimized version. Sets image that will be draw only at give mapView and does not retain image
         [_mapImage setImage:img forMapView:_mapView completion:nil];
         _mapImage.position = _mapView.mapCenter;
@@ -919,9 +919,9 @@
     // All user geometry objects should be drawn trough GLMapVectorObject
     GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithMultiline:multiline];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc initWithDrawOrder:0];
-    [drawable setVectorObject:vectorObject withStyle:style completion:nil];
-    [_mapView add:drawable];
+    GLMapVectorLayer *vectorLayer = [GLMapVectorLayer.alloc initWithDrawOrder:0];
+    [vectorLayer setVectorObject:vectorObject withStyle:style completion:nil];
+    [_mapView add:vectorLayer];
 }
 
 - (void)addPolygon
@@ -945,9 +945,9 @@
     GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithPolygonOuterRings:outerRings innerRings:innerRings];
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
 
-    GLMapDrawable *drawable = [[GLMapDrawable alloc] initWithDrawOrder:4];
-    [drawable setVectorObject:vectorObject withStyle:style completion:nil];
-    [_mapView add:drawable];
+    GLMapVectorLayer *vectorLayer = [GLMapVectorLayer.alloc initWithDrawOrder:4];
+    [vectorLayer setVectorObject:vectorObject withStyle:style completion:nil];
+    [_mapView add:vectorLayer];
 
     _mapView.mapGeoCenter = centerPoint;
 }
@@ -1011,23 +1011,23 @@
                                               "line{linecap: round; width: 5pt; color:blue;}"
                                               "area{fill-color:green; width:1pt; color:red;}"];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObject:objects[0] withStyle:style completion:nil];
-    [self flashObject:drawable];
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObject:objects[0] withStyle:style completion:nil];
+    [self flashObject:vectroLayer];
     [objects removeObjectAtIndex:0];
 
-    drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects withStyle:style completion:nil];
-    [_mapView add:drawable];
+    vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects withStyle:style completion:nil];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
 - (void)loadPointGeoJSON {
     GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}" error:nil];
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects
                      withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"] completion:nil];
-    [_mapView add:drawable];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1036,10 +1036,10 @@
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, "
                                                           @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects
                      withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue; text-priority:100;}"] completion:nil];
-    [_mapView add:drawable];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1048,10 +1048,10 @@
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, "
                                                           @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects
                      withStyle:[GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"] completion:nil];
-    [_mapView add:drawable];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1062,10 +1062,10 @@
                                        "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
                                        " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}" error:nil];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects
                      withStyle:[GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"] completion:nil];
-    [_mapView add:drawable];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1074,9 +1074,9 @@
                                        @"{\"type\":\"Polygon\",\"coordinates\":"
                                        "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
                                        " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}" error:nil];
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"] completion:nil];
-    [_mapView add:drawable];
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"] completion:nil];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1087,9 +1087,9 @@
                         " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
                         "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}" error:nil];
 
-    GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-    [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"] completion:nil];
-    [_mapView add:drawable];
+    GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+    [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"] completion:nil];
+    [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
@@ -1099,9 +1099,9 @@
         NSError *error = nil;
         GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromFile:path error:&error];
         if (objects) {
-            GLMapDrawable *drawable = [GLMapDrawable.alloc init];
-            [drawable setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
-            [_mapView add:drawable];
+            GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
+            [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
+            [_mapView add:vectroLayer];
             [self zoomToObjects:objects];
         }
     }
