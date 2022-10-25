@@ -60,9 +60,10 @@
 		6C6C262D1DDDF1540060A241 /* pin2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26211DDDF1540060A241 /* pin2@2x.png */; };
 		6C6C262E1DDDF1540060A241 /* pin3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26221DDDF1540060A241 /* pin3.png */; };
 		6C6C262F1DDDF1540060A241 /* pin3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C6C26231DDDF1540060A241 /* pin3@2x.png */; };
-		6CAA98E82754D8FB000FB998 /* GLMap in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98E72754D8FB000FB998 /* GLMap */; };
-		6CAA98EA2754D8FB000FB998 /* GLRoute in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98E92754D8FB000FB998 /* GLRoute */; };
-		6CAA98EC2754D8FB000FB998 /* GLSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 6CAA98EB2754D8FB000FB998 /* GLSearch */; };
+		6C7F24682908258C00414974 /* GLMap in Frameworks */ = {isa = PBXBuildFile; productRef = 6C7F24672908258C00414974 /* GLMap */; };
+		6C7F246A2908258C00414974 /* GLRoute in Frameworks */ = {isa = PBXBuildFile; productRef = 6C7F24692908258C00414974 /* GLRoute */; };
+		6C7F246C2908258C00414974 /* GLSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 6C7F246B2908258C00414974 /* GLSearch */; };
+		6C7F246D290826FA00414974 /* valhalla.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9C9274C31B4001C162B /* valhalla.json */; };
 		6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6CB9196A1E0D515500FBCF75 /* cluster_data.json */; };
 		6CEA4E231FF4D9F900AC3758 /* ImageGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA4E221FF4D9F900AC3758 /* ImageGroup.swift */; };
 		C1AE26DF24DBEE4E00474C31 /* RouteHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26D624DBEE4E00474C31 /* RouteHelper.swift */; };
@@ -79,9 +80,8 @@
 
 /* Begin PBXFileReference section */
 		6C1DA9C8274C31B4001C162B /* route_finish.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = route_finish.svg; path = ../../../Resources/route_finish.svg; sourceTree = "<group>"; };
-		6C1DA9C9274C31B4001C162B /* valhalla3.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla3.json; path = ../../../Resources/valhalla3.json; sourceTree = "<group>"; };
+		6C1DA9C9274C31B4001C162B /* valhalla.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla.json; path = ../../../Resources/valhalla.json; sourceTree = "<group>"; };
 		6C1DA9CA274C31B4001C162B /* arrow_right_90.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = arrow_right_90.svg; path = ../../../Resources/arrow_right_90.svg; sourceTree = "<group>"; };
-		6C1DA9CB274C31B4001C162B /* valhalla2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla2.json; path = ../../../Resources/valhalla2.json; sourceTree = "<group>"; };
 		6C1DA9CC274C31B4001C162B /* arrow_left_135.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = arrow_left_135.svg; path = ../../../Resources/arrow_left_135.svg; sourceTree = "<group>"; };
 		6C1DA9CD274C31B4001C162B /* arrow_right.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = arrow_right.svg; path = ../../../Resources/arrow_right.svg; sourceTree = "<group>"; };
 		6C1DA9CE274C31B4001C162B /* route_pause.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = route_pause.svg; path = ../../../Resources/route_pause.svg; sourceTree = "<group>"; };
@@ -154,9 +154,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6CAA98E82754D8FB000FB998 /* GLMap in Frameworks */,
-				6CAA98EC2754D8FB000FB998 /* GLSearch in Frameworks */,
-				6CAA98EA2754D8FB000FB998 /* GLRoute in Frameworks */,
+				6C7F24682908258C00414974 /* GLMap in Frameworks */,
+				6C7F246C2908258C00414974 /* GLSearch in Frameworks */,
+				6C7F246A2908258C00414974 /* GLRoute in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,8 +256,7 @@
 				6C1DA9CE274C31B4001C162B /* route_pause.svg */,
 				6C1DA9ED274C31B4001C162B /* track-arrow.svg */,
 				6C558A95224B65360095E602 /* uk_postcodes.geojson */,
-				6C1DA9CB274C31B4001C162B /* valhalla2.json */,
-				6C1DA9C9274C31B4001C162B /* valhalla3.json */,
+				6C1DA9C9274C31B4001C162B /* valhalla.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -295,9 +294,9 @@
 			);
 			name = SwiftDemo;
 			packageProductDependencies = (
-				6CAA98E72754D8FB000FB998 /* GLMap */,
-				6CAA98E92754D8FB000FB998 /* GLRoute */,
-				6CAA98EB2754D8FB000FB998 /* GLSearch */,
+				6C7F24672908258C00414974 /* GLMap */,
+				6C7F24692908258C00414974 /* GLRoute */,
+				6C7F246B2908258C00414974 /* GLSearch */,
 			);
 			productName = SwiftDemo;
 			productReference = 6C6C255A1DD9F5F70060A241 /* SwiftDemo.app */;
@@ -331,7 +330,7 @@
 			);
 			mainGroup = 6C6C25511DD9F5F70060A241;
 			packageReferences = (
-				6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */,
+				6C7F24662908258C00414974 /* XCRemoteSwiftPackageReference "GLMapSwift" */,
 			);
 			productRefGroup = 6C6C255B1DD9F5F70060A241 /* Products */;
 			projectDirPath = "";
@@ -359,6 +358,7 @@
 				6C6C25681DD9F5F80060A241 /* LaunchScreen.storyboard in Resources */,
 				6C1DAA09274C31B4001C162B /* arrow_right_180.svg in Resources */,
 				6C6C26291DDDF1540060A241 /* Montenegro.vm in Resources */,
+				6C7F246D290826FA00414974 /* valhalla.json in Resources */,
 				6C1DAA05274C31B4001C162B /* nav_map_start.svg in Resources */,
 				6C1DAA08274C31B4001C162B /* arrow_left.svg in Resources */,
 				6CB9196C1E0D515500FBCF75 /* cluster_data.json in Resources */,
@@ -619,7 +619,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */ = {
+		6C7F24662908258C00414974 /* XCRemoteSwiftPackageReference "GLMapSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GLMap/GLMapSwift";
 			requirement = {
@@ -630,19 +630,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6CAA98E72754D8FB000FB998 /* GLMap */ = {
+		6C7F24672908258C00414974 /* GLMap */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
+			package = 6C7F24662908258C00414974 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLMap;
 		};
-		6CAA98E92754D8FB000FB998 /* GLRoute */ = {
+		6C7F24692908258C00414974 /* GLRoute */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
+			package = 6C7F24662908258C00414974 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLRoute;
 		};
-		6CAA98EB2754D8FB000FB998 /* GLSearch */ = {
+		6C7F246B2908258C00414974 /* GLSearch */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6CAA98E62754D8FB000FB998 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
+			package = 6C7F24662908258C00414974 /* XCRemoteSwiftPackageReference "GLMapSwift" */;
 			productName = GLSearch;
 		};
 /* End XCSwiftPackageProductDependency section */
