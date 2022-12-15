@@ -1103,6 +1103,23 @@
             [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
             [_mapView add:vectroLayer];
             [self zoomToObjects:objects];
+            
+            __weak GLMapView *wMap = _mapView;
+            __weak MapViewController *wself = self;
+            _mapView.tapGestureBlock = ^(CGPoint pt) {
+                GLMapPoint mapPoint = [wMap makeMapPointFromDisplayPoint:pt];
+                for (NSUInteger i = 0; i < objects.count; ++i) {
+                    GLMapVectorObject *object = objects[i];
+                    GLMapPoint pt = mapPoint;
+                    GLMapPoint tmp = [wMap makeMapPointFromDisplayDelta:CGPointMake(0, 10)];
+                    double maxDist = hypot(tmp.x, tmp.y);
+                    // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less then maxDistance.
+                    if ([object findNearestPoint:&pt toPoint:mapPoint maxDistance: maxDist]) {
+                        [wself displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Tap on object: %@", object.debugDescription]];
+                        return;
+                    }
+                }
+            };
         }
     }
 }

@@ -237,17 +237,16 @@ class MapViewController: MapViewControllerBase {
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
         map.tapGestureBlock = { [weak self] pt in
-            if let sself = self {
-                let menu = UIMenuController.shared
-                if !menu.isMenuVisible {
-                    sself.menuPoint = GLMapGeoPoint(point: sself.map.makeMapPoint(fromDisplay: pt))
-                    sself.becomeFirstResponder()
-                    menu.menuItems = [
-                        UIMenuItem(title: "Departure", action: #selector(MapViewController.setDeparture)),
-                        UIMenuItem(title: "Destination", action: #selector(MapViewController.setDestination)),
-                    ]
-                    menu.showMenu(from: sself.map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
-                }
+            guard let self = self else { return }
+            let menu = UIMenuController.shared
+            if !menu.isMenuVisible {
+                self.menuPoint = GLMapGeoPoint(point: self.map.makeMapPoint(fromDisplay: pt))
+                self.becomeFirstResponder()
+                menu.menuItems = [
+                    UIMenuItem(title: "Departure", action: #selector(MapViewController.setDeparture)),
+                    UIMenuItem(title: "Destination", action: #selector(MapViewController.setDestination)),
+                ]
+                menu.showMenu(from: self.map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
             }
         }
         updateRoute()
@@ -530,17 +529,15 @@ class MapViewController: MapViewControllerBase {
         }
 
         map.tapGestureBlock = { [weak self] (point: CGPoint) in
-
-            if let pins = self?.pins, let map = self?.map {
-                if let pin = pins.findPin(point: point, mapView: map) {
-                    let menu = UIMenuController.shared
-                    if !menu.isMenuVisible {
-                        let pinPos = map.makeDisplayPoint(from: pin.position)
-                        self?.pinToDelete = pin
-                        self?.becomeFirstResponder()
-                        menu.menuItems = [UIMenuItem(title: "Delete pin", action: #selector(MapViewController.deletePin))]
-                        menu.showMenu(from: map, rect: CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)))
-                    }
+            guard let self = self, let map = self.map else { return }
+            if let pins = self.pins, let pin = pins.findPin(point: point, mapView: map) {
+                let menu = UIMenuController.shared
+                if !menu.isMenuVisible {
+                    let pinPos = map.makeDisplayPoint(from: pin.position)
+                    self.pinToDelete = pin
+                    self.becomeFirstResponder()
+                    menu.menuItems = [UIMenuItem(title: "Delete pin", action: #selector(MapViewController.deletePin))]
+                    menu.showMenu(from: map, rect: CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)))
                 }
             }
         }
@@ -839,14 +836,8 @@ class MapViewController: MapViewControllerBase {
         }
 
         do {
-            let geojson = try String(contentsOfFile: path)
-
-            guard let objects = try? GLMapVectorObject.createVectorObjects(fromGeoJSON: geojson) else {
-                return
-            }
-            guard let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}") else {
-                return
-            }
+            let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
+            let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}")!
 
             let drawable = GLMapVectorLayer()
             drawable.setVectorObjects(objects, with: style, completion: nil)
@@ -855,6 +846,23 @@ class MapViewController: MapViewControllerBase {
             let bbox = objects.bbox
             map.mapCenter = bbox.center
             map.mapZoom = map.mapZoom(for: bbox)
+
+            map.tapGestureBlock = { [weak self] (point: CGPoint) in
+                guard let self = self, let map = self.map else { return }
+                let mapPoint = map.makeMapPoint(fromDisplay: point)
+                for index in 0 ..< objects.count {
+                    let object = objects[index]
+                    var pt = mapPoint
+                    let tmp = map.makeMapPoint(fromDisplayDelta: CGPoint(x: 0, y: 10))
+                    let maxDist = hypot(tmp.x, tmp.y)
+                    // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less then maxDistance.
+                    if object.findNearestPoint(&pt, to: mapPoint, maxDistance: maxDist) {
+                        self.displayAlert(nil, message: "Tap on object: \(object.debugDescription())")
+                        return
+                    }
+                }
+            }
+
         } catch {
             displayAlert(nil, message: "GeoJSON loading error: \(error.localizedDescription)")
             return
