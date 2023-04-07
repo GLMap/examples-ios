@@ -413,7 +413,7 @@ class MapViewController: MapViewControllerBase {
 
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
-            mapDrawable.setImage(image, for: map, completion: nil)
+            mapDrawable.setImage(image, for: map)
             mapDrawable.hidden = true
             map.add(mapDrawable)
         }
@@ -475,7 +475,7 @@ class MapViewController: MapViewControllerBase {
         URLSession.shared.dataTask(with: url) { data, _, _ in
             if let data = data {
                 if let image = UIImage(data: data) {
-                    drawable.setImage(image, for: self.map, completion: nil)
+                    drawable.setImage(image, for: self.map)
                 }
             }
         }.resume()
@@ -800,7 +800,7 @@ class MapViewController: MapViewControllerBase {
         ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
             let drawable = GLMapVectorLayer()
-            drawable.setVectorObject(GLMapVectorObject(multiline: multiline), with: style, completion: nil)
+            drawable.setVectorObject(GLMapVectorObject(multiline: multiline), with: style)
             map.add(drawable)
         }
     }
@@ -824,7 +824,7 @@ class MapViewController: MapViewControllerBase {
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
             let drawable = GLMapVectorLayer()
-            drawable.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style, completion: nil)
+            drawable.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style)
             map.add(drawable)
         }
         map.mapGeoCenter = centerPoint
@@ -840,7 +840,7 @@ class MapViewController: MapViewControllerBase {
             let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}")!
 
             let drawable = GLMapVectorLayer()
-            drawable.setVectorObjects(objects, with: style, completion: nil)
+            drawable.setVectorObjects(objects, with: style)
             map.add(drawable)
 
             let bbox = objects.bbox
@@ -911,13 +911,13 @@ class MapViewController: MapViewControllerBase {
         // When GLMapDrawable created without drawOrder:param it's displayed with map objects, and could hide other objects.
         // When drawOrder is set, then drawable interact with other objects with same drawOrder value.
         var drawable = GLMapVectorLayer()
-        drawable.setVectorObject(objects[0], with: style, completion: nil)
+        drawable.setVectorObject(objects[0], with: style)
         map.add(drawable)
         flashObject(object: drawable)
         objects.removeObject(at: 0)
 
         drawable = GLMapVectorLayer()
-        drawable.setVectorObjects(objects, with: style, completion: nil)
+        drawable.setVectorObjects(objects, with: style)
         map.add(drawable)
     }
 
@@ -940,7 +940,7 @@ class MapViewController: MapViewControllerBase {
                 let alert = UIAlertController(title: nil, message: "Image captured \(String(describing: image))", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
 
-                self?.present(alert, animated: true, completion: nil)
+                self?.present(alert, animated: true)
             }
         }
     }
@@ -989,7 +989,7 @@ class MapViewController: MapViewControllerBase {
             }
             """) else { return }
         let drawable = GLMapVectorLayer()
-        drawable.setVectorObjects(objects, with: style, completion: nil)
+        drawable.setVectorObjects(objects, with: style)
         map.add(drawable)
 
         let testView = UIView(frame: CGRect(x: 350, y: 200, width: 150, height: 200))
@@ -1186,7 +1186,7 @@ class MapViewController: MapViewControllerBase {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true)
     }
 
     func recordGPSTrack() {

@@ -35,7 +35,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
                 let img = GLMapVectorImageFactory.shared.image(fromSvg: path)!
                 let rv = GLMapImage(drawOrder: 101)
                 self.movementImage = rv
-                rv.setImage(img, for: map, completion: nil)
+                rv.setImage(img, for: map)
                 rv.rotatesWithMap = true
                 rv.position = location
                 rv.offset = CGPoint(x: img.size.width / 2, y: img.size.height / 2)
@@ -48,7 +48,7 @@ class MapViewControllerBase: UIViewController, CLLocationManagerDelegate {
                 let img = GLMapVectorImageFactory.shared.image(fromSvg: path)!
                 let rv = GLMapImage(drawOrder: 101)
                 self.stopImage = rv
-                rv.setImage(img, for: map, completion: nil)
+                rv.setImage(img, for: map)
                 rv.rotatesWithMap = true
                 rv.position = location
                 rv.offset = CGPoint(x: img.size.width / 2, y: img.size.height / 2)

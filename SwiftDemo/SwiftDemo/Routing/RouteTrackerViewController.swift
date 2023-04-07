@@ -283,7 +283,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
                 } else {
                     drawable = GLMapImage(drawOrder: 100)
                     let image = mapImage(key: key)
-                    drawable.setImage(image, for: map, completion: nil)
+                    drawable.setImage(image, for: map)
                     drawable.offset = CGPoint(x: image.size.width / 2, y: image.size.height / 2)
                     map.add(drawable)
                 }
@@ -503,7 +503,7 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
                     self.navigationController?.popViewController(animated: true)
                 }))
                 vc.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                present(vc, animated: true, completion: nil)
+                present(vc, animated: true)
             }
         }
     }
