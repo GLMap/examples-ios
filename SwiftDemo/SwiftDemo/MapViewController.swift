@@ -17,6 +17,7 @@ class MapViewController: MapViewControllerBase {
 
     var trackData: GLMapTrackData?
     var track: GLMapTrack?
+    var trackStyle: GLMapVectorStyle?
 
     typealias Demo = ViewController.Demo
 
@@ -282,17 +283,17 @@ class MapViewController: MapViewControllerBase {
 
         let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
 
-        routeRequest.start(completion: { (result: GLRoute?, error: Error?) in
+        routeRequest.start(completion: { [weak self] (result: GLRoute?, error: Error?) in
+            guard let self else { return }
+            
             if let routeData = result {
                 if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
-                    if let track = self.routeTrack {
-                        track.setTrackData(trackData, style: routeStyle)
-                    } else {
+                    if self.routeTrack == nil {
                         let track = GLMapTrack(drawOrder: 5)
-                        track.setTrackData(trackData, style: routeStyle)
                         self.map.add(track)
                         self.routeTrack = track
                     }
+                    self.routeTrack?.setTrackData(trackData, style: routeStyle)
                 }
             }
             if let error = error {
@@ -1196,25 +1197,25 @@ class MapViewController: MapViewControllerBase {
         track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
         map.add(track)
         self.track = track
+        self.trackStyle = GLMapVectorStyle.createStyle("{width:5pt;}")
     }
 
     override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         super.locationManager(manager, didUpdateLocations: locations)
+        guard let track, let trackStyle else { return }
+        
+        for location in locations {
+            let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
+            var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
 
-        if let track = track {
-            for location in locations {
-                let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
-                var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
-
-                if trackData != nil {
-                    trackData = GLMapTrackData(data: trackData!, andNewPoint: trackPoint, startNewSegment: false)
-                } else {
-                    trackData = GLMapTrackData(points: &trackPoint, count: 1)
-                }
+            if let curData = trackData {
+                trackData = GLMapTrackData(data: curData, andNewPoint: trackPoint, startNewSegment: false)
+            } else {
+                trackData = GLMapTrackData(points: &trackPoint, count: 1)
             }
-            if let trackData = trackData {
-                track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
-            }
+        }
+        if let trackData {
+            track.setTrackData(trackData, style: trackStyle)
         }
     }
 }
