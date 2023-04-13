@@ -266,11 +266,11 @@ class MapViewController: MapViewControllerBase {
         let routeRequest = GLRouteRequest()
 
         if routingMode?.selectedSegmentIndex == 0 {
-            routeRequest.mode = GLRouteMode.drive
+            routeRequest.setAutoWithOptions(CostingOptionsAuto())
         } else if routingMode?.selectedSegmentIndex == 1 {
-            routeRequest.mode = GLRouteMode.cycle
+            routeRequest.setBicycleWithOptions(CostingOptionsBicycle())
         } else {
-            routeRequest.mode = GLRouteMode.walk
+            routeRequest.setPedestrianWithOptions(CostingOptionsPedestrian())
         }
 
         if networkMode?.selectedSegmentIndex != 0 {
@@ -280,14 +280,16 @@ class MapViewController: MapViewControllerBase {
         routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true, allowUTurn: false))
         routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true, allowUTurn: false))
 
+        let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
+
         routeRequest.start(completion: { (result: GLRoute?, error: Error?) in
             if let routeData = result {
                 if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if let track = self.routeTrack {
-                        track.setTrackData(trackData)
+                        track.setTrackData(trackData, style: routeStyle)
                     } else {
-                        let track = GLMapTrack(drawOrder: 5, andTrackData: trackData)
-                        track.setStyle(GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}"))
+                        let track = GLMapTrack(drawOrder: 5)
+                        track.setTrackData(trackData, style: routeStyle)
                         self.map.add(track)
                         self.routeTrack = track
                     }
@@ -1190,8 +1192,8 @@ class MapViewController: MapViewControllerBase {
     }
 
     func recordGPSTrack() {
-        let track = GLMapTrack(drawOrder: 2, andTrackData: trackData)
-        track.setStyle(GLMapVectorStyle.createStyle("{width:5pt;}"))
+        let track = GLMapTrack(drawOrder: 2)
+        track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
         map.add(track)
         self.track = track
     }
@@ -1211,7 +1213,7 @@ class MapViewController: MapViewControllerBase {
                 }
             }
             if let trackData = trackData {
-                track.setTrackData(trackData)
+                track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
             }
         }
     }

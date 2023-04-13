@@ -173,8 +173,10 @@
     }
     case Test_FlyTo: {
         // we'll just add button for this demo
-        UIBarButtonItem *barButton =
-            [UIBarButtonItem.alloc initWithTitle:@"Fly" style:UIBarButtonItemStylePlain target:self action:@selector(flyTo:)];
+        UIBarButtonItem *barButton = [UIBarButtonItem.alloc initWithTitle:@"Fly"
+                                                                    style:UIBarButtonItemStylePlain
+                                                                   target:self
+                                                                   action:@selector(flyTo:)];
         self.navigationItem.rightBarButtonItem = barButton;
 
         // Move map to the San Francisco
@@ -201,7 +203,8 @@
                                             "\"properties\": {\"id\": \"6\"}},"
                                             "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [-20, 55]}, "
                                             "\"properties\": {\"id\": \"7\"}},"
-                                            "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]" error:nil];
+                                            "{\"type\":\"Polygon\",\"coordinates\":[[ [-30, 50], [-30, 80], [-10, 80], [-10, 50] ]]}]"
+                                     error:nil];
 
         GLMapVectorCascadeStyle *style =
             [GLMapVectorCascadeStyle createStyle:@"node[id=1]{text:'Test12';text-color:black;font-size:5;text-priority:100;}"
@@ -263,9 +266,9 @@
         [textField becomeFirstResponder];
 
         UIBarButtonItem *barButton = [UIBarButtonItem.alloc initWithTitle:@"Reload style"
-                                                                      style:UIBarButtonItemStylePlain
-                                                                     target:self
-                                                                     action:@selector(reloadStyle)];
+                                                                    style:UIBarButtonItemStylePlain
+                                                                   target:self
+                                                                   action:@selector(reloadStyle)];
         self.navigationItem.rightBarButtonItem = barButton;
     }
 
@@ -293,13 +296,15 @@
 
 - (void)testRouting {
     NSError *error = nil;
-    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"] encoding:NSUTF8StringEncoding error:&error];
-    
+    _valhallaConfig = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"valhalla" ofType:@"json"]
+                                                encoding:NSUTF8StringEncoding
+                                                   error:&error];
+
     if (error) {
         NSLog(@"Can't load valhalla.json");
         return;
     }
-    
+
     _routingMode = [UISegmentedControl.alloc initWithItems:@[ @"Auto", @"Bike", @"Walk" ]];
     _routingMode.selectedSegmentIndex = 0;
     [_routingMode addTarget:self action:@selector(updateRoute) forControlEvents:UIControlEventValueChanged];
@@ -321,8 +326,10 @@
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
 
-    // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle, e.g. track-arrows.svgpb
-    GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[[NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"], NSBundle.mainBundle.bundlePath]];
+    // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle,
+    // e.g. track-arrows.svgpb
+    GLMapStyleParser *parser = [GLMapStyleParser.alloc
+        initWithPaths:@[ [NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"], NSBundle.mainBundle.bundlePath ]];
     [_mapView setStyle:[parser parseFromResources]];
     __weak GLMapView *wMap = _mapView;
     __weak MapViewController *wself = self;
@@ -368,24 +375,24 @@
     [request addPoint:GLRoutePointMake(_startPoint, NAN, YES, YES)];
     [request addPoint:GLRoutePointMake(_endPoint, NAN, YES, YES)];
 
-    if(_networkMode.selectedSegmentIndex !=0)
+    if (_networkMode.selectedSegmentIndex != 0)
         [request setOfflineWithConfig:_valhallaConfig];
 
     [request startWithCompletion:^(GLRoute *result, NSError *error) {
-        if (result) {
-            GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
-            if (self->_routeTrack)
-                [self->_routeTrack setTrackData:trackData];
-            else {
-                self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
-                [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svg\";}"]];
-                [self->_mapView add:self->_routeTrack];
-            }
-        }
+      if (result) {
+          GLMapTrackData *trackData = [result trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
+          if (self->_routeTrack)
+              [self->_routeTrack setTrackData:trackData];
+          else {
+              self->_routeTrack = [[GLMapTrack alloc] initWithDrawOrder:5 andTrackData:trackData];
+              [self->_routeTrack setStyle:[GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svg\";}"]];
+              [self->_mapView add:self->_routeTrack];
+          }
+      }
 
-        if (error) {
-            [self displayAlertWithTitle:@"Routing error" message:[error description]];
-        }
+      if (error) {
+          [self displayAlertWithTitle:@"Routing error" message:[error description]];
+      }
     }];
 }
 
@@ -421,9 +428,9 @@
     // Set locale settings. Used to boost results with locales native to user
     searchOffline.localeSettings = _mapView.localeSettings;
 
-    GLMapLocaleSettings *enLocale = [GLMapLocaleSettings.alloc initWithLocalesOrder:@[@"en"] unitSystem:GLUnitSystem_International];
-    NSArray<GLSearchCategory *> *category =
-        [GLSearchCategories.sharedCategories categoriesStartedWith:@[@"restaurant"] localeSettings:enLocale]; // find categories by name
+    GLMapLocaleSettings *enLocale = [GLMapLocaleSettings.alloc initWithLocalesOrder:@[ @"en" ] unitSystem:GLUnitSystem_International];
+    NSArray<GLSearchCategory *> *category = [GLSearchCategories.sharedCategories categoriesStartedWith:@[ @"restaurant" ]
+                                                                                        localeSettings:enLocale]; // find categories by name
     if (category.count == 0)
         return;
 
@@ -439,12 +446,12 @@
     // Expected result is restaurant Bajka at Bulevar Ivana Crnojevića 60/1 ( https://www.openstreetmap.org/node/4397752292 )
     [searchOffline addFilter:[GLSearchFilter.alloc initWithQuery:@"Baj" tagSetMask:GLSearchTagSetMask_Name | GLSearchTagSetMask_AltName]];
     [searchOffline addFilter:[GLSearchFilter.alloc initWithQuery:@"Crno" tagSetMask:GLSearchTagSetMask_Address]];
-    
+
     GLSearchFilter *filter = [GLSearchFilter.alloc initWithQuery:@"60/1" tagSetMask:GLSearchTagSetMask_Address];
     // Default match type is WordStart. But we could change it to Exact or Word.
     filter.matchType = GLSearchMatchType_Exact;
     [searchOffline addFilter:filter];
-    
+
     [searchOffline searchAsyncWithCompletionBlock:^(GLMapVectorObjectArray *results) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self displaySearchResults:results];
@@ -454,10 +461,10 @@
 
 - (void)displaySearchResults:(GLMapVectorObjectArray *)results {
     GLMapMarkerStyleCollection *style = [[GLMapMarkerStyleCollection alloc] init];
-    [style addStyleWithImage:[[GLMapVectorImageFactory sharedFactory]
-                                 imageFromSvg:[[NSBundle mainBundle] pathForResource:@"cluster" ofType:@"svg"]
-                                      withScale:0.2
-                                   andTintColor:GLMapColorMake(0xFF, 0, 0, 0xFF)]];
+    [style addStyleWithImage:[[GLMapVectorImageFactory sharedFactory] imageFromSvg:[[NSBundle mainBundle] pathForResource:@"cluster"
+                                                                                                                   ofType:@"svg"]
+                                                                         withScale:0.2
+                                                                      andTintColor:GLMapColorMake(0xFF, 0, 0, 0xFF)]];
 
     // If marker layer constructed using NSArray with object of any type you need to set markerLocationBlock
     [style setMarkerLocationBlock:^(NSObject *_Nonnull marker) {
@@ -493,7 +500,7 @@
     if (_mapView.centerTileState == GLMapTileState_NoData) {
         GLMapPoint center = [_mapView mapCenter];
         NSArray *maps = [GLMapManager.sharedManager mapsAtPoint:center];
-        for(GLMapInfo *map in maps) {
+        for (GLMapInfo *map in maps) {
             if ([map stateForDataSet:GLMapInfoDataSet_Map] == GLMapInfoState_Downloaded) {
                 _mapToDownload = nil;
                 break;
@@ -550,21 +557,24 @@
 }
 
 - (void)loadImageAtURL:(NSURL *)url mapImage:(GLMapImage *)mapImage {
-    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (data) {
-            UIImage *img = [UIImage imageWithData:data];
-            if (img) {
-                [mapImage setImage:img forMapView:self->_mapView completion:nil];
-            }
-        }
-    }] resume];
+    [[[NSURLSession sharedSession] dataTaskWithURL:url
+                                 completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
+                                   if (data) {
+                                       UIImage *img = [UIImage imageWithData:data];
+                                       if (img) {
+                                           [mapImage setImage:img forMapView:self->_mapView completion:nil];
+                                       }
+                                   }
+                                 }] resume];
 }
 
 #pragma mark Add/move/remove image
 - (void)singleImage {
     // we'll just add button for this demo
-    UIBarButtonItem *barButton =
-        [UIBarButtonItem.alloc initWithTitle:@"Add image" style:UIBarButtonItemStylePlain target:self action:@selector(addImage:)];
+    UIBarButtonItem *barButton = [UIBarButtonItem.alloc initWithTitle:@"Add image"
+                                                                style:UIBarButtonItemStylePlain
+                                                               target:self
+                                                               action:@selector(addImage:)];
     self.navigationItem.rightBarButtonItem = barButton;
     [self addImage:barButton];
 
@@ -591,9 +601,10 @@
     // Drawable can draw a text
     {
         GLMapLabel *mapLabel = [GLMapLabel.alloc init];
-        [mapLabel setText:@"Text2"
-                withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
-               completion:nil];
+        [mapLabel
+               setText:@"Text2"
+             withStyle:[GLMapVectorStyle createStyle:@"{text-color:green;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}"]
+            completion:nil];
         mapLabel.position = GLMapPointMakeFromGeoCoordinates(54, 0);
         [_mapView add:mapLabel];
     }
@@ -793,8 +804,8 @@
     }
 
     // Create cascade style that will select style from collection
-    GLMapVectorCascadeStyle *cascadeStyle = [GLMapVectorCascadeStyle createStyle:
-                                             @"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12;"
+    GLMapVectorCascadeStyle *cascadeStyle =
+        [GLMapVectorCascadeStyle createStyle:@"node { icon-image:\"uni0\"; text:eval(tag(\"name\")); text-color:#2E2D2B; font-size:12;"
                                               "font-stroke-width:1pt; font-stroke-color:#FFFFFFEE;}"
                                               "node[count>=2]{icon-image:\"uni1\"; text:eval(tag(\"count\"));}"
                                               "node[count>=4]{icon-image:\"uni2\";}"
@@ -880,8 +891,10 @@
       GLMapVectorObjectArray *points = [GLMapVectorObject createVectorObjectsFromFile:dataPath error:nil];
       GLMapBBox bbox = points.bbox;
       // Create layer with clusteringRadius equal to maxWidht/2. In this case two clusters can overlap half of it's size.
-      GLMapMarkerLayer *layer =
-          [[GLMapMarkerLayer alloc] initWithVectorObjects:points andStyles:styleCollection clusteringRadius:maxWidth / 2 drawOrder:2];
+      GLMapMarkerLayer *layer = [[GLMapMarkerLayer alloc] initWithVectorObjects:points
+                                                                      andStyles:styleCollection
+                                                               clusteringRadius:maxWidth / 2
+                                                                      drawOrder:2];
 
       dispatch_async(dispatch_get_main_queue(), ^{
         [self->_mapView add:layer];
@@ -901,17 +914,22 @@
 
 - (void)addMultiline {
     // prepare object data
-    NSArray<GLMapPointArray *> *multiline = @[[GLMapPointArray.alloc initWithPoints:(GLMapPoint []){
-        GLMapPointMakeFromGeoCoordinates(53.8869, 27.7151), // Minsk
-        GLMapPointMakeFromGeoCoordinates(50.4339, 30.5186), // Kiev
-        GLMapPointMakeFromGeoCoordinates(52.2251, 21.0103), // Warsaw
-        GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102), // Berlin
-        GLMapPointMakeFromGeoCoordinates(48.8505, 2.3343)  // Paris
-    } count:5],[GLMapPointArray.alloc initWithPoints:(GLMapPoint []){
-        GLMapPointMakeFromGeoCoordinates(52.3690, 4.9021), // Amsterdam
-        GLMapPointMakeFromGeoCoordinates(50.8263, 4.3458), // Brussel
-        GLMapPointMakeFromGeoCoordinates(49.6072, 6.1296), // Luxembourg
-    } count:3]];
+    NSArray<GLMapPointArray *> *multiline = @[
+        [GLMapPointArray.alloc initWithPoints:(GLMapPoint[]){
+                                                  GLMapPointMakeFromGeoCoordinates(53.8869, 27.7151), // Minsk
+                                                  GLMapPointMakeFromGeoCoordinates(50.4339, 30.5186), // Kiev
+                                                  GLMapPointMakeFromGeoCoordinates(52.2251, 21.0103), // Warsaw
+                                                  GLMapPointMakeFromGeoCoordinates(52.5037, 13.4102), // Berlin
+                                                  GLMapPointMakeFromGeoCoordinates(48.8505, 2.3343)   // Paris
+                                              }
+                                        count:5],
+        [GLMapPointArray.alloc initWithPoints:(GLMapPoint[]){
+                                                  GLMapPointMakeFromGeoCoordinates(52.3690, 4.9021), // Amsterdam
+                                                  GLMapPointMakeFromGeoCoordinates(50.8263, 4.3458), // Brussel
+                                                  GLMapPointMakeFromGeoCoordinates(49.6072, 6.1296), // Luxembourg
+                                              }
+                                        count:3]
+    ];
 
     // style applied to all lines added. Style is string with mapcss rules. Read more in manual.
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width:2pt; color:green;}"];
@@ -924,26 +942,30 @@
     [_mapView add:vectorLayer];
 }
 
-- (void)addPolygon
-{
+- (void)addPolygon {
     int pointCount = 100;
     float radius = 10;
     GLMapGeoPoint centerPoint = GLMapGeoPointMake(53, 27);
     // let's display circle
-    NSArray *outerRings = @[[GLMapPointArray.alloc initWithCount:pointCount callback:^(NSUInteger index){
-        return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
-                                                centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
-    }]];
+    NSArray *outerRings = @[ [GLMapPointArray.alloc
+        initWithCount:pointCount
+             callback:^(NSUInteger index) {
+               return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
+                                                       centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
+             }] ];
 
     // now add hole
     radius = 5;
-    NSArray *innerRings = @[[GLMapPointArray.alloc initWithCount:pointCount callback:^(NSUInteger index){
-        return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
-                                                centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
-    }]];
+    NSArray *innerRings = @[ [GLMapPointArray.alloc
+        initWithCount:pointCount
+             callback:^(NSUInteger index) {
+               return GLMapPointMakeFromGeoCoordinates(centerPoint.lat + sin(2 * M_PI / pointCount * index) * radius,
+                                                       centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
+             }] ];
 
     GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithPolygonOuterRings:outerRings innerRings:innerRings];
-    GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
+    GLMapVectorCascadeStyle *style =
+        [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
 
     GLMapVectorLayer *vectorLayer = [GLMapVectorLayer.alloc initWithDrawOrder:4];
     [vectorLayer setVectorObject:vectorObject withStyle:style completion:nil];
@@ -986,7 +1008,7 @@
     [self performSelector:@selector(flashObject:) withObject:image afterDelay:1.0];
 }
 
-- (void)zoomToObjects:(GLMapVectorObjectArray *)objects{
+- (void)zoomToObjects:(GLMapVectorObjectArray *)objects {
     GLMapBBox bbox = objects.bbox;
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
     _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
@@ -1001,7 +1023,8 @@
                                         "{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, 50.4339], [21.0103, "
                                         "52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]},"
                                         "{\"type\":\"Polygon\",\"coordinates\":[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],[ "
-                                       "[2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]" error:nil];
+                                        "[2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}]"
+                                 error:nil];
 
     GLMapVectorCascadeStyle *style =
         [GLMapVectorCascadeStyle createStyle:@"node[id=1]{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;text:eval(tag('text'));"
@@ -1023,10 +1046,12 @@
 }
 
 - (void)loadPointGeoJSON {
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}" error:nil];
+    GLMapVectorObjectArray *objects =
+        [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Point\",\"coordinates\": [30.5186, 50.4339]}" error:nil];
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
     [vectroLayer setVectorObjects:objects
-                     withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"] completion:nil];
+                        withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\";icon-scale:0.5;icon-tint:green;}"]
+                       completion:nil];
     [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
@@ -1034,11 +1059,14 @@
 - (void)loadMultiPointGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPoint\",\"coordinates\": [ [27.7151, 53.8869], [33.5186, "
-                                                          @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
+                                                          @"55.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"
+                                                    error:nil];
 
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
     [vectroLayer setVectorObjects:objects
-                     withStyle:[GLMapVectorCascadeStyle createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue; text-priority:100;}"] completion:nil];
+                        withStyle:[GLMapVectorCascadeStyle
+                                      createStyle:@"node{icon-image:\"bus.svgpb\"; icon-scale:0.7; icon-tint:blue; text-priority:100;}"]
+                       completion:nil];
     [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
@@ -1046,34 +1074,37 @@
 - (void)loadLineStringGeoJSON {
     GLMapVectorObjectArray *objects =
         [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"LineString\",\"coordinates\": [ [27.7151, 53.8869], [30.5186, "
-                                                          @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}" error:nil];
+                                                          @"50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]]}"
+                                                    error:nil];
 
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
-    [vectroLayer setVectorObjects:objects
-                     withStyle:[GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"] completion:nil];
+    [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"line{width: 4pt; color:green;}"] completion:nil];
     [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
-- (void)loadMultiLineStringGeoJSON
-{
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
-                                       @"{\"type\":\"MultiLineString\",\"coordinates\":"
-                                       "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
-                                       " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}" error:nil];
+- (void)loadMultiLineStringGeoJSON {
+    GLMapVectorObjectArray *objects =
+        [GLMapVectorObject createVectorObjectsFromGeoJSON:
+                               @"{\"type\":\"MultiLineString\",\"coordinates\":"
+                                "[[[27.7151, 53.8869], [30.5186, 50.4339], [21.0103, 52.2251], [13.4102, 52.5037], [2.3343, 48.8505]],"
+                                " [[26.7151, 52.8869], [29.5186, 49.4339], [20.0103, 51.2251], [12.4102, 51.5037], [1.3343, 47.8505]]]}"
+                                                    error:nil];
 
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
     [vectroLayer setVectorObjects:objects
-                     withStyle:[GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"] completion:nil];
+                        withStyle:[GLMapVectorCascadeStyle createStyle:@"line{linecap: round; width: 5pt; color:blue;}"]
+                       completion:nil];
     [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
 
 - (void)loadPolygonGeoJSON {
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:
-                                       @"{\"type\":\"Polygon\",\"coordinates\":"
-                                       "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
-                                       " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}" error:nil];
+    GLMapVectorObjectArray *objects =
+        [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"Polygon\",\"coordinates\":"
+                                                           "[[ [0.0, 10.0], [10.0, 10.0], [10.0, 20.0], [0.0, 20.0] ],"
+                                                           " [ [2.0, 12.0], [ 8.0, 12.0], [ 8.0, 18.0], [2.0, 18.0] ]]}"
+                                                    error:nil];
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
     [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green}"] completion:nil];
     [_mapView add:vectroLayer];
@@ -1081,14 +1112,18 @@
 }
 
 - (void)loadMultiPolygonGeoJSON {
-    GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
-                        "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
-                        "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
-                        " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
-                        "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}" error:nil];
+    GLMapVectorObjectArray *objects =
+        [GLMapVectorObject createVectorObjectsFromGeoJSON:@"{\"type\":\"MultiPolygon\",\"coordinates\":"
+                                                           "[[[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0] ],"
+                                                           "  [ [2.0, 2.0], [ 8.0, 2.0], [ 8.0,  8.0], [2.0,  8.0] ]],"
+                                                           " [[ [30.0,0.0], [40.0, 0.0], [40.0, 10.0], [30.0,10.0] ],"
+                                                           "  [ [32.0,2.0], [38.0, 2.0], [38.0,  8.0], [32.0, 8.0] ]]]}"
+                                                    error:nil];
 
     GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
-    [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"] completion:nil];
+    [vectroLayer setVectorObjects:objects
+                        withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:blue; width:1pt; color:red;}"]
+                       completion:nil];
     [_mapView add:vectroLayer];
     [self zoomToObjects:objects];
 }
@@ -1100,25 +1135,28 @@
         GLMapVectorObjectArray *objects = [GLMapVectorObject createVectorObjectsFromFile:path error:&error];
         if (objects) {
             GLMapVectorLayer *vectroLayer = [GLMapVectorLayer.alloc init];
-            [vectroLayer setVectorObjects:objects withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"] completion:nil];
+            [vectroLayer setVectorObjects:objects
+                                withStyle:[GLMapVectorCascadeStyle createStyle:@"area{fill-color:green; width:1pt; color:red;}"]
+                               completion:nil];
             [_mapView add:vectroLayer];
             [self zoomToObjects:objects];
-            
+
             __weak GLMapView *wMap = _mapView;
             __weak MapViewController *wself = self;
             _mapView.tapGestureBlock = ^(CGPoint pt) {
-                GLMapPoint mapPoint = [wMap makeMapPointFromDisplayPoint:pt];
-                for (NSUInteger i = 0; i < objects.count; ++i) {
-                    GLMapVectorObject *object = objects[i];
-                    GLMapPoint pt = mapPoint;
-                    GLMapPoint tmp = [wMap makeMapPointFromDisplayDelta:CGPointMake(0, 10)];
-                    double maxDist = hypot(tmp.x, tmp.y);
-                    // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less then maxDistance.
-                    if ([object findNearestPoint:&pt toPoint:mapPoint maxDistance: maxDist]) {
-                        [wself displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Tap on object: %@", object.debugDescription]];
-                        return;
-                    }
-                }
+              GLMapPoint mapPoint = [wMap makeMapPointFromDisplayPoint:pt];
+              for (NSUInteger i = 0; i < objects.count; ++i) {
+                  GLMapVectorObject *object = objects[i];
+                  GLMapPoint pt = mapPoint;
+                  GLMapPoint tmp = [wMap makeMapPointFromDisplayDelta:CGPointMake(0, 10)];
+                  double maxDist = hypot(tmp.x, tmp.y);
+                  // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less
+                  // then maxDistance.
+                  if ([object findNearestPoint:&pt toPoint:mapPoint maxDistance:maxDist]) {
+                      [wself displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Tap on object: %@", object.debugDescription]];
+                      return;
+                  }
+              }
             };
         }
     }
@@ -1146,8 +1184,9 @@
 
 #pragma mark Style Reload
 - (void)displayAlertWithTitle:(NSString *)title message:(NSString *)message {
-    UIAlertController *alert =
-        [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
 
     [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                               style:UIAlertActionStyleDefault
@@ -1157,56 +1196,62 @@
 }
 
 #pragma mark Bulk download
-- (GLMapBBox) downloadBBox {
+- (GLMapBBox)downloadBBox {
     GLMapBBox bbox = GLMapBBoxEmpty;
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53, 27));
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.5, 27.5));
     return bbox;
 }
 
-- (NSString *) mapPath {
+- (NSString *)mapPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.vmtar"];
 }
 
-- (NSString *) navigationPath {
+- (NSString *)navigationPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.navtar"];
 }
 
-- (NSString *) elevationPath {
+- (NSString *)elevationPath {
     NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
     return [cachesPath stringByAppendingPathComponent:@"test.eletar"];
 }
 
 - (void)downloadMapInBBox {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:[self downloadBBox]
-                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download map stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
-    }
-                                     completion:^(NSError * _Nullable error) {
-        [self downloadInBBox];
-    }];
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map
+        path:[self mapPath]
+        bbox:[self downloadBBox]
+        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+          NSLog(@"Download map stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        }
+        completion:^(NSError *_Nullable error) {
+          [self downloadInBBox];
+        }];
 }
 
 - (void)downloadNavigationInBBox {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:[self downloadBBox]
-                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download nav stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
-    }
-                                     completion:^(NSError * _Nullable error) {
-        [self downloadInBBox];
-    }];
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation
+        path:[self navigationPath]
+        bbox:[self downloadBBox]
+        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+          NSLog(@"Download nav stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        }
+        completion:^(NSError *_Nullable error) {
+          [self downloadInBBox];
+        }];
 }
 
 - (void)downloadElevationInBBox {
-    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:[self downloadBBox]
-                                        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
-        NSLog(@"Download ele stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
-    }
-                                     completion:^(NSError * _Nullable error) {
-        [self downloadInBBox];
-    }];
+    [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation
+        path:[self elevationPath]
+        bbox:[self downloadBBox]
+        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+          NSLog(@"Download ele stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
+        }
+        completion:^(NSError *_Nullable error) {
+          [self downloadInBBox];
+        }];
 }
 
 - (void)downloadInBBox {
@@ -1216,20 +1261,29 @@
     GLMapManager *mapManager = GLMapManager.sharedManager;
 
     UIBarButtonItem *button = nil;
-    if([manager fileExistsAtPath:[self elevationPath]])
+    if ([manager fileExistsAtPath:[self elevationPath]])
         [mapManager addDataSet:GLMapInfoDataSet_Elevation path:[self elevationPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download elevation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadElevationInBBox)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download elevation"
+                                                style:UIBarButtonItemStylePlain
+                                               target:self
+                                               action:@selector(downloadElevationInBBox)];
 
-    if([manager fileExistsAtPath:[self navigationPath]])
+    if ([manager fileExistsAtPath:[self navigationPath]])
         [mapManager addDataSet:GLMapInfoDataSet_Navigation path:[self navigationPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download navigation" style:UIBarButtonItemStylePlain target:self action:@selector(downloadNavigationInBBox)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download navigation"
+                                                style:UIBarButtonItemStylePlain
+                                               target:self
+                                               action:@selector(downloadNavigationInBBox)];
 
-    if([manager fileExistsAtPath:[self mapPath]])
+    if ([manager fileExistsAtPath:[self mapPath]])
         [mapManager addDataSet:GLMapInfoDataSet_Map path:[self mapPath] bbox:bbox];
     else
-        button = [UIBarButtonItem.alloc initWithTitle:@"Download map" style:UIBarButtonItemStylePlain target:self action:@selector(downloadMapInBBox)];
+        button = [UIBarButtonItem.alloc initWithTitle:@"Download map"
+                                                style:UIBarButtonItemStylePlain
+                                               target:self
+                                               action:@selector(downloadMapInBBox)];
 
     self.navigationItem.rightBarButtonItem = button;
 
@@ -1242,8 +1296,8 @@
 
 - (void)loadDarkTheme {
     NSString *stylePath = [NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"];
-    GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[stylePath]];
-    [parser setOptions:@{@"Theme": @"Dark"} defaultValue:YES];
+    GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[ stylePath ]];
+    [parser setOptions:@{@"Theme" : @"Dark"} defaultValue:YES];
     [_mapView setStyle:[parser parseFromResources]];
     [_mapView reloadTiles];
 }

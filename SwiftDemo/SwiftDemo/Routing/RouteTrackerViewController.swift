@@ -313,12 +313,12 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
 
         if let trackData = routeTrackData {
             if let routeTrack = routeTrack {
-                routeTrack.setTrackData(trackData)
+                routeTrack.setTrackData(trackData, style: routeStyle)
                 routeTrack.progressIndex = 0
             } else {
-                let routeTrack = GLMapTrack(drawOrder: 99, andTrackData: trackData)
+                let routeTrack = GLMapTrack(drawOrder: 99)
                 routeTrack.progressColor = GLMapColor(red: 128, green: 128, blue: 128, alpha: 200)
-                routeTrack.setStyle(routeStyle)
+                routeTrack.setTrackData(trackData, style: routeStyle)
                 map.add(routeTrack)
                 self.routeTrack = routeTrack
             }

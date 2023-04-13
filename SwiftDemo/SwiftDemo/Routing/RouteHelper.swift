@@ -44,7 +44,7 @@ class RouteHelper {
 
         switch oneTaskGuard.lastQuery?.result {
         case let .success(result):
-            if result.params.mode == .walk || result.params.mode == .cycle {
+            if result.params.mode == .pedestrian || result.params.mode == .bicycle {
                 elevationUpdateTaskID = GLRouteElevation.requestHeight(for: result.route) { [weak self] _, _ in
                     guard let self = self else { return }
                     self.elevationUpdateTaskID = nil

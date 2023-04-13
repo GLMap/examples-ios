@@ -44,7 +44,16 @@ class BuildRouteTask: Task {
     override func start(_ onFinish: @escaping () -> Void) {
         self.onFinish = onFinish
         let request = GLRouteRequest()
-        request.mode = params.mode
+        switch params.mode {
+        case .pedestrian:
+            request.setPedestrianWithOptions(CostingOptionsPedestrian())
+        case .bicycle:
+            request.setBicycleWithOptions(CostingOptionsBicycle())
+        case .straight:
+            request.setStraightWithOptions(CostingOptionsStraight())
+        default:
+            request.setAutoWithOptions(CostingOptionsAuto())
+        }
         request.locale = "en-US"
         request.unitSystem = .international
         for pt in params.points {

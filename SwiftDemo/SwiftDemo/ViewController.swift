@@ -138,7 +138,7 @@ class ViewController: UITableViewController {
                                     index: 1,
                                     isCurrentLocation: false)
 
-            let params = RouteParams(points: [start, finish], mode: .drive)
+            let params = RouteParams(points: [start, finish], mode: .auto)
             let task = BuildRouteTask(params: params)
             task.start { [weak task] in
                 switch task?.result {
