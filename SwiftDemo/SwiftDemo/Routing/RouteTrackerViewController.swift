@@ -82,7 +82,7 @@ private let ReRoute_DistanceFromRoute = 100.0
 private let ReRoute_DistanceToLastPoint = 100.0
 private let ReRoute_MaxAccuracy = 50.0
 
-class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
+class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     private enum ManeuverStatus: UInt8 {
         case initial, postTransition, preTransition, transition, final
     }
@@ -508,13 +508,17 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
         }
     }
 
-    override func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        super.locationManager(manager, didUpdateLocations: locations)
+        
         if let location = locations.last {
             lastLocation = location
             locationChanged(location)
         }
     }
 
+    var progressAnimation: GLMapAnimation?
+    
     func locationChanged(_ location: CLLocation) {
         let userGeoLocation = GLMapGeoPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
         var userLocation = GLMapPoint(geoPoint: userGeoLocation)
@@ -562,7 +566,10 @@ class RouteTrackerViewController: MapViewControllerBase, RouteHelperDelegate {
             userBearing = Double.nan
         }
 
-        display(location: userLocation, bearing: userBearing, additionalAnimations: { _ in
+        progressAnimation?.cancel(false)
+        progressAnimation = map.animate({ anim in
+            anim.transition = .linear
+            anim.duration = 1
             self.routeTrack?.progressIndex = self.routeTracker.progressIndex
         })
 

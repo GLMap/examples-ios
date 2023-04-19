@@ -3,7 +3,7 @@ PODS:
     - "GLMap+DefaultStyle"
     - "GLMap+WorldMap"
     - GLMapCore (= 1.6.4)
-  - "GLMap+DefaultStyle (1.6.0)"
+  - "GLMap+DefaultStyle (1.6.4)"
   - "GLMap+WorldMap (21.02)"
   - GLMapCore (1.6.4)
   - GLRoute (1.6.4):
@@ -27,7 +27,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   GLMap: b7146653bdff3d70a6785332015dfd2ba85558c5
-  "GLMap+DefaultStyle": f00fda4d2ab22c73f14caae9b0fa8e191427334b
+  "GLMap+DefaultStyle": b9c6da526b1c65a2f4713bbb30aecec4f6902773
   "GLMap+WorldMap": b43dd1529667206a4f2705e0e37ebcef031f3806
   GLMapCore: c11ee63dcd9db3e064ce5597c934467a4d850653
   GLRoute: e9984d34d419e8c7adff0d39c3d841d09262a5ec
