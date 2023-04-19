@@ -75,7 +75,7 @@
 		C1AE26E524DBEE4E00474C31 /* BuildRouteTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DC24DBEE4E00474C31 /* BuildRouteTask.swift */; };
 		C1AE26E624DBEE4E00474C31 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DD24DBEE4E00474C31 /* Formatters.swift */; };
 		C1AE26E724DBEE4E00474C31 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26DE24DBEE4E00474C31 /* Route.swift */; };
-		C1AE26E924DBEE6C00474C31 /* MapViewControllerBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */; };
+		C1AE26E924DBEE6C00474C31 /* MapViewWithUserLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AE26E824DBEE6C00474C31 /* MapViewWithUserLocation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -146,7 +146,7 @@
 		C1AE26DC24DBEE4E00474C31 /* BuildRouteTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BuildRouteTask.swift; sourceTree = "<group>"; };
 		C1AE26DD24DBEE4E00474C31 /* Formatters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		C1AE26DE24DBEE4E00474C31 /* Route.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
-		C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewControllerBase.swift; sourceTree = "<group>"; };
+		C1AE26E824DBEE6C00474C31 /* MapViewWithUserLocation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewWithUserLocation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,7 +200,7 @@
 				6C6C25661DD9F5F80060A241 /* LaunchScreen.storyboard */,
 				6C6C25611DD9F5F80060A241 /* Main.storyboard */,
 				6C6C25F41DDC75710060A241 /* MapViewController.swift */,
-				C1AE26E824DBEE6C00474C31 /* MapViewControllerBase.swift */,
+				C1AE26E824DBEE6C00474C31 /* MapViewWithUserLocation.swift */,
 				6C255FB21DF02F3C0083815D /* OSMTileSource.swift */,
 				6C6C255F1DD9F5F80060A241 /* ViewController.swift */,
 			);
@@ -418,7 +418,7 @@
 				C1AE26E324DBEE4E00474C31 /* Utils.swift in Sources */,
 				6C255FB41DF02F3C0083815D /* OSMTileSource.swift in Sources */,
 				C1AE26E424DBEE4E00474C31 /* RouteTrackerViewController.swift in Sources */,
-				C1AE26E924DBEE6C00474C31 /* MapViewControllerBase.swift in Sources */,
+				C1AE26E924DBEE6C00474C31 /* MapViewWithUserLocation.swift in Sources */,
 				C1AE26E224DBEE4E00474C31 /* RouteParams.swift in Sources */,
 				6C255FB31DF02F3C0083815D /* DownloadMapsViewController.swift in Sources */,
 				6C6C255E1DD9F5F80060A241 /* AppDelegate.swift in Sources */,

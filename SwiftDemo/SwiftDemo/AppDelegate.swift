@@ -18,13 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Insert your API key from https://user.getyourmap.com/apps
         GLMapManager.activate(apiKey: <#API key#>)
 
-        if #available(iOS 15, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.backgroundColor = .systemFill
-            appearance.configureWithOpaqueBackground()
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        }
         return true
     }
 }

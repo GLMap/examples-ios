@@ -12,7 +12,7 @@ import GLRoute
 import GLSearch
 import UIKit
 
-class MapViewController: MapViewControllerBase {
+class MapViewController: MapViewWithUserLocation {
     let downloadButton = UIButton(type: .system)
 
     var trackData: GLMapTrackData?
@@ -62,6 +62,12 @@ class MapViewController: MapViewControllerBase {
         }
 
         title = "Demo map"
+        if #available(iOS 15, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithDefaultBackground()
+            navigationItem.scrollEdgeAppearance = appearance
+            navigationItem.compactScrollEdgeAppearance = appearance
+        }
 
         downloadButton.setTitle("Download Map", for: .normal)
         downloadButton.addTarget(self, action: #selector(MapViewController.downloadButtonTap), for: .touchUpInside)
@@ -409,13 +415,15 @@ class MapViewController: MapViewControllerBase {
         }
     }
 
-    var mapDrawable = GLMapImage(drawOrder: 3)
-
+    var mapImage = GLMapImage(drawOrder: 3)
+    
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
-            mapDrawable.setImage(image, for: map, completion: nil)
-            mapDrawable.hidden = true
-            map.add(mapDrawable)
+            mapImage.setImage(image, for: map, completion: nil)
+            // We set offset to the bottom-center to attach pin point to the map
+            mapImage.offset = CGPoint(x: image.size.width / 2, y: 0)
+            mapImage.hidden = true
+            map.add(mapImage)
         }
 
         // we'll just add button for this demo
@@ -423,11 +431,10 @@ class MapViewController: MapViewControllerBase {
         navigationItem.rightBarButtonItem = barButton
         addImageButtonTap(barButton)
 
-        drawableImage()
-        drawableImageWithDrawOrder()
+        drawRasterTile()
     }
 
-    func drawableImage() {
+    func drawRasterTile() {
         // original tile url is https://tile.openstreetmap.org/3/4/2.png
         // we'll show how to calculate it's position on map in GLMapPoints
         let tilePosZ: Int32 = 3, tilePosX: Int32 = 4, tilePosY: Int32 = 2
@@ -437,37 +444,15 @@ class MapViewController: MapViewControllerBase {
         let tileSize = GLMapPointMax / tilesForZoom
 
         // Drawables created using default constructor is added on map as polygon with layer:0; and z-index:0;
-        let drawable = GLMapImage()
-        drawable.transformMode = .custom
-        drawable.rotatesWithMap = true
-        drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
-        drawable.position = GLMapPoint(x: Double(tileSize * tilePosX), y: Double((tilesForZoom - tilePosY - 1) * tileSize))
-        map.add(drawable)
+        let mapImage = GLMapImage()
+        mapImage.transformMode = .custom
+        mapImage.rotatesWithMap = true
+        mapImage.scale = Double(GLMapPointMax / (tilesForZoom * 256))
+        mapImage.position = GLMapPoint(x: Double(tileSize * tilePosX), y: Double((tilesForZoom - tilePosY - 1) * tileSize))
+        map.add(mapImage)
 
         if let url = URL(string: "https://tile.openstreetmap.org/3/4/2.png") {
-            loadImage(atUrl: url, intoDrawable: drawable)
-        }
-    }
-
-    func drawableImageWithDrawOrder() {
-        // original tile url is https://tile.openstreetmap.org/3/4/3.png
-        // we'll show how to calculate it's position on map in GLMapPoints
-        let tilePosZ: Int32 = 3, tilePosX: Int32 = 4, tilePosY: Int32 = 3
-
-        // world size divided to number of tiles at this zoom level
-        let tilesForZoom: Int32 = 1 << tilePosZ
-        let tileSize = GLMapPointMax / tilesForZoom
-
-        // Drawables created with DrawOrder displayed on top of the map. Draw order is used to sort drawables.
-        let drawable = GLMapImage(drawOrder: 0)
-        drawable.transformMode = .custom
-        drawable.rotatesWithMap = true
-        drawable.scale = Double(GLMapPointMax / (tilesForZoom * 256))
-        drawable.position = GLMapPoint(x: Double(tileSize * tilePosX), y: Double((tilesForZoom - tilePosY - 1) * tileSize))
-        map.add(drawable)
-
-        if let url = URL(string: "https://tile.openstreetmap.org/3/4/3.png") {
-            loadImage(atUrl: url, intoDrawable: drawable)
+            loadImage(atUrl: url, intoDrawable: mapImage)
         }
     }
 
@@ -486,19 +471,19 @@ class MapViewController: MapViewControllerBase {
             if let title = button.title {
                 switch title {
                 case "Add image":
-                    mapDrawable.hidden = false
-                    mapDrawable.position = map.mapCenter
-                    mapDrawable.angle = Float(arc4random_uniform(360))
+                    mapImage.hidden = false
+                    mapImage.position = map.mapCenter
+                    mapImage.angle = Float(arc4random_uniform(360))
 
                     button.title = "Move image"
                 case "Move image":
                     map.animate { _ in
-                        self.mapDrawable.position = self.map.mapCenter
-                        self.mapDrawable.angle = Float(arc4random_uniform(360))
+                        self.mapImage.position = self.map.mapCenter
+                        self.mapImage.angle = Float(arc4random_uniform(360))
                     }
                     button.title = "Remove image"
                 case "Remove image":
-                    mapDrawable.hidden = true
+                    mapImage.hidden = true
                     button.title = "Add image"
                 default: break
                 }
@@ -553,8 +538,9 @@ class MapViewController: MapViewControllerBase {
         }
 
         if mapImageGroup == nil {
-            mapImageGroup = GLMapImageGroup(callback: pins!, andDrawOrder: 3)
-            map.add(mapImageGroup!)
+            let imageGroup = GLMapImageGroup(callback: pins!, andDrawOrder: 3)
+            map.add(imageGroup)
+            mapImageGroup = imageGroup
         }
 
         let pinPos = map.makeMapPoint(fromDisplay: menuPos!)
@@ -799,9 +785,9 @@ class MapViewController: MapViewControllerBase {
             ]),
         ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
-            let drawable = GLMapVectorLayer()
-            drawable.setVectorObject(GLMapVectorObject(multiline: multiline), with: style, completion: nil)
-            map.add(drawable)
+            let vectorLayer = GLMapVectorLayer()
+            vectorLayer.setVectorObject(GLMapVectorObject(multiline: multiline), with: style, completion: nil)
+            map.add(vectorLayer)
         }
     }
 
@@ -823,9 +809,9 @@ class MapViewController: MapViewControllerBase {
         }
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
-            let drawable = GLMapVectorLayer()
-            drawable.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style, completion: nil)
-            map.add(drawable)
+            let vectorLayer = GLMapVectorLayer()
+            vectorLayer.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style, completion: nil)
+            map.add(vectorLayer)
         }
         map.mapGeoCenter = centerPoint
     }
@@ -835,13 +821,15 @@ class MapViewController: MapViewControllerBase {
             return
         }
 
+        title = "Tap on any UK region"
+        
         do {
             let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
             let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}")!
 
-            let drawable = GLMapVectorLayer()
-            drawable.setVectorObjects(objects, with: style, completion: nil)
-            map.add(drawable)
+            let vectorLayer = GLMapVectorLayer()
+            vectorLayer.setVectorObjects(objects, with: style, completion: nil)
+            map.add(vectorLayer)
 
             let bbox = objects.bbox
             map.mapCenter = bbox.center
@@ -910,19 +898,21 @@ class MapViewController: MapViewControllerBase {
             """) else { return }
         // When GLMapDrawable created without drawOrder:param it's displayed with map objects, and could hide other objects.
         // When drawOrder is set, then drawable interact with other objects with same drawOrder value.
-        var drawable = GLMapVectorLayer()
-        drawable.setVectorObject(objects[0], with: style, completion: nil)
-        map.add(drawable)
-        flashObject(object: drawable)
+        let busPin = GLMapVectorLayer()
+        busPin.setVectorObject(objects[0], with: style, completion: nil)
+        map.add(busPin)
+        flashObject(busPin)
+        
         objects.removeObject(at: 0)
 
-        drawable = GLMapVectorLayer()
-        drawable.setVectorObjects(objects, with: style, completion: nil)
-        map.add(drawable)
+        // add rest of the objects to the map
+        let vectorLayer = GLMapVectorLayer()
+        vectorLayer.setVectorObjects(objects, with: style, completion: nil)
+        map.add(vectorLayer)
     }
 
     var flashAdd: Bool = false
-    @objc func flashObject(object: GLMapDrawable) {
+    @objc func flashObject(_ object: GLMapDrawable) {
         if flashAdd {
             map.add(object)
         } else {
@@ -1198,8 +1188,8 @@ class MapViewController: MapViewControllerBase {
 
     override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         super.locationManager(manager, didUpdateLocations: locations)
-
-        if let track = track {
+        
+        if let track {
             for location in locations {
                 let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
                 var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
