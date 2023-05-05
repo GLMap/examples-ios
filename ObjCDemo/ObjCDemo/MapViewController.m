@@ -364,14 +364,14 @@
 - (void)updateRoute {
     GLRouteMode mode;
     if (_routingMode.selectedSegmentIndex == 0)
-        mode = GLRouteMode_Drive;
+        mode = GLRouteMode_Auto;
     else if (_routingMode.selectedSegmentIndex == 1)
-        mode = GLRouteMode_Cycle;
+        mode = GLRouteMode_Bicycle;
     else
-        mode = GLRouteMode_Walk;
+        mode = GLRouteMode_Pedestrian;
 
     GLRouteRequest *request = [GLRouteRequest.alloc init];
-    request.mode = mode;
+    [request setModeWithDefaultOptions:mode];
     request.locale = @"en";
     request.unitSystem = GLUnitSystem_International;
     [request addPoint:GLRoutePointMake(_startPoint, NAN, YES, YES)];
