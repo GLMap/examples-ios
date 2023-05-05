@@ -20,11 +20,18 @@ struct ExampleList: View {
     var body: some View {
         NavigationView {
             List(Example.allCases) { example in
+#if os(macOS)
+                NavigationLink(destination: destinationView(for: example)
+                    .navigationTitle(example.rawValue)) {
+                        Text(example.rawValue)
+                    }
+#else
                 NavigationLink(destination: destinationView(for: example)
                     .navigationTitle(example.rawValue)
                     .navigationBarTitleDisplayMode(.inline)) {
-                    Text(example.rawValue)
-                }
+                        Text(example.rawValue)
+                    }
+#endif
             }
             .navigationTitle("Examples")
         }
