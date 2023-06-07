@@ -53,7 +53,7 @@ class MapViewWithUserLocation: UIViewController, CLLocationManagerDelegate {
             let f = 2 * Double.pi * Double(index) / Double(CIRCLE_POINTS_COUNT)
             return GLMapPoint(x: self.CIRCLE_RADIUS * sin(f), y: self.CIRCLE_RADIUS * cos(f))
         })]
-        let circle = GLMapVectorObject(polygonOuterRings: outerRings, innerRings: nil)
+        let circle = GLMapVectorPolygon(outerRings, innerRings: nil)
         vectorLayer.transformMode = .custom
         vectorLayer.position = map.mapCenter
         vectorLayer.setVectorObject(circle, with: accuracyStyle)
