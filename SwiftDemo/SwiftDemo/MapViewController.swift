@@ -291,7 +291,7 @@ class MapViewController: MapViewWithUserLocation {
 
         routeRequest.start(completion: { [weak self] (result: GLRoute?, error: Error?) in
             guard let self else { return }
-            
+
             if let routeData = result {
                 if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                     if self.routeTrack == nil {
@@ -419,7 +419,7 @@ class MapViewController: MapViewWithUserLocation {
     }
 
     var mapImage = GLMapImage(drawOrder: 3)
-    
+
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
             mapImage.setImage(image, for: map)
@@ -825,7 +825,7 @@ class MapViewController: MapViewWithUserLocation {
         }
 
         title = "Tap on any UK region"
-        
+
         do {
             let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
             let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}")!
@@ -905,7 +905,7 @@ class MapViewController: MapViewWithUserLocation {
         busPin.setVectorObject(objects[0], with: style, completion: nil)
         map.add(busPin)
         flashObject(busPin)
-        
+
         objects.removeObject(at: 0)
 
         // add rest of the objects to the map
@@ -1187,13 +1187,13 @@ class MapViewController: MapViewWithUserLocation {
         track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
         map.add(track)
         self.track = track
-        self.trackStyle = GLMapVectorStyle.createStyle("{width:5pt;}")
+        trackStyle = GLMapVectorStyle.createStyle("{width:5pt;}")
     }
 
     override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         super.locationManager(manager, didUpdateLocations: locations)
         guard let track, let trackStyle else { return }
-        
+
         for location in locations {
             let mapPoint = GLMapPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
             var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
