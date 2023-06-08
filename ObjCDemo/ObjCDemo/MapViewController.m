@@ -382,28 +382,28 @@
 
     __weak typeof(self) weakSelf = self;
     [request startWithCompletion:^(GLRoute *result, NSError *error) {
-        if (error) {
-            [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
-        } else {
-            [weakSelf processRouteResponse: result];
-        }
+      if (error) {
+          [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
+      } else {
+          [weakSelf processRouteResponse:result];
+      }
     }];
 }
 
-- (void) processRouteResponse:(GLRoute *)route {
-        GLMapTrackData *trackData = [route trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
-        
-        if (!_routeStyle)
-            _routeStyle = [GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svg\";}"];
-        
-        if (!_routeTrack) {
-            GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5];
-            [track setStyle:_routeStyle];
-            [_mapView add:track];
-            _routeTrack = track;
-        }
+- (void)processRouteResponse:(GLRoute *)route {
+    GLMapTrackData *trackData = [route trackDataWithColor:GLMapColorMake(50, 200, 0, 200)];
 
-        [_routeTrack setTrackData:trackData style:_routeStyle completion:nil];
+    if (!_routeStyle)
+        _routeStyle = [GLMapVectorStyle createStyle:@"{width: 7pt; fill-image:\"track-arrow.svg\";}"];
+
+    if (!_routeTrack) {
+        GLMapTrack *track = [[GLMapTrack alloc] initWithDrawOrder:5];
+        [track setStyle:_routeStyle];
+        [_mapView add:track];
+        _routeTrack = track;
+    }
+
+    [_routeTrack setTrackData:trackData style:_routeStyle completion:nil];
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -1357,7 +1357,7 @@
             _trackData = [[GLMapTrackData alloc] initWithData:_trackData andNewPoint:point startNewSegment:NO];
         }
     }
-    
+
     if (!_trackStyle)
         _trackStyle = [GLMapVectorStyle createStyle:@"{width:5pt;}"];
 
