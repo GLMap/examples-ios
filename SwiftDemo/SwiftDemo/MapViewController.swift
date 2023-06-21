@@ -658,7 +658,7 @@ class MapViewController: MapViewWithUserLocation {
                 if markerStyle >= tintColors.count {
                     markerStyle = tintColors.count - 1
                 }
-                data.setStyle(UInt(markerStyle))
+                data.setStyle(UInt32(markerStyle))
                 data.setText("\(markerCount)", offset: CGPoint.zero, style: textStyle!)
             }
 
@@ -789,7 +789,7 @@ class MapViewController: MapViewWithUserLocation {
         ]
         if let style = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}") {
             let vectorLayer = GLMapVectorLayer()
-            vectorLayer.setVectorObject(GLMapVectorObject(multiline: multiline), with: style)
+            vectorLayer.setVectorObject(GLMapVectorLine(lines: multiline), with: style)
             map.add(vectorLayer)
         }
     }
@@ -813,7 +813,7 @@ class MapViewController: MapViewWithUserLocation {
 
         if let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#10106050; width:4pt; color:green;}") {
             let vectorLayer = GLMapVectorLayer()
-            vectorLayer.setVectorObject(GLMapVectorObject(polygonOuterRings: [outerRing], innerRings: [innerRing]), with: style)
+            vectorLayer.setVectorObject(GLMapVectorPolygon([outerRing], innerRings: [innerRing]), with: style)
             map.add(vectorLayer)
         }
         map.mapGeoCenter = centerPoint
