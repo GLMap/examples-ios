@@ -6,13 +6,13 @@
 //  Copyright © 2023 Evgen Bodunov. All rights reserved.
 //
 
-import SwiftUI
 import GLMap
+import SwiftUI
 
 #if os(iOS)
-private typealias ViewRepresentable = UIViewRepresentable
+    private typealias ViewRepresentable = UIViewRepresentable
 #elseif os(macOS)
-private typealias ViewRepresentable = NSViewRepresentable
+    private typealias ViewRepresentable = NSViewRepresentable
 #endif
 
 public typealias MapTapBlock = (GLMapGeoPoint) -> Void
@@ -23,36 +23,37 @@ public typealias MapTapBlock = (GLMapGeoPoint) -> Void
 /// you may need to modify it or work within UIViewControllerRepresentable.
 public struct GLMapViewRepresentable: ViewRepresentable {
     public typealias UIViewType = GLMapView
-    
+
     @Binding var geoCenter: GLMapGeoPoint
     @Binding var zoomLevel: Double
-    
+
     let showsUserLocation: Bool = false
     let followUser: Bool = false
-    
+
     let onTap: MapTapBlock?
-    
+
     public func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     public class Coordinator: NSObject {
         var parent: GLMapViewRepresentable
-        
+
         init(_ parent: GLMapViewRepresentable) {
             self.parent = parent
         }
     }
-    
+
     public init(geoCenter: Binding<GLMapGeoPoint> = .constant(GLMapGeoPoint(lat: 53, lon: 27)),
                 zoomLevel: Binding<Double> = .constant(5.0),
-                onTap: MapTapBlock? = nil) {
-        self._geoCenter = geoCenter
-        self._zoomLevel = zoomLevel
+                onTap: MapTapBlock? = nil)
+    {
+        _geoCenter = geoCenter
+        _zoomLevel = zoomLevel
         self.onTap = onTap
     }
-    
-    func makeMapView(_ context: Context) -> GLMapView {
+
+    func makeMapView(_: Context) -> GLMapView {
         let mapView = GLMapView()
         mapView.tapGestureBlock = { [weak mapView] point in
             guard let onTap, let mapView else { return }
@@ -61,30 +62,29 @@ public struct GLMapViewRepresentable: ViewRepresentable {
         }
         return mapView
     }
-    
-    func updateMapView(_ mapView: GLMapView, context: Context) {
+
+    func updateMapView(_ mapView: GLMapView, context _: Context) {
         mapView.animate { anim in
             mapView.mapZoomLevel = zoomLevel
             anim.fly(to: geoCenter)
         }
     }
-    
-#if os(iOS)
-    public func makeUIView(context: Context) -> GLMapView {
-        return makeMapView(context)
-    }
 
-    public func updateUIView(_ mapView: GLMapView, context: Context) {
-        updateMapView(mapView, context: context)
-    }
-#else
-    public func makeNSView(context: Context) -> GLMapView {
-        return makeMapView(context)
-    }
+    #if os(iOS)
+        public func makeUIView(context: Context) -> GLMapView {
+            return makeMapView(context)
+        }
 
-    public func updateNSView(_ mapView: GLMapView, context: Context) {
-        updateMapView(mapView, context: context)
-    }
-#endif
+        public func updateUIView(_ mapView: GLMapView, context: Context) {
+            updateMapView(mapView, context: context)
+        }
+    #else
+        public func makeNSView(context: Context) -> GLMapView {
+            return makeMapView(context)
+        }
+
+        public func updateNSView(_ mapView: GLMapView, context: Context) {
+            updateMapView(mapView, context: context)
+        }
+    #endif
 }
-

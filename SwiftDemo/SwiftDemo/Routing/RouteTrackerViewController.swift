@@ -510,7 +510,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
     override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         super.locationManager(manager, didUpdateLocations: locations)
-        
+
         if let location = locations.last {
             lastLocation = location
             locationChanged(location)
@@ -518,7 +518,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     }
 
     var progressAnimation: GLMapAnimation?
-    
+
     func locationChanged(_ location: CLLocation) {
         let userGeoLocation = GLMapGeoPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
         var userLocation = GLMapPoint(geoPoint: userGeoLocation)
@@ -567,11 +567,11 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         }
 
         progressAnimation?.cancel(false)
-        progressAnimation = map.animate({ anim in
+        progressAnimation = map.animate { anim in
             anim.transition = .linear
             anim.duration = 1
             self.routeTrack?.progressIndex = self.routeTracker.progressIndex
-        })
+        }
 
         if maneuverStatus != .final {
             var textToSay: String?

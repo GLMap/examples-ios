@@ -6,15 +6,15 @@
 //  Copyright © 2023 Evgen Bodunov. All rights reserved.
 //
 
-import SwiftUI
 import GLMap
+import SwiftUI
 
 @main
 struct SwiftUIDemoApp: App {
     init() {
         GLMapManager.activate(apiKey: <#API key#>)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()

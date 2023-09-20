@@ -6,8 +6,8 @@
 //  Copyright © 2023 Evgen Bodunov. All rights reserved.
 //
 
-import SwiftUI
 import GLMapSwift
+import SwiftUI
 
 struct ContentView: View {
     var body: some View {
