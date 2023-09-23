@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -804,7 +804,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GLMap/GLMapSwift";
 			requirement = {
-				branch = snapshot;
+				branch = master;
 				kind = branch;
 			};
 		};
