@@ -94,7 +94,7 @@ class MapViewController: MapViewWithUserLocation {
             self?.map.reloadTiles()
             self?.updateDownloadButton()
         }
-
+        
         if let demo = demoCases[currentDemo] {
             demo(self)()
         } else {
@@ -567,116 +567,90 @@ class MapViewController: MapViewWithUserLocation {
 
     func markerLayer() {
         // Create marker image
-        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") {
-            if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: 0.2) {
-                // Create style collection - it's storage for all images possible to use for markers
-                let style = GLMapMarkerStyleCollection()
-                style.addStyle(with: image)
-
-                // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
-                // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
-                // style.setMarkerLocationBlock()
-
-                // Data fill block used to set marker style and text
-                // It could work with any user defined object type.
-                // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
-                style.setMarkerDataFill { _, data in
-                    data.setStyle(0)
-                }
-
-                // Load UK postal codes from GeoJSON
-                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
-                    if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
-                        // Put our array of objects into marker layer. It could be any custom array of objects.
-                        // Disable clustering in this demo
-                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius: 0, drawOrder: 2)
-                        // Add marker layer on map
-                        map.add(markerLayer)
-                        let bbox = objects.bbox
-                        map.mapCenter = bbox.center
-                        map.mapZoom = map.mapZoom(for: bbox)
-                    }
-                }
-            }
+        guard let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg"),
+              let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: 0.2) else { return }
+        
+        // Create style collection - it's storage for all images possible to use for markers
+        let style = GLMapMarkerStyleCollection()
+        style.addStyle(with: image)
+        
+        // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
+        // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
+        // style.setMarkerLocationBlock()
+        
+        // Data fill block used to set marker style and text
+        // It could work with any user defined object type.
+        // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
+        style.setMarkerDataFill { _, data in
+            data.setStyle(0)
+        }
+        
+        // Load UK postal codes from GeoJSON
+        if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json"),
+           let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+            // Put our array of objects into marker layer. It could be any custom array of objects.
+            // Disable clustering in this demo
+            let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius: 0, drawOrder: 2)
+            // Add marker layer on map
+            map.add(markerLayer)
+            let bbox = objects.bbox
+            map.mapCenter = bbox.center
+            map.mapZoom = map.mapZoom(for: bbox)
         }
     }
 
     func markerLayerWithClustering() {
-        if let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") {
-            // We use different colours for our clusters
-            let tintColors = [
-                GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
-                GLMapColor(red: 68, green: 195, blue: 255, alpha: 255),
-                GLMapColor(red: 63, green: 237, blue: 198, alpha: 255),
-                GLMapColor(red: 15, green: 228, blue: 36, alpha: 255),
-                GLMapColor(red: 168, green: 238, blue: 25, alpha: 255),
-                GLMapColor(red: 214, green: 234, blue: 25, alpha: 255),
-                GLMapColor(red: 223, green: 180, blue: 19, alpha: 255),
-                GLMapColor(red: 255, green: 0, blue: 0, alpha: 255),
-            ]
-
-            // Create style collection - it's storage for all images possible to use for markers and clusters
-            let styleCollection = GLMapMarkerStyleCollection()
-
-            // Render possible images from svgpb
-            var maxWidth = 0.0
-            for i in 0 ..< tintColors.count {
-                let scale = 0.2 + 0.1 * Double(i)
-                if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: scale, andTintColor: tintColors[i]) {
-                    if maxWidth < Double(image.size.width) {
-                        maxWidth = Double(image.size.width)
-                    }
-                    styleCollection.addStyle(with: image)
+        guard let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") else { return }
+        let tintColors = [
+            GLMapColor(red: 33, green: 0, blue: 255, alpha: 255),
+            GLMapColor(red: 68, green: 195, blue: 255, alpha: 255),
+            GLMapColor(red: 63, green: 237, blue: 198, alpha: 255),
+            GLMapColor(red: 15, green: 228, blue: 36, alpha: 255),
+            GLMapColor(red: 168, green: 238, blue: 25, alpha: 255),
+            GLMapColor(red: 214, green: 234, blue: 25, alpha: 255),
+            GLMapColor(red: 223, green: 180, blue: 19, alpha: 255),
+            GLMapColor(red: 255, green: 0, blue: 0, alpha: 255),
+        ]
+        
+        let styleCollection = GLMapMarkerStyleCollection()
+        
+        var maxWidth = 0.0
+        for (i, color) in tintColors.enumerated() {
+            let scale = 0.2 + 0.1 * Double(i)
+            if let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: scale, andTintColor: color) {
+                maxWidth = max(maxWidth, Double(image.size.width))
+                styleCollection.addStyle(with: image)
+            }
+        }
+        
+        let textStyle = GLMapVectorStyle.createStyle("{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}")!
+        
+        styleCollection.setMarkerDataFill { marker, data in
+            if let obj = marker as? GLMapVectorObject {
+                data.setStyle(0)
+                if let name = obj.value(forKey: "name")?.asString() {
+                    data.setText(name, offset: CGPoint(x: 0, y: 8), style: textStyle)
                 }
             }
-
-            // Create style for text
-            let textStyle = GLMapVectorStyle.createStyle("{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}")
-
-            // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
-            // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
-            // styleCollection.setMarkerLocationBlock()
-
-            // Data fill block used to set marker style and text
-            // It could work with any user defined object type.
-            // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
-            styleCollection.setMarkerDataFill { marker, data in
-                if let obj = marker as? GLMapVectorObject {
-                    data.setStyle(0)
-                    if let nameValue = obj.value(forKey: "name") {
-                        if let name = nameValue.asString() {
-                            data.setText(name, offset: CGPoint(x: 0, y: 8), style: textStyle!)
-                        }
-                    }
-                }
-            }
-
-            // Union fill block used to set style for cluster object. First param is number objects inside the cluster and second is marker object.
-            styleCollection.setMarkerUnionFill { markerCount, data in
-                // we have 8 marker styles for 1, 2, 4, 8, 16, 32, 64, 128+ markers inside
-                var markerStyle = Int(log2(Double(markerCount)))
-                if markerStyle >= tintColors.count {
-                    markerStyle = tintColors.count - 1
-                }
-                data.setStyle(UInt32(markerStyle))
-                data.setText("\(markerCount)", offset: CGPoint.zero, style: textStyle!)
-            }
-
-            // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on main thread only when data is loaded.
-            DispatchQueue.global().async {
-                if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json") {
-                    if let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
-                        let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
-                        let bbox = objects.bbox
-
-                        DispatchQueue.main.async { [weak self] in
-                            if let map = self?.map {
-                                map.add(markerLayer)
-                                map.mapCenter = bbox.center
-                                map.mapZoom = map.mapZoom(for: bbox)
-                            }
-                        }
-                    }
+        }
+        
+        styleCollection.setMarkerUnionFill { markerCount, data in
+            var markerStyle = Int(log2(Double(markerCount)))
+            markerStyle = min(markerStyle, tintColors.count - 1)
+            data.setStyle(UInt32(markerStyle))
+            data.setText("\(markerCount)", offset: .zero, style: textStyle)
+        }
+        
+        DispatchQueue.global().async { [weak self] in
+            if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json"),
+               let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+                let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
+                let bbox = objects.bbox
+                
+                DispatchQueue.main.async {
+                    self?.map?.add(markerLayer)
+                    self?.map?.mapCenter = bbox.center
+                    self?.map?.mapZoom = self?.map?.mapZoom(for: bbox) ?? 0
                 }
             }
         }
