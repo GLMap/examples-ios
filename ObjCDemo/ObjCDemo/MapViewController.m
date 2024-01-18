@@ -60,7 +60,7 @@
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
         [_locationManager requestWhenInUseAuthorization];
     }
-    // In order to show user location using GLMapView you should create your own CLLocationManager and set GLMapView as CLLocationManager's
+    // In order to display the user's location using GLMapView you should create your own CLLocationManager and set GLMapView as CLLocationManager's
     // delegate. Or you could forward `-locationManager:didUpdateLocations:` calls from your location manager delegate to the GLMapView.
     _locationManager.delegate = _mapView;
     [_locationManager startUpdatingLocation];
