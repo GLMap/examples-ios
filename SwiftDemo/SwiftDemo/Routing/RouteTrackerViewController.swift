@@ -38,8 +38,8 @@ extension GLManeuverType {
         case .roundaboutExit: return "roundabout_exit"
         // TODO:
         case .none, .transit, .transitTransfer, .transitRemainOn, .transitConnectionStart,
-                .transitConnectionTransfer, .transitConnectionDestination, .postTransitConnectionDestination, .mergeRight, .mergeLeft, .elevatorEnter,
-                .stepsEnter, .escalatorEnter, .buildingEnter, .buildingExit:
+             .transitConnectionTransfer, .transitConnectionDestination, .postTransitConnectionDestination, .mergeRight, .mergeLeft, .elevatorEnter,
+             .stepsEnter, .escalatorEnter, .buildingEnter, .buildingExit:
             return ""
         }
     }

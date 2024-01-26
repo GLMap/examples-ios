@@ -94,7 +94,7 @@ class MapViewController: MapViewWithUserLocation {
             self?.map.reloadTiles()
             self?.updateDownloadButton()
         }
-        
+
         if let demo = demoCases[currentDemo] {
             demo(self)()
         } else {
@@ -569,25 +569,26 @@ class MapViewController: MapViewWithUserLocation {
         // Create marker image
         guard let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg"),
               let image = GLMapVectorImageFactory.shared.image(fromSvg: imagePath, withScale: 0.2) else { return }
-        
+
         // Create style collection - it's storage for all images possible to use for markers
         let style = GLMapMarkerStyleCollection()
         style.addStyle(with: image)
-        
+
         // If marker layer constructed using GLMapVectorObjectArray location of marker is automatically calculated as
         // [GLMapVectorObject point]. So you don't need to set markerLocationBlock.
         // style.setMarkerLocationBlock()
-        
+
         // Data fill block used to set marker style and text
         // It could work with any user defined object type.
         // Additional data for markers will be requested only for markers that are visible or not far from bounds of screen.
         style.setMarkerDataFill { _, data in
             data.setStyle(0)
         }
-        
+
         // Load UK postal codes from GeoJSON
         if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json"),
-           let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+           let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath)
+        {
             // Put our array of objects into marker layer. It could be any custom array of objects.
             // Disable clustering in this demo
             let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: style, clusteringRadius: 0, drawOrder: 2)
@@ -611,9 +612,9 @@ class MapViewController: MapViewWithUserLocation {
             GLMapColor(red: 223, green: 180, blue: 19, alpha: 255),
             GLMapColor(red: 255, green: 0, blue: 0, alpha: 255),
         ]
-        
+
         let styleCollection = GLMapMarkerStyleCollection()
-        
+
         var maxWidth = 0.0
         for (i, color) in tintColors.enumerated() {
             let scale = 0.2 + 0.1 * Double(i)
@@ -622,9 +623,9 @@ class MapViewController: MapViewWithUserLocation {
                 styleCollection.addStyle(with: image)
             }
         }
-        
+
         let textStyle = GLMapVectorStyle.createStyle("{text-color:black;font-size:12;font-stroke-width:1pt;font-stroke-color:#FFFFFFEE;}")!
-        
+
         styleCollection.setMarkerDataFill { marker, data in
             if let obj = marker as? GLMapVectorObject {
                 data.setStyle(0)
@@ -633,20 +634,21 @@ class MapViewController: MapViewWithUserLocation {
                 }
             }
         }
-        
+
         styleCollection.setMarkerUnionFill { markerCount, data in
             var markerStyle = Int(log2(Double(markerCount)))
             markerStyle = min(markerStyle, tintColors.count - 1)
             data.setStyle(UInt32(markerStyle))
             data.setText("\(markerCount)", offset: .zero, style: textStyle)
         }
-        
+
         DispatchQueue.global().async { [weak self] in
             if let dataPath = Bundle.main.path(forResource: "cluster_data", ofType: "json"),
-               let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath) {
+               let objects = try? GLMapVectorObject.createVectorObjects(fromFile: dataPath)
+            {
                 let markerLayer = GLMapMarkerLayer(vectorObjects: objects, andStyles: styleCollection, clusteringRadius: maxWidth / 2, drawOrder: 2)
                 let bbox = objects.bbox
-                
+
                 DispatchQueue.main.async {
                     self?.map?.add(markerLayer)
                     self?.map?.mapCenter = bbox.center

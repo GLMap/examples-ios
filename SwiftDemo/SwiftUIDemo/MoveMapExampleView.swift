@@ -1,5 +1,5 @@
 //
-//  ExampleDetailView.swift
+//  MoveMapExampleView.swift
 //  SwiftUIDemo
 //
 //  Created by Evgen Bodunov on 26.04.23.

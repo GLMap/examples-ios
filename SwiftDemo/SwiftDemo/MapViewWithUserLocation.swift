@@ -1,5 +1,5 @@
 //
-//  MapViewControllerBase.swift
+//  MapViewWithUserLocation.swift
 //  SwiftDemo
 //
 //  Created by Arkadiy Tolkun on 6/3/20.
