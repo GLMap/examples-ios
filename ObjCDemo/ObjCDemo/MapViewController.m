@@ -341,12 +341,11 @@
       if (!menu.menuVisible) {
           wself.menuPoint = GLMapGeoPointFromMapPoint([wMap makeMapPointFromDisplayPoint:pt]);
           [wself becomeFirstResponder];
-          [menu setTargetRect:CGRectMake(pt.x, pt.y, 1, 1) inView:wMap];
           menu.menuItems = @[
               [[UIMenuItem alloc] initWithTitle:@"Departure" action:@selector(setDeparture:)],
               [[UIMenuItem alloc] initWithTitle:@"Destination" action:@selector(setDestination:)]
           ];
-          [menu setMenuVisible:YES animated:YES];
+          [menu showMenuFromView:wMap rect:CGRectMake(pt.x, pt.y, 1, 1)];
       }
     };
     [self updateRoute];
@@ -729,29 +728,31 @@
     __weak GLMapView *weakmap = _mapView;
     __weak MapViewController *wself = self;
     _mapView.longPressGestureBlock = ^(CGPoint pt) {
-      UIMenuController *menu = [UIMenuController sharedMenuController];
-      if (!menu.menuVisible) {
-          wself.menuPos = pt;
-          [wself becomeFirstResponder];
-          [menu setTargetRect:CGRectMake(wself.menuPos.x, wself.menuPos.y, 1, 1) inView:weakmap];
-          menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Add pin" action:@selector(addPin:)] ];
-          [menu setMenuVisible:YES animated:YES];
-      }
+        UIMenuController *menu = [UIMenuController sharedMenuController];
+        if (!menu.isMenuVisible) {
+            wself.menuPos = pt;
+            [wself becomeFirstResponder];
+
+            UIMenuItem *addPinItem = [[UIMenuItem alloc] initWithTitle:@"Add pin" action:@selector(addPin:)];
+            menu.menuItems = @[addPinItem];
+            [menu showMenuFromView:weakmap rect:CGRectMake(wself.menuPos.x, wself.menuPos.y, 1, 1)];
+        }
     };
 
     _mapView.tapGestureBlock = ^(CGPoint pt) {
-      Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
-      if (pin) {
-          UIMenuController *menu = [UIMenuController sharedMenuController];
-          if (!menu.menuVisible) {
-              CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
-              wself.pinToDelete = pin;
-              [wself becomeFirstResponder];
-              [menu setTargetRect:CGRectMake(pinPos.x, pinPos.y - 20, 1, 1) inView:weakmap];
-              menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)] ];
-              [menu setMenuVisible:YES animated:YES];
-          }
-      }
+        Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
+         if (pin) {
+             UIMenuController *menu = [UIMenuController sharedMenuController];
+             if (!menu.isMenuVisible) {
+                 CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
+                 wself.pinToDelete = pin;
+                 [wself becomeFirstResponder];
+
+                 UIMenuItem *deletePinItem = [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)];
+                 menu.menuItems = @[deletePinItem];
+                 [menu showMenuFromView:weakmap rect:CGRectMake(pinPos.x, pinPos.y - 20, 1, 1)];
+             }
+         }
     };
 }
 
@@ -880,7 +881,7 @@
       GLMapMarkerSetStyle(data, 0);
       NSString *name = [obj valueForKey:@"name"].asString;
       if (name) {
-          GLMapMarkerSetText(data, name, CGPointMake(0, 7), textStyle);
+          GLMapMarkerSetText(data, GLMapTextAlignment_Center, name, CGPointMake(0, 7), textStyle);
       }
     }];
 
@@ -892,7 +893,7 @@
           markerStyle = unionCount - 1;
       }
       GLMapMarkerSetStyle(data, markerStyle);
-      GLMapMarkerSetText(data, [NSString stringWithFormat:@"%d", markerCount], CGPointZero, textStyle);
+      GLMapMarkerSetText(data, GLMapTextAlignment_Center, [NSString stringWithFormat:@"%d", markerCount], CGPointZero, textStyle);
     }];
 
     // When we have big dataset to load. We could load data and create marker layer in background thread. And then display marker layer on
@@ -946,7 +947,7 @@
     GLMapVectorCascadeStyle *style = [GLMapVectorCascadeStyle createStyle:@"line{width:2pt; color:green;}"];
 
     // All user geometry objects should be drawn trough GLMapVectorObject
-    GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithMultiline:multiline];
+    GLMapVectorObject *vectorObject = [GLMapVectorLine.alloc initWithLines:multiline];
 
     GLMapVectorLayer *vectorLayer = [GLMapVectorLayer.alloc initWithDrawOrder:0];
     [vectorLayer setVectorObject:vectorObject withStyle:style completion:nil];
@@ -974,7 +975,7 @@
                                                        centerPoint.lon + cos(2 * M_PI / pointCount * index) * radius);
              }] ];
 
-    GLMapVectorObject *vectorObject = [GLMapVectorObject.alloc initWithPolygonOuterRings:outerRings innerRings:innerRings];
+    GLMapVectorObject *vectorObject = [GLMapVectorPolygon.alloc init:outerRings innerRings:innerRings];
     GLMapVectorCascadeStyle *style =
         [GLMapVectorCascadeStyle createStyle:@"area{fill-color:#10106050; width:4pt; color:green;}"]; // #RRGGBBAA format
 
@@ -1233,7 +1234,7 @@
     [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Map
         path:[self mapPath]
         bbox:[self downloadBBox]
-        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        progress:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
           NSLog(@"Download map stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
         }
         completion:^(NSError *_Nullable error) {
@@ -1245,7 +1246,7 @@
     [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Navigation
         path:[self navigationPath]
         bbox:[self downloadBBox]
-        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        progress:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
           NSLog(@"Download nav stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
         }
         completion:^(NSError *_Nullable error) {
@@ -1257,7 +1258,7 @@
     [GLMapManager.sharedManager downloadDataSet:GLMapInfoDataSet_Elevation
         path:[self elevationPath]
         bbox:[self downloadBBox]
-        progres:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
+        progress:^(NSUInteger totalSize, NSUInteger downloadSize, double downloadSpeed) {
           NSLog(@"Download ele stats: %lu, %f", (unsigned long)downloadSize, downloadSpeed);
         }
         completion:^(NSError *_Nullable error) {
