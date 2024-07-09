@@ -59,15 +59,14 @@ class BuildRouteTask: Task {
         for pt in params.points {
             request.add(pt.pt)
         }
-        taskID = request.start { route, error in
+        taskID = request.startOnline { route, error in
             if let error = error {
                 let nsError = error as NSError
                 if nsError.domain == "Valhalla" || nsError.code == ECANCELED {
                     self.result = .error(error: error)
                     self.onFinish?()
                 } else { // Network error. Try to build offline
-                    request.setOfflineWithConfig(BuildRouteTask.OfflineValhallaConfig)
-                    self.taskID = request.start { route, error in
+                    self.taskID = request.startOffline(withConfig: BuildRouteTask.OfflineValhallaConfig) { route, error in
                         if let error = error {
                             self.result = .error(error: error)
                         } else if let route = route {

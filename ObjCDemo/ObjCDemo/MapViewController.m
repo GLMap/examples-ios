@@ -374,20 +374,23 @@
     [request setModeWithDefaultOptions:mode];
     request.locale = @"en";
     request.unitSystem = GLUnitSystem_International;
-    [request addPoint:GLRoutePointMake(_startPoint, NAN, YES, YES)];
-    [request addPoint:GLRoutePointMake(_endPoint, NAN, YES, YES)];
-
-    if (_networkMode.selectedSegmentIndex != 0)
-        [request setOfflineWithConfig:_valhallaConfig];
+    [request addPoint:GLRoutePointMake(_startPoint, NAN, GLRoutePointType_Break)];
+    [request addPoint:GLRoutePointMake(_endPoint, NAN, GLRoutePointType_Break)];
 
     __weak typeof(self) weakSelf = self;
-    [request startWithCompletion:^(GLRoute *result, NSError *error) {
-      if (error) {
-          [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
-      } else {
-          [weakSelf processRouteResponse:result];
-      }
-    }];
+    GLRouteRequestCompletionBlock completion = ^(GLRoute *result, NSError *error) {
+        if (error) {
+            [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
+        } else {
+            [weakSelf processRouteResponse:result];
+        }
+    };
+    
+    if (_networkMode.selectedSegmentIndex == 0) {
+        [request startOnlineWithCompletion:completion];
+    } else {
+        [request startOfflineWithConfig:_valhallaConfig completion:completion];
+    }
 }
 
 - (void)processRouteResponse:(GLRoute *)route {
@@ -1309,7 +1312,7 @@
 - (void)loadDarkTheme {
     NSString *stylePath = [NSBundle.mainBundle pathForResource:@"DefaultStyle" ofType:@"bundle"];
     GLMapStyleParser *parser = [GLMapStyleParser.alloc initWithPaths:@[ stylePath ]];
-    [parser setOptions:@{@"Theme" : @"Dark"} defaultValue:YES];
+    [parser setOptions:@{@"Theme" : @"Dark"} defaultValue:NO];
     [_mapView setStyle:[parser parseFromResources]];
     [_mapView reloadTiles];
 }

@@ -270,6 +270,8 @@ class MapViewController: MapViewWithUserLocation {
     }
 
     @objc func updateRoute() {
+        guard let valhallaConfig else { return }
+        
         let routeRequest = GLRouteRequest()
 
         if routingMode?.selectedSegmentIndex == 0 {
@@ -280,16 +282,12 @@ class MapViewController: MapViewWithUserLocation {
             routeRequest.setPedestrianWithOptions(CostingOptionsPedestrian())
         }
 
-        if networkMode?.selectedSegmentIndex != 0 {
-            routeRequest.setOfflineWithConfig(valhallaConfig!)
-        }
-
-        routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, isStop: true, allowUTurn: false))
-        routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, isStop: true, allowUTurn: false))
+        routeRequest.add(GLRoutePoint(pt: startPoint, heading: Double.nan, type: .break))
+        routeRequest.add(GLRoutePoint(pt: endPoint, heading: Double.nan, type: .break))
 
         let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
 
-        routeRequest.start(completion: { [weak self] (result: GLRoute?, error: Error?) in
+        let requestCompletion: GLRouteRequestCompletionBlock = {[weak self] (result: GLRoute?, error: Error?) in
             guard let self else { return }
 
             if let routeData = result {
@@ -305,7 +303,13 @@ class MapViewController: MapViewWithUserLocation {
             if let error = error {
                 self.displayAlert("Routing error", message: error.localizedDescription)
             }
-        })
+        }
+        
+        if networkMode?.selectedSegmentIndex != 0 {
+            routeRequest.startOffline(withConfig: valhallaConfig, completion: requestCompletion)
+        } else {
+            routeRequest.startOnline(completion: requestCompletion)
+        }
     }
 
     func showOnlineMap() {
@@ -1120,7 +1124,7 @@ class MapViewController: MapViewWithUserLocation {
         if darkTheme {
             options["Theme"] = "Dark"
         }
-        parser.setOptions(options, defaultValue: true)
+        parser.setOptions(options, defaultValue: false)
         guard let style = parser.parseFromResources() else {
             NSLog("Can't parse style from resources")
             return
