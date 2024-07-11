@@ -379,13 +379,13 @@
 
     __weak typeof(self) weakSelf = self;
     GLRouteRequestCompletionBlock completion = ^(GLRoute *result, NSError *error) {
-        if (error) {
-            [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
-        } else {
-            [weakSelf processRouteResponse:result];
-        }
+      if (error) {
+          [weakSelf displayAlertWithTitle:@"Routing error" message:[error description]];
+      } else {
+          [weakSelf processRouteResponse:result];
+      }
     };
-    
+
     if (_networkMode.selectedSegmentIndex == 0) {
         [request startOnlineWithCompletion:completion];
     } else {
@@ -731,31 +731,31 @@
     __weak GLMapView *weakmap = _mapView;
     __weak MapViewController *wself = self;
     _mapView.longPressGestureBlock = ^(CGPoint pt) {
-        UIMenuController *menu = [UIMenuController sharedMenuController];
-        if (!menu.isMenuVisible) {
-            wself.menuPos = pt;
-            [wself becomeFirstResponder];
+      UIMenuController *menu = [UIMenuController sharedMenuController];
+      if (!menu.isMenuVisible) {
+          wself.menuPos = pt;
+          [wself becomeFirstResponder];
 
-            UIMenuItem *addPinItem = [[UIMenuItem alloc] initWithTitle:@"Add pin" action:@selector(addPin:)];
-            menu.menuItems = @[addPinItem];
-            [menu showMenuFromView:weakmap rect:CGRectMake(wself.menuPos.x, wself.menuPos.y, 1, 1)];
-        }
+          UIMenuItem *addPinItem = [[UIMenuItem alloc] initWithTitle:@"Add pin" action:@selector(addPin:)];
+          menu.menuItems = @[ addPinItem ];
+          [menu showMenuFromView:weakmap rect:CGRectMake(wself.menuPos.x, wself.menuPos.y, 1, 1)];
+      }
     };
 
     _mapView.tapGestureBlock = ^(CGPoint pt) {
-        Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
-         if (pin) {
-             UIMenuController *menu = [UIMenuController sharedMenuController];
-             if (!menu.isMenuVisible) {
-                 CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
-                 wself.pinToDelete = pin;
-                 [wself becomeFirstResponder];
+      Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
+      if (pin) {
+          UIMenuController *menu = [UIMenuController sharedMenuController];
+          if (!menu.isMenuVisible) {
+              CGPoint pinPos = [weakmap makeDisplayPointFromMapPoint:pin.pos];
+              wself.pinToDelete = pin;
+              [wself becomeFirstResponder];
 
-                 UIMenuItem *deletePinItem = [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)];
-                 menu.menuItems = @[deletePinItem];
-                 [menu showMenuFromView:weakmap rect:CGRectMake(pinPos.x, pinPos.y - 20, 1, 1)];
-             }
-         }
+              UIMenuItem *deletePinItem = [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)];
+              menu.menuItems = @[ deletePinItem ];
+              [menu showMenuFromView:weakmap rect:CGRectMake(pinPos.x, pinPos.y - 20, 1, 1)];
+          }
+      }
     };
 }
 

@@ -243,10 +243,11 @@ class MapViewController: MapViewWithUserLocation {
         map.mapCenter = bbox.center
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
-        map.tapGestureBlock = { [weak self] pt in
-            guard let self = self else { return }
+        map.tapGestureBlock = { [weak self] gesure in
+            guard let self = self else { return false }
             let menu = UIMenuController.shared
             if !menu.isMenuVisible {
+                let pt = gesure.location(in: map)
                 self.menuPoint = GLMapGeoPoint(point: self.map.makeMapPoint(fromDisplay: pt))
                 self.becomeFirstResponder()
                 menu.menuItems = [
@@ -255,6 +256,7 @@ class MapViewController: MapViewWithUserLocation {
                 ]
                 menu.showMenu(from: self.map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
             }
+            return true
         }
         updateRoute()
     }
@@ -271,7 +273,7 @@ class MapViewController: MapViewWithUserLocation {
 
     @objc func updateRoute() {
         guard let valhallaConfig else { return }
-        
+
         let routeRequest = GLRouteRequest()
 
         if routingMode?.selectedSegmentIndex == 0 {
@@ -287,7 +289,7 @@ class MapViewController: MapViewWithUserLocation {
 
         let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
 
-        let requestCompletion: GLRouteRequestCompletionBlock = {[weak self] (result: GLRoute?, error: Error?) in
+        let requestCompletion: GLRouteRequestCompletionBlock = { [weak self] (result: GLRoute?, error: Error?) in
             guard let self else { return }
 
             if let routeData = result {
@@ -304,7 +306,7 @@ class MapViewController: MapViewWithUserLocation {
                 self.displayAlert("Routing error", message: error.localizedDescription)
             }
         }
-        
+
         if networkMode?.selectedSegmentIndex != 0 {
             routeRequest.startOffline(withConfig: valhallaConfig, completion: requestCompletion)
         } else {
@@ -507,22 +509,24 @@ class MapViewController: MapViewWithUserLocation {
     func multiImageDemo() {
         displayAlert(nil, message: "Long tap on map to add pin, tap on pin to remove it")
 
-        map.longPressGestureBlock = { [weak self] (point: CGPoint) in
+        map.longPressGestureBlock = { [weak self] gesture in
+            guard let self else { return false }
             let menu = UIMenuController.shared
             if !menu.isMenuVisible {
-                self?.menuPos = point
-                self?.becomeFirstResponder()
-
-                if let map = self?.map {
+                let pt = gesture.location(in: map)
+                menuPos = pt
+                becomeFirstResponder()
+                if let map {
                     menu.menuItems = [UIMenuItem(title: "Add pin", action: #selector(MapViewController.addPin))]
-                    menu.showMenu(from: map, rect: CGRect(origin: point, size: CGSize(width: 1, height: 1)))
+                    menu.showMenu(from: map, rect: CGRect(origin: pt, size: CGSize(width: 1, height: 1)))
                 }
             }
+            return true
         }
 
-        map.tapGestureBlock = { [weak self] (point: CGPoint) in
-            guard let self = self, let map = self.map else { return }
-            if let pins = self.pins, let pin = pins.findPin(point: point, mapView: map) {
+        map.tapGestureBlock = { [weak self] gesture in
+            guard let self else { return false }
+            if let pins = self.pins, let pin = pins.findPin(point: gesture.location(in: map), mapView: map) {
                 let menu = UIMenuController.shared
                 if !menu.isMenuVisible {
                     let pinPos = map.makeDisplayPoint(from: pin.position)
@@ -532,6 +536,7 @@ class MapViewController: MapViewWithUserLocation {
                     menu.showMenu(from: map, rect: CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)))
                 }
             }
+            return true
         }
     }
 
@@ -818,9 +823,9 @@ class MapViewController: MapViewWithUserLocation {
             map.mapCenter = bbox.center
             map.mapZoom = map.mapZoom(for: bbox)
 
-            map.tapGestureBlock = { [weak self] (point: CGPoint) in
-                guard let self = self, let map = self.map else { return }
-                let mapPoint = map.makeMapPoint(fromDisplay: point)
+            map.tapGestureBlock = { [weak self] gesture in
+                guard let self else { return false }
+                let mapPoint = map.makeMapPoint(fromDisplay: gesture.location(in: map))
                 for index in 0 ..< objects.count {
                     let object = objects[index]
                     var pt = mapPoint
@@ -829,9 +834,10 @@ class MapViewController: MapViewWithUserLocation {
                     // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less then maxDistance.
                     if object.findNearestPoint(&pt, to: mapPoint, maxDistance: maxDist) {
                         self.displayAlert(nil, message: "Tap on object: \(object.debugDescription())")
-                        return
+                        return true
                     }
                 }
+                return true
             }
 
         } catch {
