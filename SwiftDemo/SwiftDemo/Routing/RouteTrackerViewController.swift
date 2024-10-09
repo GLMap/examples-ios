@@ -523,7 +523,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     func locationChanged(_ location: CLLocation) {
         let userGeoLocation = GLMapGeoPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
         var userLocation = GLMapPoint(geoPoint: userGeoLocation)
-        var userBearing = location.course >= 0 ? location.course : Double.nan
+        var userBearing = location.course >= 0 ? Float(location.course) : Float.nan
         let curSpeed = location.speed >= 0 ? location.speed : 0
 
         let fmt = Formatters.si
@@ -564,7 +564,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         }
 
         if speedInKmh < 0 {
-            userBearing = Double.nan
+            userBearing = Float.nan
         }
 
         progressAnimation?.cancel(false)
