@@ -134,9 +134,7 @@ class MapViewController: MapViewWithUserLocation {
 
     func updateDownloadButtonText() {
         if map.centerTileState == .noData {
-            let mapCenter = map.mapCenter
-
-            guard let maps = GLMapManager.shared.maps(at: mapCenter), maps.count > 0 else {
+            guard let maps = GLMapManager.shared.maps(at: map.mapCenter), maps.count > 0 else {
                 mapToDownload = nil
                 return
             }
@@ -150,15 +148,14 @@ class MapViewController: MapViewWithUserLocation {
                 }
             }
 
-            if let map = mapToDownload {
+            if let mapToDownload {
                 let title: String
-                if let task = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map) {
+                if let task = GLMapManager.shared.downloadTask(forMap: mapToDownload, dataSet: .map) {
                     let progress = task.downloaded * 100 / task.total
-                    title = String(format: "Downloading %@ %d%%", map.name(), progress)
+                    title = String(format: "Downloading %@ %d%%", mapToDownload.name(), progress)
                 } else {
-                    title = "Download \(map.name())"
+                    title = "Download \(mapToDownload.name())"
                 }
-
                 downloadButton.setTitle(title, for: .normal)
             } else {
                 downloadButton.setTitle("Download Maps", for: .normal)
@@ -167,12 +164,12 @@ class MapViewController: MapViewWithUserLocation {
     }
 
     @objc func downloadButtonTap() {
-        if let map = mapToDownload {
-            let downloadTask = GLMapManager.shared.downloadTask(forMap: map, dataSet: .map)
+        if let mapToDownload {
+            let downloadTask = GLMapManager.shared.downloadTask(forMap: mapToDownload, dataSet: .map)
             if let task = downloadTask {
                 task.cancel()
             } else {
-                GLMapManager.shared.downloadDataSets(.all, forMap: map, withCompletionBlock: nil)
+                GLMapManager.shared.downloadDataSets(.all, forMap: mapToDownload, withCompletionBlock: nil)
             }
         } else {
             performSegue(withIdentifier: "DownloadMaps", sender: self)
@@ -244,17 +241,17 @@ class MapViewController: MapViewWithUserLocation {
         map.mapZoom = map.mapZoom(for: bbox) / 2
 
         map.tapGestureBlock = { [weak self] gesure in
-            guard let self = self else { return false }
+            guard let self else { return false }
             let menu = UIMenuController.shared
             if !menu.isMenuVisible {
                 let pt = gesure.location(in: map)
-                self.menuPoint = GLMapGeoPoint(point: self.map.makeMapPoint(fromDisplay: pt))
-                self.becomeFirstResponder()
+                menuPoint = GLMapGeoPoint(point: map.makeMapPoint(fromDisplay: pt))
+                becomeFirstResponder()
                 menu.menuItems = [
                     UIMenuItem(title: "Departure", action: #selector(MapViewController.setDeparture)),
                     UIMenuItem(title: "Destination", action: #selector(MapViewController.setDestination)),
                 ]
-                menu.showMenu(from: self.map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
+                menu.showMenu(from: map, rect: CGRect(x: pt.x, y: pt.y, width: 1, height: 1))
             }
             return true
         }
@@ -291,19 +288,16 @@ class MapViewController: MapViewWithUserLocation {
 
         let requestCompletion: GLRouteRequestCompletionBlock = { [weak self] (result: GLRoute?, error: Error?) in
             guard let self else { return }
-
-            if let routeData = result {
-                if let trackData = routeData.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
-                    if self.routeTrack == nil {
-                        let track = GLMapTrack(drawOrder: 5)
-                        self.map.add(track)
-                        self.routeTrack = track
-                    }
-                    self.routeTrack?.setTrackData(trackData, style: routeStyle)
+            if let result, let trackData = result.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
+                if routeTrack == nil {
+                    let track = GLMapTrack(drawOrder: 5)
+                    map.add(track)
+                    routeTrack = track
                 }
+                routeTrack?.setTrackData(trackData, style: routeStyle)
             }
-            if let error = error {
-                self.displayAlert("Routing error", message: error.localizedDescription)
+            if let error {
+                displayAlert("Routing error", message: error.localizedDescription)
             }
         }
 
@@ -377,8 +371,8 @@ class MapViewController: MapViewWithUserLocation {
             filter.matchType = .exact
             searchOffline.add(filter)
 
-            searchOffline.searchAsync(completionBlock: { results in
-                self.displaySearchResults(results: results)
+            searchOffline.searchAsync(completionBlock: { [weak self] results in
+                self?.displaySearchResults(results: results)
             })
         }
     }
@@ -466,37 +460,32 @@ class MapViewController: MapViewWithUserLocation {
     }
 
     func loadImage(atUrl url: URL, intoDrawable drawable: GLMapImage) {
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data {
-                if let image = UIImage(data: data) {
-                    drawable.setImage(image, for: self.map)
-                }
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let self else { return }
+            if let data, let image = UIImage(data: data) {
+                drawable.setImage(image, for: map)
             }
         }.resume()
     }
 
-    @objc func addImageButtonTap(_ sender: Any) {
-        if let button = sender as? UIBarButtonItem {
-            if let title = button.title {
-                switch title {
-                case "Add image":
-                    mapImage.hidden = false
-                    mapImage.position = map.mapCenter
-                    mapImage.angle = Float(arc4random_uniform(360))
+    @objc func addImageButtonTap(_ button: UIBarButtonItem) {
+        switch button.title {
+        case "Add image":
+            mapImage.hidden = false
+            mapImage.position = map.mapCenter
+            mapImage.angle = Float(arc4random_uniform(360))
 
-                    button.title = "Move image"
-                case "Move image":
-                    map.animate { _ in
-                        self.mapImage.position = self.map.mapCenter
-                        self.mapImage.angle = Float(arc4random_uniform(360))
-                    }
-                    button.title = "Remove image"
-                case "Remove image":
-                    mapImage.hidden = true
-                    button.title = "Add image"
-                default: break
-                }
+            button.title = "Move image"
+        case "Move image":
+            map.animate { _ in
+                mapImage.position = map.mapCenter
+                mapImage.angle = Float(arc4random_uniform(360))
             }
+            button.title = "Remove image"
+        case "Remove image":
+            mapImage.hidden = true
+            button.title = "Add image"
+        default: break
         }
     }
 
@@ -526,12 +515,12 @@ class MapViewController: MapViewWithUserLocation {
 
         map.tapGestureBlock = { [weak self] gesture in
             guard let self else { return false }
-            if let pins = self.pins, let pin = pins.findPin(point: gesture.location(in: map), mapView: map) {
+            if let pins = pins, let pin = pins.findPin(point: gesture.location(in: map), mapView: map) {
                 let menu = UIMenuController.shared
                 if !menu.isMenuVisible {
                     let pinPos = map.makeDisplayPoint(from: pin.position)
-                    self.pinToDelete = pin
-                    self.becomeFirstResponder()
+                    pinToDelete = pin
+                    becomeFirstResponder()
                     menu.menuItems = [UIMenuItem(title: "Delete pin", action: #selector(MapViewController.deletePin))]
                     menu.showMenu(from: map, rect: CGRect(origin: CGPoint(x: pinPos.x, y: pinPos.y - 20.0), size: CGSize(width: 1, height: 1)))
                 }
@@ -833,7 +822,7 @@ class MapViewController: MapViewWithUserLocation {
                     let maxDist = hypot(tmp.x, tmp.y)
                     // When checking polygons it will check if point is inside polygon. For lines and points it will check if distance is less then maxDistance.
                     if object.findNearestPoint(&pt, to: mapPoint, maxDistance: maxDist) {
-                        self.displayAlert(nil, message: "Tap on object: \(object.debugDescription())")
+                        displayAlert(nil, message: "Tap on object: \(object.debugDescription())")
                         return true
                     }
                 }
@@ -1011,14 +1000,14 @@ class MapViewController: MapViewWithUserLocation {
         GLMapManager.shared.tileDownloadingAllowed = true
 
         map.animate { animation in
-            self.map.mapZoomLevel = 14
+            map.mapZoomLevel = 14
             animation.fly(to: GLMapGeoPoint(lat: 37.3257, lon: -122.0353))
         }
     }
 
     @objc func flyTo() {
         map.animate { animation in
-            self.map.mapZoomLevel = 14
+            map.mapZoomLevel = 14
             let minPt = GLMapGeoPoint(lat: 33, lon: -118)
             let maxPt = GLMapGeoPoint(lat: 48, lon: -85)
             animation.fly(to: GLMapGeoPoint(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
@@ -1064,8 +1053,8 @@ class MapViewController: MapViewWithUserLocation {
     private func downloadMapInBBox() {
         GLMapManager.shared.downloadDataSet(.map, path: mapPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download map stats: %d %f", current, speed)
-        } completion: { _ in
-            self.downloadInBBox()
+        } completion: { [weak self] _ in
+            self?.downloadInBBox()
         }
     }
 
@@ -1073,8 +1062,8 @@ class MapViewController: MapViewWithUserLocation {
     private func downloadNavigationInBBox() {
         GLMapManager.shared.downloadDataSet(.navigation, path: navigationPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download nav stats: %d %f", current, speed)
-        } completion: { _ in
-            self.downloadInBBox()
+        } completion: { [weak self] _ in
+            self?.downloadInBBox()
         }
     }
 
@@ -1082,8 +1071,8 @@ class MapViewController: MapViewWithUserLocation {
     private func downloadElevationInBBox() {
         GLMapManager.shared.downloadDataSet(.elevation, path: elevationPath, bbox: downloadBBox) { _, current, speed in
             NSLog("Download ele stats: %d %f", current, speed)
-        } completion: { _ in
-            self.downloadInBBox()
+        } completion: { [weak self] _ in
+            self?.downloadInBBox()
         }
     }
 
