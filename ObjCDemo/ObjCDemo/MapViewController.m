@@ -336,7 +336,12 @@
     [_mapView setStyle:[parser parseFromResources]];
     __weak GLMapView *wMap = _mapView;
     __weak MapViewController *wself = self;
-    _mapView.tapGestureBlock = ^(CGPoint pt) {
+    _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
+      if (wself == nil || wMap == nil) {
+          return;
+      }
+      CGPoint pt = [gr locationInView:wMap];
+
       UIMenuController *menu = [UIMenuController sharedMenuController];
       if (!menu.menuVisible) {
           wself.menuPoint = GLMapGeoPointFromMapPoint([wMap makeMapPointFromDisplayPoint:pt]);
@@ -730,7 +735,12 @@
 - (void)setupPinGestures {
     __weak GLMapView *weakmap = _mapView;
     __weak MapViewController *wself = self;
-    _mapView.longPressGestureBlock = ^(CGPoint pt) {
+    _mapView.longPressGestureBlock = ^(PlatformGestureRecognizer *gr) {
+      if (wself == nil || weakmap == nil) {
+          return;
+      }
+      CGPoint pt = [gr locationInView:weakmap];
+
       UIMenuController *menu = [UIMenuController sharedMenuController];
       if (!menu.isMenuVisible) {
           wself.menuPos = pt;
@@ -742,7 +752,12 @@
       }
     };
 
-    _mapView.tapGestureBlock = ^(CGPoint pt) {
+    _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
+      if (wself == nil || weakmap == nil) {
+          return;
+      }
+      CGPoint pt = [gr locationInView:weakmap];
+
       Pin *pin = [wself.pins pinAtLocation:pt atMap:weakmap];
       if (pin) {
           UIMenuController *menu = [UIMenuController sharedMenuController];
@@ -1158,7 +1173,12 @@
 
             __weak GLMapView *wMap = _mapView;
             __weak MapViewController *wself = self;
-            _mapView.tapGestureBlock = ^(CGPoint pt) {
+            _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
+              if (wself == nil || wMap == nil) {
+                  return;
+              }
+              CGPoint pt = [gr locationInView:wMap];
+
               GLMapPoint mapPoint = [wMap makeMapPointFromDisplayPoint:pt];
               for (NSUInteger i = 0; i < objects.count; ++i) {
                   GLMapVectorObject *object = objects[i];

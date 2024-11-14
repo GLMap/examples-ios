@@ -55,9 +55,10 @@ public struct GLMapViewRepresentable: ViewRepresentable {
 
     func makeMapView(_: Context) -> GLMapView {
         let mapView = GLMapView()
-        mapView.tapGestureBlock = { [weak mapView] point in
+        mapView.tapGestureBlock = { [weak mapView] gestureRecognizer in
             guard let onTap, let mapView else { return }
             // convert it there, because there outside there is no access to GLMapView
+            let point = gestureRecognizer.location(in: mapView)
             onTap(mapView.makeGeoPoint(fromDisplay: point))
         }
         return mapView
