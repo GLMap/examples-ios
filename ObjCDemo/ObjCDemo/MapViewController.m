@@ -338,7 +338,7 @@
     __weak MapViewController *wself = self;
     _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
       if (wself == nil || wMap == nil) {
-          return NO;
+          return;
       }
       CGPoint pt = [gr locationInView:wMap];
 
@@ -351,9 +351,7 @@
               [[UIMenuItem alloc] initWithTitle:@"Destination" action:@selector(setDestination:)]
           ];
           [menu showMenuFromView:wMap rect:CGRectMake(pt.x, pt.y, 1, 1)];
-          return YES;
       }
-      return NO;
     };
     [self updateRoute];
 }
@@ -739,7 +737,7 @@
     __weak MapViewController *wself = self;
     _mapView.longPressGestureBlock = ^(PlatformGestureRecognizer *gr) {
       if (wself == nil || weakmap == nil) {
-          return NO;
+          return;
       }
       CGPoint pt = [gr locationInView:weakmap];
 
@@ -751,14 +749,12 @@
           UIMenuItem *addPinItem = [[UIMenuItem alloc] initWithTitle:@"Add pin" action:@selector(addPin:)];
           menu.menuItems = @[ addPinItem ];
           [menu showMenuFromView:weakmap rect:CGRectMake(wself.menuPos.x, wself.menuPos.y, 1, 1)];
-          return YES;
       }
-      return NO;
     };
 
     _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
       if (wself == nil || weakmap == nil) {
-          return NO;
+          return;
       }
       CGPoint pt = [gr locationInView:weakmap];
 
@@ -773,10 +769,8 @@
               UIMenuItem *deletePinItem = [[UIMenuItem alloc] initWithTitle:@"Delete pin" action:@selector(deletePin:)];
               menu.menuItems = @[ deletePinItem ];
               [menu showMenuFromView:weakmap rect:CGRectMake(pinPos.x, pinPos.y - 20, 1, 1)];
-              return YES;
           }
       }
-      return NO;
     };
 }
 
@@ -1181,7 +1175,7 @@
             __weak MapViewController *wself = self;
             _mapView.tapGestureBlock = ^(PlatformGestureRecognizer *gr) {
               if (wself == nil || wMap == nil) {
-                  return NO;
+                  return;
               }
               CGPoint pt = [gr locationInView:wMap];
 
@@ -1195,10 +1189,9 @@
                   // then maxDistance.
                   if ([object findNearestPoint:&pt toPoint:mapPoint maxDistance:maxDist]) {
                       [wself displayAlertWithTitle:nil message:[NSString stringWithFormat:@"Tap on object: %@", object.debugDescription]];
-                      return YES;
+                      return;
                   }
               }
-              return NO;
             };
         }
     }
