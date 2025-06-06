@@ -56,7 +56,7 @@ class ImageGroup: GLMapImageGroupDataSource {
         return pins.count
     }
 
-    public func getImageInfo(_ index: Int, vairiant variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
+    public func getImageInfo(_ index: Int, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
         variant.pointee = pins[index].imageID
         position.pointee = pins[index].position
     }
