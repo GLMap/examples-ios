@@ -175,7 +175,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     }
 
     @objc func willEnterForeground() {
-        if let lastLocation = lastLocation {
+        if let lastLocation {
             locationChanged(lastLocation)
         }
     }
@@ -183,7 +183,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     private func updateRoute(newPoint: RoutePoint? = nil, deletePoint: RoutePoint? = nil) {
         guard let index = originalParams.points.firstIndex(of: targetPoint), let curLocation = lastLocation else { return }
 
-        if let deletePoint = deletePoint {
+        if let deletePoint {
             originalParams = originalParams.deleting(deletePoint)
             display(routeParams: originalParams)
         }
@@ -191,7 +191,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         let cur = GLMapGeoPoint(lat: curLocation.coordinate.latitude, lon: curLocation.coordinate.longitude)
         var newPoints = [RoutePoint(pt: GLRoutePoint(pt: cur, heading: curLocation.course, originalIndex: 0, type: .break),
                                     isCurrentLocation: true)]
-        if let newPoint = newPoint {
+        if let newPoint {
             newPoints.append(newPoint)
             originalParams = originalParams.adding(newPoint)
             display(routeParams: originalParams)
@@ -298,7 +298,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     }
 
     func display(route: GLRoute?) {
-        if let route = route {
+        if let route {
             if let heightData = route.heightData {
                 let min = heightData.min
                 let delta = heightData.max - min
@@ -313,7 +313,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         }
 
         if let trackData = routeTrackData {
-            if let routeTrack = routeTrack {
+            if let routeTrack {
                 routeTrack.setTrackData(trackData, style: routeStyle)
                 routeTrack.progressIndex = 0
             } else {
@@ -323,7 +323,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
                 map.add(routeTrack)
                 self.routeTrack = routeTrack
             }
-        } else if let routeTrack = routeTrack {
+        } else if let routeTrack {
             map.remove(routeTrack)
             self.routeTrack = nil
         }
@@ -369,7 +369,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     }
 
     private func showSecondaryManeuverImage(_ maneuver: GLRouteManeuver?) {
-        if let maneuver = maneuver {
+        if let maneuver {
             imgSecondaryManeuver.image = GLMapVectorImageFactory.shared.image(fromSvg: maneuver.type.imageName,
                                                                               withScale: 1.0, andTintColor: .white)
             if imgSecondaryManeuver.alpha != 1 {
@@ -396,7 +396,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
             display(routeParams: originalParams)
             maneuverStatus = .initial // Сбросим чтобы отработала логика стартовой фразы
             localizableStrings.removeAll()
-            if let lastLocation = lastLocation {
+            if let lastLocation {
                 locationChanged(lastLocation)
             }
         default:
@@ -415,7 +415,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     // MARK: User actions
 
     /* override func tap(onMap location: CGPoint) {
-     guard let mapView = mapView else { return }
+     guard let mapView else { return }
      let mapPt = mapView.makeMapPoint(fromDisplay: location)
 
      // Проверим тап по точке роута
@@ -489,7 +489,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         if pauseTracking {
             pauseTracking = false
             resumeTracking = true
-            if let lastLocation = lastLocation {
+            if let lastLocation {
                 locationChanged(lastLocation)
             }
         } else {
@@ -500,7 +500,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
                 vc.popoverPresentationController?.sourceView = sender
                 vc.popoverPresentationController?.sourceRect = sender.bounds
                 vc.addAction(UIAlertAction(title: "Stop Route", style: .default, handler: { [weak self] _ in
-                    guard let self = self else { return }
+                    guard let self else { return }
                     self.navigationController?.popViewController(animated: true)
                 }))
                 vc.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -576,7 +576,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
         if maneuverStatus != .final {
             var textToSay: String?
-            if let maneuver = maneuver {
+            if let maneuver {
                 if prevManeuver != maneuver {
                     if maneuverStatus != .postTransition {
                         if maneuverStatus == .initial {

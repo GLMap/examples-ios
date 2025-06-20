@@ -60,16 +60,16 @@ class BuildRouteTask: Task {
             request.add(pt.pt)
         }
         taskID = request.startOnline { route, error in
-            if let error = error {
+            if let error {
                 let nsError = error as NSError
                 if nsError.domain == "Valhalla" || nsError.code == ECANCELED {
                     self.result = .error(error: error)
                     self.onFinish?()
                 } else { // Network error. Try to build offline
                     self.taskID = request.startOffline(withConfig: BuildRouteTask.OfflineValhallaConfig) { route, error in
-                        if let error = error {
+                        if let error {
                             self.result = .error(error: error)
-                        } else if let route = route {
+                        } else if let route {
                             self.result = .success(result: Route(route: route, params: self.params))
                         } else {
                             let error = NSError(domain: GLMapViewErrorDomain, code: Int(POSIXErrorCode.EILSEQ.rawValue))
@@ -78,7 +78,7 @@ class BuildRouteTask: Task {
                         self.onFinish?()
                     }
                 }
-            } else if let route = route {
+            } else if let route {
                 self.result = .success(result: Route(route: route, params: self.params))
                 self.onFinish?()
             } else {

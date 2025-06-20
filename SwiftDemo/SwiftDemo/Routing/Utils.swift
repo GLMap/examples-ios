@@ -113,7 +113,7 @@ class OneTaskGuard<T: Task> {
 
     private func taskIsFinished() {
         //    LogPrint(@"Task is finished: %@, next: %@", [_running description], [_next description]);
-        if let next = next {
+        if let next {
             self.next = nil
             running = nil
             push(next)
@@ -131,12 +131,12 @@ class OneTaskGuard<T: Task> {
 
     @discardableResult
     func push(_ task: T?, forceStart: Bool = false, onTaskFinished: ((T?) -> Void)? = nil) -> Bool {
-        if let onTaskFinished = onTaskFinished {
+        if let onTaskFinished {
             self.onTaskFinished = onTaskFinished
         }
 
-        if let task = task {
-            if let running = running {
+        if let task {
+            if let running {
                 if forceStart || task != running {
                     // LogPrint(@"Not equal running: %@, new: %@", [_running description], [task description]);
                     next = task
@@ -160,7 +160,7 @@ class OneTaskGuard<T: Task> {
         } else {
             next = nil
             lastQuery = nil
-            if let running = running {
+            if let running {
                 self.running = nil
                 running.cancel()
             }
