@@ -327,7 +327,7 @@
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_startPoint));
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointFromMapGeoPoint(_endPoint));
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size] / 2;
+    _mapView.mapScale = [_mapView mapScaleForBBox:bbox viewSize:_mapView.bounds.size] / 2;
 
     // we'll look for in resources default style path first, then in app bundle. After that we could load our images in GLMapVectorStyle,
     // e.g. track-arrows.svgpb
@@ -423,7 +423,7 @@
     bbox = GLMapBBoxAddPoint(bbox, GLMapPointMakeFromGeoCoordinates(53.9024, 27.5618));
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox viewSize:_mapView.bounds.size];
+    _mapView.mapScale = [_mapView mapScaleForBBox:bbox viewSize:_mapView.bounds.size];
 }
 
 - (void)offlineSearch {
@@ -508,8 +508,8 @@
         for (GLMapVectorObject *object in results.array)
             bbox = GLMapBBoxAddPoint(bbox, object.point);
 
-        [_mapView setMapCenter:GLMapBBoxCenter(bbox)];
-        [_mapView setMapZoom:[_mapView mapZoomForBBox:bbox]];
+        _mapView.mapCenter = GLMapBBoxCenter(bbox);
+        _mapView.mapScale = [_mapView mapScaleForBBox:bbox];
     }
 }
 
@@ -806,7 +806,7 @@
     [_mapView add:layer];
     GLMapBBox bbox = objectArray.bbox;
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+    _mapView.mapScale = [_mapView mapScaleForBBox:bbox];
 }
 
 - (void)addMarkersWithMapCSSClustering {
@@ -860,7 +860,7 @@
       dispatch_async(dispatch_get_main_queue(), ^{
         [self->_mapView add:layer];
         self->_mapView.mapCenter = GLMapBBoxCenter(bbox);
-        self->_mapView.mapZoom = [self->_mapView mapZoomForBBox:bbox];
+        self->_mapView.mapScale = [self->_mapView mapScaleForBBox:bbox];
       });
     });
 }
@@ -929,7 +929,7 @@
       dispatch_async(dispatch_get_main_queue(), ^{
         [self->_mapView add:layer];
         self->_mapView.mapCenter = GLMapBBoxCenter(bbox);
-        self->_mapView.mapZoom = [self->_mapView mapZoomForBBox:bbox];
+        self->_mapView.mapScale = [self->_mapView mapScaleForBBox:bbox];
       });
     });
 }
@@ -1014,7 +1014,7 @@
 
     // set center point and change zoom to make screenDistance less or equal mapView.bounds
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+    _mapView.mapScale = [_mapView mapScaleForBBox:bbox];
 }
 
 - (void)testNotifications {
@@ -1041,7 +1041,7 @@
 - (void)zoomToObjects:(GLMapVectorObjectArray *)objects {
     GLMapBBox bbox = objects.bbox;
     _mapView.mapCenter = GLMapBBoxCenter(bbox);
-    _mapView.mapZoom = [_mapView mapZoomForBBox:bbox];
+    _mapView.mapScale = [_mapView mapScaleForBBox:bbox];
 }
 
 - (void)loadGeoJSONWithCSSStyle {

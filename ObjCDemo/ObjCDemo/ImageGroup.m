@@ -51,7 +51,7 @@
     return (uint32_t)_pins.count;
 }
 
-- (void)getImageInfo:(NSInteger)index vairiant:(uint32_t *_Nonnull)variant position:(GLMapPoint *_Nonnull)position {
+- (void)getImageInfo:(NSInteger)index variant:(uint32_t *_Nonnull)variant position:(GLMapPoint *_Nonnull)position {
     Pin *pin = _pins[index];
     *position = pin.pos;
     *variant = pin.imageID;

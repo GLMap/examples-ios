@@ -638,7 +638,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
                 var bbox = GLMapBBox.empty.adding(maneuver.startPoint)
                 bbox.add(point: userLocation)
-                mapLevel = min(max(minLevel, log2(map.mapZoom(for: bbox))), maxLevel)
+                mapLevel = min(max(minLevel, log2(map.mapScale(for: bbox))), maxLevel)
             } else {
                 mapLevel = map.mapZoomLevel
             }

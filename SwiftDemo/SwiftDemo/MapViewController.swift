@@ -238,7 +238,7 @@ class MapViewController: MapViewWithUserLocation {
         bbox.add(point: GLMapPoint(geoPoint: startPoint))
         bbox.add(point: GLMapPoint(geoPoint: endPoint))
         map.mapCenter = bbox.center
-        map.mapZoom = map.mapZoom(for: bbox) / 2
+        map.mapScale = map.mapScale(for: bbox) / 2
 
         map.tapGestureBlock = { [weak self] gesure in
             guard let self else { return }
@@ -328,7 +328,7 @@ class MapViewController: MapViewWithUserLocation {
 
         // set center point and change zoom to make screenDistance less or equal mapView.bounds
         map.mapCenter = bbox.center
-        map.mapZoom = map.mapZoom(for: bbox)
+        map.mapScale = map.mapScale(for: bbox)
     }
 
     func offlineSearch() {
@@ -401,7 +401,7 @@ class MapViewController: MapViewWithUserLocation {
         if results.count != 0 {
             let bbox = results.bbox
             map.mapCenter = bbox.center
-            map.mapZoom = map.mapZoom(for: bbox)
+            map.mapScale = map.mapScale(for: bbox)
         }
     }
 
@@ -591,7 +591,7 @@ class MapViewController: MapViewWithUserLocation {
             map.add(markerLayer)
             let bbox = objects.bbox
             map.mapCenter = bbox.center
-            map.mapZoom = map.mapZoom(for: bbox)
+            map.mapScale = map.mapScale(for: bbox)
         }
     }
 
@@ -647,7 +647,7 @@ class MapViewController: MapViewWithUserLocation {
                 DispatchQueue.main.async {
                     self?.map?.add(markerLayer)
                     self?.map?.mapCenter = bbox.center
-                    self?.map?.mapZoom = self?.map?.mapZoom(for: bbox) ?? 0
+                    self?.map?.mapScale = self?.map?.mapScale(for: bbox) ?? 0
                 }
             }
         }
@@ -733,7 +733,7 @@ class MapViewController: MapViewWithUserLocation {
                                 if let map = self?.map {
                                     map.add(markerLayer)
                                     map.mapCenter = bbox.center
-                                    map.mapZoom = map.mapZoom(for: bbox)
+                                    map.mapScale = map.mapScale(for: bbox)
                                 }
                             }
                         }
@@ -807,7 +807,7 @@ class MapViewController: MapViewWithUserLocation {
 
             let bbox = objects.bbox
             map.mapCenter = bbox.center
-            map.mapZoom = map.mapZoom(for: bbox)
+            map.mapScale = map.mapScale(for: bbox)
 
             map.tapGestureBlock = { [weak self] gesture in
                 guard let self else { return }
