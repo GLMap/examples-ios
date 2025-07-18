@@ -11,7 +11,7 @@ import GLRoute
 import UIKit
 
 class ViewController: UITableViewController {
-    public enum Demo {
+    enum Demo {
         case offlineMap
         case darkTheme
         case embeddMap

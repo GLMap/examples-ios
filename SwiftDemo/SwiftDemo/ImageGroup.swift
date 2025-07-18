@@ -38,47 +38,47 @@ class ImageGroup: GLMapImageGroupDataSource {
         pins = []
     }
 
-    public func startUpdate() {
+    func startUpdate() {
         lock.lock()
     }
 
-    public func getVariantsCount() -> Int {
+    func getVariantsCount() -> Int {
         return vairants.count
     }
 
-    public func getVariant(_ index: Int, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
+    func getVariant(_ index: Int, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
         let rv = vairants[index]
         offset.pointee = CGPoint(x: rv.size.width / 2, y: 0)
         return rv
     }
 
-    public func getImagesCount() -> Int {
+    func getImagesCount() -> Int {
         return pins.count
     }
 
-    public func getImageInfo(_ index: Int, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
+    func getImageInfo(_ index: Int, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
         variant.pointee = pins[index].imageID
         position.pointee = pins[index].position
     }
 
-    public func endUpdate() {
+    func endUpdate() {
         lock.unlock()
     }
 
-    public func count() -> Int {
+    func count() -> Int {
         lock.lock()
         let rv = pins.count
         lock.unlock()
         return rv
     }
 
-    public func append(_ pin: Pin) {
+    func append(_ pin: Pin) {
         lock.lock()
         pins.append(pin)
         lock.unlock()
     }
 
-    public func remove(_ pin: Pin) {
+    func remove(_ pin: Pin) {
         lock.lock()
         if let index = pins.firstIndex(where: { $0 == pin }) {
             pins.remove(at: index)
@@ -86,7 +86,7 @@ class ImageGroup: GLMapImageGroupDataSource {
         lock.unlock()
     }
 
-    public func findPin(point: CGPoint, mapView: GLMapView) -> Pin? {
+    func findPin(point: CGPoint, mapView: GLMapView) -> Pin? {
         var rv: Pin?
         lock.lock()
 
