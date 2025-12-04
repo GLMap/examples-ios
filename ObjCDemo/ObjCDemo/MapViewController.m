@@ -22,6 +22,7 @@
     GLMapView *_mapView;
     GLMapImage *_mapImage;
     GLMapInfo *_mapToDownload;
+    GLMapUserLocation *_userLocation;
     BOOL _flashAdd;
 
     CLLocationManager *_locationManager;
@@ -63,9 +64,10 @@
     // In order to display the user's location using GLMapView you should create your own CLLocationManager and set GLMapView as
     // CLLocationManager's delegate. Or you could forward `-locationManager:didUpdateLocations:` calls from your location manager delegate
     // to the GLMapView.
-    _locationManager.delegate = _mapView;
+    _userLocation = [GLMapUserLocation.alloc initWithDrawOrder:100];
+    [_userLocation addToMap:_mapView];
+    _locationManager.delegate = _userLocation;
     [_locationManager startUpdatingLocation];
-    [_mapView setShowUserLocation:YES];
 
     _downloadButton = [UIButton buttonWithType:UIButtonTypeSystem];
     _downloadButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin |
@@ -411,7 +413,7 @@
         _routeTrack = track;
     }
 
-    [_routeTrack setTrackData:trackData style:_routeStyle completion:nil];
+    [_routeTrack setData:trackData style:_routeStyle completion:nil];
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -580,7 +582,7 @@
                                    if (data) {
                                        UIImage *img = [UIImage imageWithData:data];
                                        if (img) {
-                                           [mapImage setImage:img forMapView:self->_mapView completion:nil];
+                                           [mapImage setImage:img completion:nil];
                                        }
                                    }
                                  }] resume];
@@ -664,7 +666,7 @@
     if (img) {
         _mapImage = [GLMapImage.alloc initWithDrawOrder:3];
         // This is optimized version. Sets image that will be draw only at give mapView and does not retain image
-        [_mapImage setImage:img forMapView:_mapView completion:nil];
+        [_mapImage setImage:img completion:nil];
         _mapImage.position = _mapView.mapCenter;
         _mapImage.offset = CGPointMake(img.size.width / 2, 0);
         _mapImage.angle = arc4random_uniform(360);
@@ -811,11 +813,10 @@
 
 - (void)addMarkersWithMapCSSClustering {
     // We use different colours for our clusters
-    const int unionCount = 8;
-    GLMapColor unionColours[unionCount] = {GLMapColorMake(33, 0, 255, 255),   GLMapColorMake(68, 195, 255, 255),
-                                           GLMapColorMake(63, 237, 198, 255), GLMapColorMake(15, 228, 36, 255),
-                                           GLMapColorMake(168, 238, 25, 255), GLMapColorMake(214, 234, 25, 255),
-                                           GLMapColorMake(223, 180, 19, 255), GLMapColorMake(255, 0, 0, 255)};
+    GLMapColor unionColours[] = {GLMapColorMake(33, 0, 255, 255),   GLMapColorMake(68, 195, 255, 255), GLMapColorMake(63, 237, 198, 255),
+                                 GLMapColorMake(15, 228, 36, 255),  GLMapColorMake(168, 238, 25, 255), GLMapColorMake(214, 234, 25, 255),
+                                 GLMapColorMake(223, 180, 19, 255), GLMapColorMake(255, 0, 0, 255)};
+    const int unionCount = sizeof(unionColours) / sizeof(unionColours[0]);
 
     // Create style collection - it's storage for all images possible to use for markers and clusters
     GLMapMarkerStyleCollection *styleCollection = [GLMapMarkerStyleCollection.alloc init];
@@ -867,11 +868,10 @@
 
 - (void)addMarkersWithClustering {
     // We use different colours for our clusters
-    const int unionCount = 8;
-    GLMapColor unionColours[unionCount] = {GLMapColorMake(33, 0, 255, 255),   GLMapColorMake(68, 195, 255, 255),
-                                           GLMapColorMake(63, 237, 198, 255), GLMapColorMake(15, 228, 36, 255),
-                                           GLMapColorMake(168, 238, 25, 255), GLMapColorMake(214, 234, 25, 255),
-                                           GLMapColorMake(223, 180, 19, 255), GLMapColorMake(255, 0, 0, 255)};
+    GLMapColor unionColours[] = {GLMapColorMake(33, 0, 255, 255),   GLMapColorMake(68, 195, 255, 255), GLMapColorMake(63, 237, 198, 255),
+                                 GLMapColorMake(15, 228, 36, 255),  GLMapColorMake(168, 238, 25, 255), GLMapColorMake(214, 234, 25, 255),
+                                 GLMapColorMake(223, 180, 19, 255), GLMapColorMake(255, 0, 0, 255)};
+    const int unionCount = sizeof(unionColours) / sizeof(unionColours[0]);
 
     // Create style collection - it's storage for all images possible to use for markers and clusters
     GLMapMarkerStyleCollection *styleCollection = [[GLMapMarkerStyleCollection alloc] init];
@@ -1358,7 +1358,7 @@
 }
 
 - (void)recordGPSTrack {
-    // we'll forward location back to mapView. I promise.
+    // we'll forward location back to userLocvation. I promise.
     _locationManager.delegate = self;
 }
 
@@ -1367,7 +1367,7 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
 
     // To display current user location on the map
-    [_mapView locationManager:manager didUpdateLocations:locations];
+    [_userLocation locationManager:manager didUpdateLocations:locations];
 
     for (CLLocation *location in locations) {
         GLTrackPoint point;
@@ -1391,7 +1391,7 @@
         [_track setStyle:_trackStyle];
         [_mapView add:_track];
     }
-    [_track setTrackData:_trackData style:_trackStyle completion:nil];
+    [_track setData:_trackData style:_trackStyle completion:nil];
 }
 
 @end

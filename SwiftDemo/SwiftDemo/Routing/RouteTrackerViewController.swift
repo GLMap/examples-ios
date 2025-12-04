@@ -284,7 +284,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
                 } else {
                     drawable = GLMapImage(drawOrder: 100)
                     let image = mapImage(key: key)
-                    drawable.setImage(image, for: map)
+                    drawable.setImage(image)
                     drawable.offset = CGPoint(x: image.size.width / 2, y: image.size.height / 2)
                     map.add(drawable)
                 }
@@ -314,12 +314,12 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
         if let trackData = routeTrackData {
             if let routeTrack {
-                routeTrack.setTrackData(trackData, style: routeStyle)
+                routeTrack.setData(trackData, style: routeStyle)
                 routeTrack.progressIndex = 0
             } else {
                 let routeTrack = GLMapTrack(drawOrder: 99)
                 routeTrack.progressColor = GLMapColor(red: 128, green: 128, blue: 128, alpha: 200)
-                routeTrack.setTrackData(trackData, style: routeStyle)
+                routeTrack.setData(trackData, style: routeStyle)
                 map.add(routeTrack)
                 self.routeTrack = routeTrack
             }

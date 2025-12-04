@@ -293,7 +293,7 @@ class MapViewController: MapViewWithUserLocation {
                     map.add(track)
                     routeTrack = track
                 }
-                routeTrack?.setTrackData(trackData, style: routeStyle)
+                routeTrack?.setData(trackData, style: routeStyle)
             }
             if let error {
                 displayAlert("Routing error", message: error.localizedDescription)
@@ -421,7 +421,7 @@ class MapViewController: MapViewWithUserLocation {
 
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
-            mapImage.setImage(image, for: map)
+            mapImage.setImage(image)
             // We set offset to the bottom-center to attach pin point to the map
             mapImage.offset = CGPoint(x: image.size.width / 2, y: 0)
             mapImage.hidden = true
@@ -459,10 +459,9 @@ class MapViewController: MapViewWithUserLocation {
     }
 
     func loadImage(atUrl url: URL, intoDrawable drawable: GLMapImage) {
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let self else { return }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
             if let data, let image = UIImage(data: data) {
-                drawable.setImage(image, for: map)
+                drawable.setImage(image)
             }
         }.resume()
     }
@@ -1154,7 +1153,7 @@ class MapViewController: MapViewWithUserLocation {
 
     func recordGPSTrack() {
         let track = GLMapTrack(drawOrder: 2)
-        track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
+        track.setData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
         map.add(track)
         self.track = track
         trackStyle = GLMapVectorStyle.createStyle("{width:5pt;}")
@@ -1175,7 +1174,7 @@ class MapViewController: MapViewWithUserLocation {
             }
         }
         if let trackData {
-            track.setTrackData(trackData, style: trackStyle)
+            track.setData(trackData, style: trackStyle)
         }
     }
 }

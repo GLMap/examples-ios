@@ -167,9 +167,9 @@ class DownloadMapsViewController: UITableViewController {
             } else {
                 cell.accessoryType = .none
 
-                if map.haveState(.needResume, inDataSets: .all) {
+                if map.hasState(.needResume, inDataSets: .all) {
                     cell.detailTextLabel?.text = "Resume"
-                } else if map.haveState(.needUpdate, inDataSets: .all) {
+                } else if map.hasState(.needUpdate, inDataSets: .all) {
                     cell.detailTextLabel?.text = "Update"
                 } else {
                     let size = map.sizeOnDisk(forDataSets: .all)
