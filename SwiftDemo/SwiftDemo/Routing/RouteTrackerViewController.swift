@@ -645,12 +645,14 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
             if resumeTracking {
                 resumeTracking = false
-                map.animate { animation in animation.fly(to: userLocation) }
+                map.animate { animation in
+                    animation.flyToMode = .enabled
+                    map.mapCenter = userLocation
+                }
             } else {
                 map.animate { animation in
                     animation.duration = 1
                     animation.transition = .linear
-                    animation.continueFlyTo = true
                     map.mapCenter = userLocation
                 }
             }

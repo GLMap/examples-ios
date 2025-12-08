@@ -994,18 +994,20 @@ class MapViewController: MapViewWithUserLocation {
         GLMapManager.shared.tileDownloadingAllowed = true
 
         map.animate { animation in
+            animation.flyToMode = .enabled
             map.mapZoomLevel = 14
-            animation.fly(to: GLMapGeoPoint(lat: 37.3257, lon: -122.0353))
+            map.mapGeoCenter = GLMapGeoPoint(lat: 37.3257, lon: -122.0353)
         }
     }
 
     @objc func flyTo() {
         map.animate { animation in
+            animation.flyToMode = .enabled
             map.mapZoomLevel = 14
             let minPt = GLMapGeoPoint(lat: 33, lon: -118)
             let maxPt = GLMapGeoPoint(lat: 48, lon: -85)
-            animation.fly(to: GLMapGeoPoint(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
-                                            lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48()))
+            map.mapGeoCenter = GLMapGeoPoint(lat: minPt.lat + (maxPt.lat - minPt.lat) * drand48(),
+                                             lon: minPt.lon + (maxPt.lon - minPt.lon) * drand48())
         }
     }
 
