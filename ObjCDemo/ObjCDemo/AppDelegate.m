@@ -12,7 +12,7 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Insert your API key from https://user.getyourmap.com/apps
+    // Insert your API key from https://user.globus.software/apps
     [GLMapManager activateWithApiKey:<#API key#> resourcesBundle:nil andStoragePath:nil];
 
     if (@available(iOS 15.0, *)) {

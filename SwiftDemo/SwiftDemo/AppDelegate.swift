@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Insert your API key from https://user.getyourmap.com/apps
+        // Insert your API key from https://user.globus.software/apps
         GLMapManager.activate(apiKey: <#API key#>)
 
         return true

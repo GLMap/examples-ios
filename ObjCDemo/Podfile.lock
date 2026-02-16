@@ -1,15 +1,15 @@
 PODS:
-  - GLMap (1.12.0):
-    - "GLMap+DefaultStyle (= 1.12.0)"
+  - GLMap (1.13.0):
+    - "GLMap+DefaultStyle (= 1.13.0)"
     - "GLMap+WorldMap"
-    - GLMapCore (= 1.12.0)
-  - "GLMap+DefaultStyle (1.12.0)"
-  - "GLMap+WorldMap (24.11)"
-  - GLMapCore (1.12.0)
-  - GLRoute (1.12.0):
-    - GLMapCore (= 1.12.0)
-  - GLSearch (1.12.0):
-    - GLMapCore (= 1.12.0)
+    - GLMapCore (= 1.13.0)
+  - "GLMap+DefaultStyle (1.13.0)"
+  - "GLMap+WorldMap (26.02)"
+  - GLMapCore (1.13.0)
+  - GLRoute (1.13.0):
+    - GLMapCore (= 1.13.0)
+  - GLSearch (1.13.0):
+    - GLMapCore (= 1.13.0)
 
 DEPENDENCIES:
   - GLMap
@@ -26,12 +26,12 @@ SPEC REPOS:
     - GLSearch
 
 SPEC CHECKSUMS:
-  GLMap: 922bfdf1ab1c7694b33d784b585fbdb5efa7ebb9
-  "GLMap+DefaultStyle": 0b99654e86ff7263b6f685ec6184c2a9a028417f
-  "GLMap+WorldMap": bcb67148268fdf83038a97e57da30e325ac26772
-  GLMapCore: 8220c4643adae7ba9dba312aba7b528324921f6d
-  GLRoute: dd9ad6446efff49f639c12c07d5e9be48e014d3f
-  GLSearch: a5874ba0864016b32fbf0567d7f491965efbe102
+  GLMap: e58d823a8999edef54b926e527e4d1d75a9019a5
+  "GLMap+DefaultStyle": ab50af69e152cb541e7b72a25c46dc8ced68f121
+  "GLMap+WorldMap": f02232ab49508c7a780b0e023c1a8a5720410aa9
+  GLMapCore: 36eda385e52567d51d41b0b0e99fc61522378ffc
+  GLRoute: ecc4e10d37c12b41135aef97e552b29b36d2d6b9
+  GLSearch: dd4d1c971820af1b5fc73c145926bad575dddb50
 
 PODFILE CHECKSUM: 08a34e0d285665fd630bdb04c533ad42cc24bb07
 

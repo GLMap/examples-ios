@@ -12,7 +12,7 @@ import GLRoute
 import GLSearch
 import UIKit
 
-class MapViewController: MapViewWithUserLocation {
+class MapViewController: MapViewWithUserLocation, CLLocationManagerDelegate {
     let downloadButton = UIButton(type: .system)
 
     var trackData: GLMapTrackData?
@@ -55,13 +55,8 @@ class MapViewController: MapViewWithUserLocation {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
-            stylePath = path
-        } else {
-            print("Missing DefaultStyle.bundle inside main bundle")
-            return
-        }
-
+        locationManager.delegate = self
+        
         title = "Demo map"
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
@@ -293,7 +288,7 @@ class MapViewController: MapViewWithUserLocation {
                     map.add(track)
                     routeTrack = track
                 }
-                routeTrack?.setTrackData(trackData, style: routeStyle)
+                routeTrack?.setData(trackData, style: routeStyle)
             }
             if let error {
                 displayAlert("Routing error", message: error.localizedDescription)
@@ -421,7 +416,7 @@ class MapViewController: MapViewWithUserLocation {
 
     func singleImageDemo() {
         if let image = UIImage(named: "pin1.png", in: nil, compatibleWith: nil) {
-            mapImage.setImage(image, for: map)
+            mapImage.setImage(image)
             // We set offset to the bottom-center to attach pin point to the map
             mapImage.offset = CGPoint(x: image.size.width / 2, y: 0)
             mapImage.hidden = true
@@ -462,7 +457,7 @@ class MapViewController: MapViewWithUserLocation {
         URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
             guard let self else { return }
             if let data, let image = UIImage(data: data) {
-                drawable.setImage(image, for: map)
+                drawable.setImage(image)
             }
         }.resume()
     }
@@ -1154,14 +1149,14 @@ class MapViewController: MapViewWithUserLocation {
 
     func recordGPSTrack() {
         let track = GLMapTrack(drawOrder: 2)
-        track.setTrackData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
+        track.setData(trackData, style: GLMapVectorStyle.createStyle("{width:5pt;}")!)
         map.add(track)
         self.track = track
         trackStyle = GLMapVectorStyle.createStyle("{width:5pt;}")
     }
 
-    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        super.locationManager(manager, didUpdateLocations: locations)
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation?.locationManager(manager, didUpdateLocations: locations)
         guard let track, let trackStyle else { return }
 
         for location in locations {
@@ -1175,7 +1170,7 @@ class MapViewController: MapViewWithUserLocation {
             }
         }
         if let trackData {
-            track.setTrackData(trackData, style: trackStyle)
+            track.setData(trackData, style: trackStyle)
         }
     }
 }

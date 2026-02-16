@@ -20,6 +20,7 @@
     UIButton *_downloadButton;
 
     GLMapView *_mapView;
+    GLMapUserLocation *_userLocation;
     GLMapImage *_mapImage;
     GLMapInfo *_mapToDownload;
     BOOL _flashAdd;
@@ -56,17 +57,19 @@
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:_mapView];
 
+    // In order to display the user's location using GLMapView you should create your own CLLocationManager and set GLMapUserLocation as
+    // CLLocationManager's delegate. Or you could forward `-locationManager:didUpdateLocations:` calls from your location manager delegate
+    // to the GLMapUserLocation.
+    _userLocation = [GLMapUserLocation.alloc initWithDrawOrder:100];
+    [_userLocation addToMap:_mapView];
+    
     _locationManager = [CLLocationManager.alloc init];
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
         [_locationManager requestWhenInUseAuthorization];
     }
-    // In order to display the user's location using GLMapView you should create your own CLLocationManager and set GLMapView as
-    // CLLocationManager's delegate. Or you could forward `-locationManager:didUpdateLocations:` calls from your location manager delegate
-    // to the GLMapView.
-    _locationManager.delegate = _mapView;
+    _locationManager.delegate = _userLocation;
     [_locationManager startUpdatingLocation];
-    [_mapView setShowUserLocation:YES];
-
+        
     _downloadButton = [UIButton buttonWithType:UIButtonTypeSystem];
     _downloadButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin |
                                        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
@@ -411,7 +414,7 @@
         _routeTrack = track;
     }
 
-    [_routeTrack setTrackData:trackData style:_routeStyle completion:nil];
+    [_routeTrack setData:trackData style:_routeStyle completion:nil];
 }
 
 // Example how to calcludate zoom level for some bbox
@@ -580,7 +583,7 @@
                                    if (data) {
                                        UIImage *img = [UIImage imageWithData:data];
                                        if (img) {
-                                           [mapImage setImage:img forMapView:self->_mapView completion:nil];
+                                           [mapImage setImage:img completion:nil];
                                        }
                                    }
                                  }] resume];
@@ -664,7 +667,7 @@
     if (img) {
         _mapImage = [GLMapImage.alloc initWithDrawOrder:3];
         // This is optimized version. Sets image that will be draw only at give mapView and does not retain image
-        [_mapImage setImage:img forMapView:_mapView completion:nil];
+        [_mapImage setImage:img completion:nil];
         _mapImage.position = _mapView.mapCenter;
         _mapImage.offset = CGPointMake(img.size.width / 2, 0);
         _mapImage.angle = arc4random_uniform(360);
@@ -1367,7 +1370,7 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
 
     // To display current user location on the map
-    [_mapView locationManager:manager didUpdateLocations:locations];
+    // [_mapView locationManager:manager didUpdateLocations:locations];
 
     for (CLLocation *location in locations) {
         GLTrackPoint point;
@@ -1391,7 +1394,7 @@
         [_track setStyle:_trackStyle];
         [_mapView add:_track];
     }
-    [_track setTrackData:_trackData style:_trackStyle completion:nil];
+    [_track setData:_trackData style:_trackStyle completion:nil];
 }
 
 @end

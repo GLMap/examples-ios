@@ -83,7 +83,7 @@ private let ReRoute_DistanceFromRoute = 100.0
 private let ReRoute_DistanceToLastPoint = 100.0
 private let ReRoute_MaxAccuracy = 50.0
 
-class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
+class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate, CLLocationManagerDelegate {
     private enum ManeuverStatus: UInt8 {
         case initial, postTransition, preTransition, transition, final
     }
@@ -154,6 +154,8 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
 
+        locationManager.delegate = self
+        
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
 
@@ -284,7 +286,7 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
                 } else {
                     drawable = GLMapImage(drawOrder: 100)
                     let image = mapImage(key: key)
-                    drawable.setImage(image, for: map)
+                    drawable.setImage(image)
                     drawable.offset = CGPoint(x: image.size.width / 2, y: image.size.height / 2)
                     map.add(drawable)
                 }
@@ -314,12 +316,12 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
         if let trackData = routeTrackData {
             if let routeTrack {
-                routeTrack.setTrackData(trackData, style: routeStyle)
+                routeTrack.setData(trackData, style: routeStyle)
                 routeTrack.progressIndex = 0
             } else {
                 let routeTrack = GLMapTrack(drawOrder: 99)
                 routeTrack.progressColor = GLMapColor(red: 128, green: 128, blue: 128, alpha: 200)
-                routeTrack.setTrackData(trackData, style: routeStyle)
+                routeTrack.setData(trackData, style: routeStyle)
                 map.add(routeTrack)
                 self.routeTrack = routeTrack
             }
@@ -509,8 +511,8 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
         }
     }
 
-    override func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        super.locationManager(manager, didUpdateLocations: locations)
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation?.locationManager(manager, didUpdateLocations: locations)
 
         if let location = locations.last {
             lastLocation = location

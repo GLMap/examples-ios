@@ -178,9 +178,9 @@
             if (task) {
                 double progress = task ? task.downloaded * 100.0 / task.total : 0;
                 cell.detailTextLabel.text = [NSString stringWithFormat:@"Downloading %.2f%%", progress];
-            } else if ([map haveState:GLMapInfoState_NeedUpdate inDataSets:GLMapInfoDataSetMask_All]) {
+            } else if ([map hasState:GLMapInfoState_NeedUpdate inDataSets:GLMapInfoDataSetMask_All]) {
                 cell.detailTextLabel.text = @"Update";
-            } else if ([map haveState:GLMapInfoState_NeedResume inDataSets:GLMapInfoDataSetMask_All]) {
+            } else if ([map hasState:GLMapInfoState_NeedResume inDataSets:GLMapInfoDataSetMask_All]) {
                 cell.detailTextLabel.text = @"Resume";
             } else {
                 cell.accessoryView = nil;
