@@ -18,9 +18,10 @@ class TerrainDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        GLMapManager.shared.tileDownloadingAllowed = true
 
         map.mapCenter = terrainBBox.center
-        map.mapScale = map.mapScale(for: terrainBBox)
+        map.mapScale = map.mapScale(for: terrainBBox) * 2 // Start 1 zoom closer
         map.isPitchEnabled = true
         map.mapPitch = 45
         map.altitudeScale = 1.5

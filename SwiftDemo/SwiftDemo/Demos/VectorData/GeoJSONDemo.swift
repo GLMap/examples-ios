@@ -14,7 +14,7 @@ class GeoJSONDemo: DemoMapViewController {
 
         do {
             let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
-            let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:green; width:1pt; color:red;}")!
+            let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#3498DB40; width:1.5pt; color:#2C3E50;}")!
 
             let vectorLayer = GLMapVectorLayer()
             vectorLayer.setVectorObjects(objects, with: style)

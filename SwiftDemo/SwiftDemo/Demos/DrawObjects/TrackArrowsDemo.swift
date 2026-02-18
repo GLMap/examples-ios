@@ -1,49 +1,55 @@
 import GLMap
 import GLMapSwift
+import GLRoute
 import UIKit
 
 class TrackArrowsDemo: DemoMapViewController {
     private var routeTrack: GLMapTrack?
 
+    // Short scenic route: Amalfi Coast
+    private let routeStart = GLMapGeoPoint(lat: 40.633, lon: 14.502)
+    private let routeEnd = GLMapGeoPoint(lat: 40.650, lon: 14.720)
+
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
 
-        let points = [
-            GLMapGeoPoint(lat: 53.8869, lon: 27.7151),  // Minsk
-            GLMapGeoPoint(lat: 52.2251, lon: 21.0103),   // Warsaw
-            GLMapGeoPoint(lat: 52.5037, lon: 13.4102),   // Berlin
-            GLMapGeoPoint(lat: 48.8505, lon: 2.3343),    // Paris
-        ]
+        map.mapGeoCenter = GLMapGeoPoint(lat: 40.640, lon: 14.610)
+        map.mapZoomLevel = 12
 
-        let mapPoints = points.map { GLMapPoint(geoPoint: $0) }
-        let pointArray = GLMapPointArray(mapPoints)
+        title = "Building route..."
+        buildRoute()
+    }
 
-        let routeColor = GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)
-        let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
+    private func buildRoute() {
+        let request = GLRouteRequest()
+        request.setAutoWithOptions(CostingOptionsAuto())
+        request.add(GLRoutePoint(pt: routeStart, heading: .nan, type: .break))
+        request.add(GLRoutePoint(pt: routeEnd, heading: .nan, type: .break))
 
-        var trackPoints = mapPoints.map { GLTrackPoint(pt: $0, color: routeColor) }
-        if let trackData = GLMapTrackData(points: &trackPoints, count: UInt(trackPoints.count)) {
+        let routeStyle = GLMapVectorStyle.createStyle("{width: 14pt; fill-image:\"track-arrow.svg\";}")!
+
+        request.startOnline { [weak self] route, _ in
+            guard let self, let route,
+                  let trackData = route.trackData(with: GLMapColor(red: 66, green: 133, blue: 244, alpha: 220)) else {
+                self?.title = "Route failed — check network"
+                return
+            }
+
             let track = GLMapTrack(drawOrder: 5)
             track.setData(trackData, style: routeStyle)
             map.add(track)
             routeTrack = track
-        }
+            title = "Track Arrows"
 
-        // Fit map to show the track
-        var bbox = GLMapBBox.empty
-        for pt in mapPoints {
-            bbox.add(point: pt)
-        }
-        map.mapCenter = bbox.center
-        map.mapScale = map.mapScale(for: bbox) * 0.8
-
-        // Also show as a vector line
-        let lineStyle = GLMapVectorCascadeStyle.createStyle("line{width: 2pt; color:green;}")
-        if let lineStyle {
-            let vectorLayer = GLMapVectorLayer()
-            vectorLayer.setVectorObject(GLMapVectorLine(line: pointArray), with: lineStyle)
-            map.add(vectorLayer)
+            // Zoom to route
+            let bbox = route.bbox
+            map.animate { anim in
+                anim.flyToMode = .enabled
+                anim.duration = 1.5
+                self.map.mapCenter = bbox.center
+                self.map.mapScale = self.map.mapScale(for: bbox)
+            }
         }
     }
 }

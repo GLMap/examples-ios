@@ -65,13 +65,38 @@ class ImageGroupDemo: DemoMapViewController {
     private var imageGroup: GLMapImageGroup?
     private var pinCount: UInt32 = 0
 
+    // Pre-populated POIs around Paris
+    private let initialPins: [(lat: Double, lon: Double)] = [
+        (48.8584, 2.2945),   // Eiffel Tower
+        (48.8606, 2.3376),   // Louvre
+        (48.8530, 2.3499),   // Notre-Dame
+        (48.8867, 2.3431),   // Sacré-Cœur
+        (48.8738, 2.2950),   // Arc de Triomphe
+        (48.8462, 2.3464),   // Panthéon
+        (48.8600, 2.3266),   // Musée d'Orsay
+        (48.8619, 2.2870),   // Trocadéro
+    ]
+
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 37.3257, lon: -122.0353)
-        map.mapZoomLevel = 14
+        map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522)
+        map.mapZoomLevel = 13
 
-        showAlert(message: "Long tap to add pin, tap pin to remove it")
+        title = "Long press to add, tap to remove"
+
+        pinGroup = PinGroup()
+        let group = GLMapImageGroup(callback: pinGroup!, andDrawOrder: 3)
+        map.add(group)
+        imageGroup = group
+
+        // Pre-populate pins
+        for poi in initialPins {
+            let pin = Pin(position: GLMapPoint(lat: poi.lat, lon: poi.lon), imageID: pinCount % 3)
+            pinCount += 1
+            pinGroup?.append(pin)
+        }
+        imageGroup?.setNeedsUpdate(false)
 
         map.longPressGestureBlock = { [weak self] gesture in
             guard let self else { return }
@@ -96,14 +121,6 @@ class ImageGroupDemo: DemoMapViewController {
     }
 
     private func addPin(at position: GLMapPoint) {
-        if pinGroup == nil {
-            pinGroup = PinGroup()
-        }
-        if imageGroup == nil {
-            let group = GLMapImageGroup(callback: pinGroup!, andDrawOrder: 3)
-            map.add(group)
-            imageGroup = group
-        }
         let pin = Pin(position: position, imageID: pinCount % 3)
         pinCount += 1
         pinGroup?.append(pin)
@@ -113,10 +130,5 @@ class ImageGroupDemo: DemoMapViewController {
     private func removePin(_ pin: Pin) {
         pinGroup?.remove(pin)
         imageGroup?.setNeedsUpdate(false)
-        if pinGroup?.pins.isEmpty == true, let imageGroup {
-            map.remove(imageGroup)
-            self.imageGroup = nil
-            pinGroup = nil
-        }
     }
 }

@@ -28,6 +28,7 @@ class DemoCatalogCell: UITableViewCell {
 
         subtitleLabel.font = Theme.subtitleFont
         subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.numberOfLines = 0
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         newBadge.text = "NEW"
@@ -52,12 +53,13 @@ class DemoCatalogCell: UITableViewCell {
             iconView.heightAnchor.constraint(equalToConstant: Theme.iconSize),
 
             titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: newBadge.leadingAnchor, constant: -8),
 
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
-            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
 
             newBadge.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             newBadge.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),

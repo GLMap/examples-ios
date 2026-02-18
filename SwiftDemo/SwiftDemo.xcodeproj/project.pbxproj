@@ -65,6 +65,7 @@
 		6C7F246C2908258C00414974 /* GLSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 6C7F246B2908258C00414974 /* GLSearch */; };
 		/* New Swift sources */
 		DD100001274C000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000001274C000000000001 /* AppDelegate.swift */; };
+		DD100099274C000000000099 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000099274C000000000099 /* SceneDelegate.swift */; };
 		DD100002274C000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000002274C000000000002 /* Theme.swift */; };
 		DD100003274C000000000003 /* DemoDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000003274C000000000003 /* DemoDescriptor.swift */; };
 		DD100004274C000000000004 /* DemoRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000004274C000000000004 /* DemoRegistry.swift */; };
@@ -163,6 +164,7 @@
 		6C6C25691DD9F5F80060A241 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		/* New Swift file references */
 		DD000001274C000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DD000099274C000000000099 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		DD000002274C000000000002 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		DD000003274C000000000003 /* DemoDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDescriptor.swift; sourceTree = "<group>"; };
 		DD000004274C000000000004 /* DemoRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoRegistry.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				DD000001274C000000000001 /* AppDelegate.swift */,
+				DD000099274C000000000099 /* SceneDelegate.swift */,
 				DD000002274C000000000002 /* Theme.swift */,
 				DD000003274C000000000003 /* DemoDescriptor.swift */,
 				DD000004274C000000000004 /* DemoRegistry.swift */,
@@ -620,6 +623,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD100001274C000000000001 /* AppDelegate.swift in Sources */,
+				DD100099274C000000000099 /* SceneDelegate.swift in Sources */,
 				DD100002274C000000000002 /* Theme.swift in Sources */,
 				DD100003274C000000000003 /* DemoDescriptor.swift in Sources */,
 				DD100004274C000000000004 /* DemoRegistry.swift in Sources */,
