@@ -9,7 +9,8 @@ class DemoCatalogViewController: UITableViewController {
         view.backgroundColor = Theme.backgroundColor
 
         tableView.register(DemoCatalogCell.self, forCellReuseIdentifier: DemoCatalogCell.reuseID)
-        tableView.rowHeight = 64
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 64
         tableView.separatorInset = UIEdgeInsets(top: 0, left: Theme.cellPadding + Theme.iconSize + 12, bottom: 0, right: 0)
 
         let headerView = makeDemoModeHeader()

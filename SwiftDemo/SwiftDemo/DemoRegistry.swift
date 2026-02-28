@@ -5,7 +5,7 @@ enum DemoRegistry {
         // MARK: - Map Display
         DemoDescriptor(
             title: "Online Map",
-            subtitle: "GLMapView + tile downloading",
+            subtitle: "Vector tiles, custom raster source, tap interaction",
             category: .mapDisplay,
             icon: "globe",
             makeViewController: { OnlineMapDemo() }

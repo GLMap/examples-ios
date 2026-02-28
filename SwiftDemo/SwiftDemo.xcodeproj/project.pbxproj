@@ -70,6 +70,7 @@
 		DD100003274C000000000003 /* DemoDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000003274C000000000003 /* DemoDescriptor.swift */; };
 		DD100004274C000000000004 /* DemoRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000004274C000000000004 /* DemoRegistry.swift */; };
 		DD100005274C000000000005 /* DemoMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000005274C000000000005 /* DemoMapViewController.swift */; };
+		DD100022274C000000000022 /* OSMTileSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000022274C000000000022 /* OSMTileSource.swift */; };
 		DD100006274C000000000006 /* DemoCatalogCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000006274C000000000006 /* DemoCatalogCell.swift */; };
 		DD100007274C000000000007 /* DemoCatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000007274C000000000007 /* DemoCatalogViewController.swift */; };
 		DD100008274C000000000008 /* DemoModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000008274C000000000008 /* DemoModeViewController.swift */; };
@@ -169,6 +170,7 @@
 		DD000003274C000000000003 /* DemoDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDescriptor.swift; sourceTree = "<group>"; };
 		DD000004274C000000000004 /* DemoRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoRegistry.swift; sourceTree = "<group>"; };
 		DD000005274C000000000005 /* DemoMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoMapViewController.swift; sourceTree = "<group>"; };
+		DD000022274C000000000022 /* OSMTileSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSMTileSource.swift; sourceTree = "<group>"; };
 		DD000006274C000000000006 /* DemoCatalogCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCatalogCell.swift; sourceTree = "<group>"; };
 		DD000007274C000000000007 /* DemoCatalogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCatalogViewController.swift; sourceTree = "<group>"; };
 		DD000008274C000000000008 /* DemoModeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModeViewController.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				DD000005274C000000000005 /* DemoMapViewController.swift */,
+				DD000022274C000000000022 /* OSMTileSource.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -628,6 +631,7 @@
 				DD100003274C000000000003 /* DemoDescriptor.swift in Sources */,
 				DD100004274C000000000004 /* DemoRegistry.swift in Sources */,
 				DD100005274C000000000005 /* DemoMapViewController.swift in Sources */,
+				DD100022274C000000000022 /* OSMTileSource.swift in Sources */,
 				DD100006274C000000000006 /* DemoCatalogCell.swift in Sources */,
 				DD100007274C000000000007 /* DemoCatalogViewController.swift in Sources */,
 				DD100008274C000000000008 /* DemoModeViewController.swift in Sources */,
