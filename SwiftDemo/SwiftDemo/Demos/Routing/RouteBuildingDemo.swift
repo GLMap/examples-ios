@@ -6,8 +6,8 @@ import UIKit
 class RouteBuildingDemo: DemoMapViewController {
     private var routingMode: UISegmentedControl!
     private var networkMode: UISegmentedControl!
-    private var startPoint = GLMapGeoPoint(lat: 53.844720, lon: 27.482352)
-    private var endPoint = GLMapGeoPoint(lat: 53.931935, lon: 27.583995)
+    private var startPoint = GLMapGeoPoint(lat: 41.4036, lon: 2.1744)
+    private var endPoint = GLMapGeoPoint(lat: 41.4145, lon: 2.1527)
     private var routeTrack: GLMapTrack?
     private var valhallaConfig: String?
 

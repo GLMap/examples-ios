@@ -7,8 +7,8 @@ class DownloadBBoxDemo: DemoMapViewController {
 
     private let demoBBox: GLMapBBox = {
         var bbox = GLMapBBox.empty
-        bbox.add(point: GLMapPoint(lat: 53, lon: 27))
-        bbox.add(point: GLMapPoint(lat: 53.5, lon: 27.5))
+        bbox.add(point: GLMapPoint(lat: 43.73, lon: 11.20))
+        bbox.add(point: GLMapPoint(lat: 43.80, lon: 11.30))
         return bbox
     }()
 
