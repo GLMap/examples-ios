@@ -13,11 +13,6 @@ import GLMapSwift
 struct Pin {
     let position: GLMapPoint
     let imageID: UInt32
-    init(position: GLMapPoint, imageID: UInt32) {
-        self.position = position
-        self.imageID = imageID
-    }
-
     static func == (lhs: Pin, rhs: Pin) -> Bool {
         return lhs.position == rhs.position && lhs.imageID == rhs.imageID
     }

@@ -56,9 +56,7 @@ class DemoMapViewController: UIViewController {
 
     // MARK: - BBox download helpers
 
-    private static let cachesDir: String = {
-        NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-    }()
+    private static let cachesDir: String = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
 
     func cachedPath(for filename: String) -> String {
         (Self.cachesDir as NSString).appendingPathComponent(filename)

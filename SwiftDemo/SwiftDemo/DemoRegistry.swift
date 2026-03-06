@@ -3,6 +3,7 @@ import Foundation
 enum DemoRegistry {
     static let demos: [DemoDescriptor] = [
         // MARK: - Map Display
+
         DemoDescriptor(
             title: "Online Map",
             subtitle: "Vector tiles, custom raster source, tap interaction",
@@ -27,6 +28,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Camera
+
         DemoDescriptor(
             title: "Fly To",
             subtitle: "GLMapAnimation.flyToPoint",
@@ -43,6 +45,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Draw Objects
+
         DemoDescriptor(
             title: "Image",
             subtitle: "GLMapImage — pin on map, animated position",
@@ -89,6 +92,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Vector Data
+
         DemoDescriptor(
             title: "Lines & Polygons",
             subtitle: "GLMapVectorLayer with line and polygon",
@@ -112,6 +116,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Search
+
         DemoDescriptor(
             title: "Offline Search",
             subtitle: "GLSearch with GLSearchFilter",
@@ -128,6 +133,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Routing
+
         DemoDescriptor(
             title: "Route Building",
             subtitle: "GLRouteRequest online/offline",
@@ -144,6 +150,7 @@ enum DemoRegistry {
         ),
 
         // MARK: - Offline Data
+
         DemoDescriptor(
             title: "Download Maps",
             subtitle: "GLMapManager.updateMapList, downloadDataSets",

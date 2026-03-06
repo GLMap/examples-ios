@@ -50,13 +50,15 @@ class DownloadMapsDemo: UITableViewController {
 
     // MARK: - Table view
 
-    override func numberOfSections(in tableView: UITableView) -> Int { 2 }
+    override func numberOfSections(in _: UITableView) -> Int {
+        2
+    }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
         section == 0 ? "On Device" : "Available"
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         section == 0 ? mapsOnDevice.count : mapsOnServer.count
     }
 
@@ -106,7 +108,7 @@ class DownloadMapsDemo: UITableViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    override func tableView(_: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if indexPath.section == 0 {
             let info = mapsOnDevice[indexPath.row]
             return info.subMaps.isEmpty ? .delete : .none
@@ -114,7 +116,7 @@ class DownloadMapsDemo: UITableViewController {
         return .none
     }
 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             GLMapManager.shared.deleteDataSets(.all, forMap: mapsOnDevice[indexPath.row])
             setMaps(allMaps)

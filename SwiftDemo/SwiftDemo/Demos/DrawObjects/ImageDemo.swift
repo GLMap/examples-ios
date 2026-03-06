@@ -14,11 +14,11 @@ class ImageDemo: DemoMapViewController {
         map.mapZoomLevel = 5
 
         destinations = [
-            GLMapGeoPoint(lat: 48.8566, lon: 2.3522),   // Paris
-            GLMapGeoPoint(lat: 51.5072, lon: -0.1275),   // London
-            GLMapGeoPoint(lat: 52.5037, lon: 13.4102),   // Berlin
-            GLMapGeoPoint(lat: 41.8933, lon: 12.4829),   // Rome
-            GLMapGeoPoint(lat: 40.4168, lon: -3.7038),   // Madrid
+            GLMapGeoPoint(lat: 48.8566, lon: 2.3522), // Paris
+            GLMapGeoPoint(lat: 51.5072, lon: -0.1275), // London
+            GLMapGeoPoint(lat: 52.5037, lon: 13.4102), // Berlin
+            GLMapGeoPoint(lat: 41.8933, lon: 12.4829), // Rome
+            GLMapGeoPoint(lat: 40.4168, lon: -3.7038), // Madrid
         ]
 
         if let image = UIImage(named: "pin1.png") {

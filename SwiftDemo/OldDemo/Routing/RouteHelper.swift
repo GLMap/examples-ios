@@ -30,7 +30,10 @@ class RouteHelper {
         didSet { delegate?.routeIsUpdatingChanged() }
     }
 
-    var isUpdating: Bool { isUpdatingRoute || elevationUpdateTaskID != nil }
+    var isUpdating: Bool {
+        isUpdatingRoute || elevationUpdateTaskID != nil
+    }
+
     weak var delegate: RouteHelperDelegate?
 
     init(params: RouteParams) {

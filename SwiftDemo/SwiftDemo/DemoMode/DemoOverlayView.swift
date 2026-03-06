@@ -11,7 +11,9 @@ class DemoOverlayView: UIView {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder _: NSCoder) {
+        fatalError()
+    }
 
     private func setupViews() {
         isUserInteractionEnabled = true

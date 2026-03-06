@@ -6,7 +6,7 @@ import UIKit
 class OfflineSearchDemo: DemoMapViewController {
     private var markerLayer: GLMapMarkerLayer?
 
-    // Berlin bbox for search demo
+    /// Berlin bbox for search demo
     private let searchBBox: GLMapBBox = {
         var bbox = GLMapBBox.empty
         bbox.add(point: GLMapPoint(lat: 52.45, lon: 13.30))

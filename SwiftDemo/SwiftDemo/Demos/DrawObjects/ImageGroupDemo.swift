@@ -20,10 +20,17 @@ private class PinGroup: GLMapImageGroupDataSource {
     ]
     var pins: [Pin] = []
 
-    func startUpdate() { lock.lock() }
-    func endUpdate() { lock.unlock() }
+    func startUpdate() {
+        lock.lock()
+    }
 
-    func getVariantsCount() -> Int { variants.count }
+    func endUpdate() {
+        lock.unlock()
+    }
+
+    func getVariantsCount() -> Int {
+        variants.count
+    }
 
     func getVariant(_ index: Int, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
         let img = variants[index]
@@ -31,7 +38,9 @@ private class PinGroup: GLMapImageGroupDataSource {
         return img
     }
 
-    func getImagesCount() -> Int { pins.count }
+    func getImagesCount() -> Int {
+        pins.count
+    }
 
     func getImageInfo(_ index: Int, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
         variant.pointee = pins[index].imageID
@@ -65,16 +74,16 @@ class ImageGroupDemo: DemoMapViewController {
     private var imageGroup: GLMapImageGroup?
     private var pinCount: UInt32 = 0
 
-    // Pre-populated POIs around Paris
+    /// Pre-populated POIs around Paris
     private let initialPins: [(lat: Double, lon: Double)] = [
-        (48.8584, 2.2945),   // Eiffel Tower
-        (48.8606, 2.3376),   // Louvre
-        (48.8530, 2.3499),   // Notre-Dame
-        (48.8867, 2.3431),   // Sacré-Cœur
-        (48.8738, 2.2950),   // Arc de Triomphe
-        (48.8462, 2.3464),   // Panthéon
-        (48.8600, 2.3266),   // Musée d'Orsay
-        (48.8619, 2.2870),   // Trocadéro
+        (48.8584, 2.2945), // Eiffel Tower
+        (48.8606, 2.3376), // Louvre
+        (48.8530, 2.3499), // Notre-Dame
+        (48.8867, 2.3431), // Sacré-Cœur
+        (48.8738, 2.2950), // Arc de Triomphe
+        (48.8462, 2.3464), // Panthéon
+        (48.8600, 2.3266), // Musée d'Orsay
+        (48.8619, 2.2870), // Trocadéro
     ]
 
     override func viewDidLoad() {

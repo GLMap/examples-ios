@@ -96,8 +96,13 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     private var routeTracker: GLRouteTracker
     private var helper: RouteHelper
 
-    private var targetPoint: RoutePoint { didSet { updateCurrentTarget() } }
-    private var originalParams: RouteParams { didSet { updateTargetPoints() } }
+    private var targetPoint: RoutePoint {
+        didSet { updateCurrentTarget() }
+    }
+
+    private var originalParams: RouteParams {
+        didSet { updateTargetPoints() }
+    }
 
     private var routePoints = [String: GLMapImage]()
     private var routeTrackData: GLMapTrackData?
@@ -105,14 +110,18 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
     private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
 
     private var resumeTracking = false, wasOnRoute = false
-    private var pauseTracking = false { didSet { updateStopButton() } }
+    private var pauseTracking = false {
+        didSet { updateStopButton() }
+    }
 
     private var menuRoutePoint: RoutePoint?
     private var localizableStrings = [String: String]()
     private var lastRequestTime: TimeInterval = 0
     private var prevTextToSay: String?
     private var prevManeuver, nextManeuver: GLRouteManeuver?
-    private var maneuverStatus = ManeuverStatus.initial { didSet { updateStopButton() } }
+    private var maneuverStatus = ManeuverStatus.initial {
+        didSet { updateStopButton() }
+    }
 
     private var lastLocation: CLLocation?
 
@@ -126,9 +135,14 @@ class RouteTrackerViewController: MapViewWithUserLocation, RouteHelperDelegate {
 
     private var observers = [NSKeyValueObservation]()
 
-    override var canBecomeFirstResponder: Bool { return true }
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+
     @available(*, unavailable)
-    required init?(coder _: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     init(_ route: Route) {
         originalParams = route.params

@@ -81,7 +81,7 @@ class GPSTrackDemo: DemoMapViewController, CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+    func locationManager(_: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         // If not moving (no course data), rotate to compass heading
         if locationManager.location?.course ?? -1 < 0, newHeading.trueHeading >= 0 {
             locationAnimation?.cancel(false)

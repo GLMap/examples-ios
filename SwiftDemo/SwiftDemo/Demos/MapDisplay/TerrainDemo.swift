@@ -8,7 +8,7 @@ class TerrainDemo: DemoMapViewController {
     private let elevationButton = UIButton(type: .system)
     private let slopesButton = UIButton(type: .system)
 
-    // Alps / Chamonix area — great for 3D terrain demo
+    /// Alps / Chamonix area — great for 3D terrain demo
     private let terrainBBox: GLMapBBox = {
         var bbox = GLMapBBox.empty
         bbox.add(point: GLMapPoint(lat: 45.85, lon: 6.75))

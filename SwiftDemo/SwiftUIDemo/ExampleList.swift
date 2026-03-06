@@ -13,7 +13,9 @@ enum Example: String, CaseIterable, Identifiable {
     case displayMarkers = "Display markers"
     case displayGeoJSON = "Display GeoJSON"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 }
 
 struct ExampleList: View {

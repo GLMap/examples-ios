@@ -13,8 +13,13 @@ class RoutePoint: Equatable {
     let pt: GLRoutePoint
     let isCurrentLocation: Bool
 
-    var location: GLMapGeoPoint { return pt.pt }
-    var index: Int { return Int(pt.originalIndex) }
+    var location: GLMapGeoPoint {
+        return pt.pt
+    }
+
+    var index: Int {
+        return Int(pt.originalIndex)
+    }
 
     lazy var name = "Point \(index)"
 

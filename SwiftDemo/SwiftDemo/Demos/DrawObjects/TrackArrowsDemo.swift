@@ -31,7 +31,8 @@ class TrackArrowsDemo: DemoMapViewController {
 
         request.startOnline { [weak self] route, _ in
             guard let self, let route,
-                  let trackData = route.trackData(with: GLMapColor(red: 66, green: 133, blue: 244, alpha: 220)) else {
+                  let trackData = route.trackData(with: GLMapColor(red: 66, green: 133, blue: 244, alpha: 220))
+            else {
                 self?.title = "Route failed — check network"
                 return
             }

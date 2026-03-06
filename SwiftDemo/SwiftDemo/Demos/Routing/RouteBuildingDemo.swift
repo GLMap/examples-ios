@@ -17,7 +17,8 @@ class RouteBuildingDemo: DemoMapViewController {
         loadDefaultStyle()
 
         guard let configPath = Bundle.main.path(forResource: "valhalla", ofType: "json"),
-              let config = try? String(contentsOfFile: configPath) else {
+              let config = try? String(contentsOfFile: configPath)
+        else {
             showAlert(message: "valhalla.json not found")
             return
         }

@@ -14,10 +14,17 @@ class RouteParams: Equatable {
     let points: [RoutePoint]
     let mode: GLRouteMode
 
-    var startPoint: RoutePoint { return points.first! }
-    var finishPoint: RoutePoint { return points.last! }
+    var startPoint: RoutePoint {
+        return points.first!
+    }
 
-    var haveCurrentLocation: Bool { return points.firstIndex(where: { $0.isCurrentLocation }) != nil }
+    var finishPoint: RoutePoint {
+        return points.last!
+    }
+
+    var haveCurrentLocation: Bool {
+        return points.firstIndex(where: { $0.isCurrentLocation }) != nil
+    }
 
     static func == (lhs: RouteParams, rhs: RouteParams) -> Bool {
         return lhs.mode == rhs.mode && lhs.points == rhs.points

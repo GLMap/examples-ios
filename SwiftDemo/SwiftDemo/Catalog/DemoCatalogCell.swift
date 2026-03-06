@@ -14,7 +14,9 @@ class DemoCatalogCell: UITableViewCell {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder _: NSCoder) {
+        fatalError()
+    }
 
     private func setupViews() {
         accessoryType = .disclosureIndicator

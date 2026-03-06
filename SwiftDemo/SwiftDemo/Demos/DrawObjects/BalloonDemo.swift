@@ -51,7 +51,7 @@ class BalloonDemo: DemoMapViewController {
                 let dx = Double(cityDisplay.x - displayPt.x)
                 let dy = Double(cityDisplay.y - displayPt.y)
                 let dist = dx * dx + dy * dy
-                if dist < bestDist && dist < 40 * 40 {
+                if dist < bestDist, dist < 40 * 40 {
                     bestDist = dist
                     bestCity = city
                 }
@@ -75,6 +75,8 @@ class BalloonDemo: DemoMapViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let balloon { map.remove(balloon) }
-        for pin in pins { map.remove(pin) }
+        for pin in pins {
+            map.remove(pin)
+        }
     }
 }

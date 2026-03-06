@@ -57,7 +57,9 @@ class DemoModeViewController: UIViewController {
         GLMapManager.shared.tileDownloadingAllowed = false
     }
 
-    override var prefersStatusBarHidden: Bool { true }
+    override var prefersStatusBarHidden: Bool {
+        true
+    }
 
     // MARK: - Demo loop
 
@@ -71,7 +73,7 @@ class DemoModeViewController: UIViewController {
         guard isRunning else { return }
 
         if sceneIndex >= DemoScenes.all.count {
-            sceneIndex = 0  // Loop
+            sceneIndex = 0 // Loop
             clearOverlays()
             overlay.hideTitle()
         }
