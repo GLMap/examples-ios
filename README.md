@@ -10,7 +10,7 @@ Explore endless mapping possibilities with GLMap. This repository showcases how 
 ## Features
 
 - **Offline**: Engineered for seamless offline use with highly optimized map data.
-- **Vector**: Harness the power of real-time Metal rendering. Easily incorporate your own GeoJSON layers.
+- **Vector**: Harness real-time GPU rendering. Easily incorporate your own GeoJSON layers.
 - **Fast**: Leverages both CPU and GPU for efficient map rendering.
 - **Customizable**: Make it your own with rapid MapCSS styling.
 
