@@ -42,7 +42,6 @@ class BalloonDemo: DemoMapViewController {
             }
 
             // Find nearest pin
-            let tapMapPt = map.makeMapPoint(fromDisplay: displayPt)
             var bestCity: (name: String, lat: Double, lon: Double)?
             var bestDist = Double.greatestFiniteMagnitude
 
@@ -61,6 +60,10 @@ class BalloonDemo: DemoMapViewController {
 
             let newBalloon = GLMapBalloon(drawOrder: 10)
             let style = GLMapVectorStyle.createStyle("{text-color:#2C3E50;font-size:16;font-stroke-width:0;}")!
+            let image = UIImage(named: "balloon")!
+            let vInset = floor(image.size.height / 2)
+            let hInset = floor(image.size.width / 2)
+            newBalloon.setBackgroundImage(image, insets: UIEdgeInsets(top: vInset, left: hInset, bottom: vInset, right: hInset))
             newBalloon.setText(
                 city.name,
                 with: style,

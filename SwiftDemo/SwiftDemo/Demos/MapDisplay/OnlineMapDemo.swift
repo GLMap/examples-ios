@@ -63,17 +63,20 @@ class OnlineMapDemo: DemoMapViewController {
             let mapPt = map.makeMapPoint(fromDisplay: displayPt)
             let geoPt = GLMapGeoPoint(point: mapPt)
 
-            if let oldBalloon = balloon {
-                map.remove(oldBalloon)
-            }
-
-            let newBalloon = GLMapBalloon(drawOrder: 10)
             let text = String(format: "%.4f, %.4f", geoPt.lat, geoPt.lon)
             let style = GLMapVectorStyle.createStyle("{text-color:#2C3E50;font-size:14;font-stroke-width:0;}")!
-            newBalloon.setText(text, with: style, insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
-            newBalloon.position = mapPt
-            map.add(newBalloon)
-            balloon = newBalloon
+            let balloon = balloon ?? {
+                let newBalloon = GLMapBalloon(drawOrder: 10)
+                let image = UIImage(named: "balloon")!
+                let vInset = floor(image.size.height / 2)
+                let hInset = floor(image.size.width / 2)
+                newBalloon.setBackgroundImage(image, insets: UIEdgeInsets(top: vInset, left: hInset, bottom: vInset, right: hInset))
+                self.balloon = newBalloon
+                self.map.add(newBalloon)
+                return newBalloon
+            }()
+            balloon.setText(text, with: style, insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
+            balloon.position = mapPt
         }
     }
 

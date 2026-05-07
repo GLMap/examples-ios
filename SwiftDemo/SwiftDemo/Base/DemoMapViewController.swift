@@ -10,13 +10,14 @@ class DemoMapViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
-            stylePath = path
-        }
-
         map = GLMapView(frame: view.bounds)
         map.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(map)
+
+        if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
+            stylePath = path
+            loadDefaultStyle()
+        }
 
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()

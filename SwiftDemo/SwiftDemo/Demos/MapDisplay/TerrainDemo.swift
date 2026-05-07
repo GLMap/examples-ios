@@ -7,6 +7,7 @@ class TerrainDemo: DemoMapViewController {
     private let hillshadesButton = UIButton(type: .system)
     private let elevationButton = UIButton(type: .system)
     private let slopesButton = UIButton(type: .system)
+    private let sliderLabel = UILabel()
 
     /// Alps / Chamonix area — great for 3D terrain demo
     private let terrainBBox: GLMapBBox = {
@@ -51,15 +52,12 @@ class TerrainDemo: DemoMapViewController {
         controlsStack.isLayoutMarginsRelativeArrangement = true
 
         // Altitude slider
-        let sliderLabel = UILabel()
-        sliderLabel.text = "Altitude Scale: 1.5"
         sliderLabel.font = Theme.subtitleFont
-        sliderLabel.tag = 100
-
         altitudeSlider.minimumValue = 0.0
-        altitudeSlider.maximumValue = 3.0
-        altitudeSlider.value = 1.5
+        altitudeSlider.maximumValue = 1.0
+        altitudeSlider.value = 0.5
         altitudeSlider.addTarget(self, action: #selector(altitudeChanged), for: .valueChanged)
+        updateSliderLabel()
 
         let sliderRow = UIStackView(arrangedSubviews: [sliderLabel, altitudeSlider])
         sliderRow.axis = .vertical
@@ -91,12 +89,14 @@ class TerrainDemo: DemoMapViewController {
         ])
     }
 
+    private func updateSliderLabel() {
+        sliderLabel.text = String(format: "Altitude Scale: %.1f", altitudeSlider.value)
+    }
+
     @objc private func altitudeChanged() {
         let value = altitudeSlider.value
         map.altitudeScale = Float(value)
-        if let label = view.viewWithTag(100) as? UILabel {
-            label.text = String(format: "Altitude Scale: %.1f", value)
-        }
+        updateSliderLabel()
     }
 
     @objc private func toggleHillshades() {

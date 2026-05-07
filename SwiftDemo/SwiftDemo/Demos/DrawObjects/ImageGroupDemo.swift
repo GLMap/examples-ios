@@ -28,23 +28,23 @@ private class PinGroup: GLMapImageGroupDataSource {
         lock.unlock()
     }
 
-    func getVariantsCount() -> Int {
-        variants.count
+    func getVariantsCount() -> UInt32 {
+        UInt32(variants.count)
     }
 
-    func getVariant(_ index: Int, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
-        let img = variants[index]
+    func getVariant(_ index: UInt32, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
+        let img = variants[Int(index)]
         offset.pointee = CGPoint(x: img.size.width / 2, y: 0)
         return img
     }
 
-    func getImagesCount() -> Int {
-        pins.count
+    func getImagesCount() -> UInt32 {
+        UInt32(pins.count)
     }
 
-    func getImageInfo(_ index: Int, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
-        variant.pointee = pins[index].imageID
-        position.pointee = pins[index].position
+    func getImageInfo(_ index: UInt32, variant: UnsafeMutablePointer<UInt32>, position: UnsafeMutablePointer<GLMapPoint>) {
+        variant.pointee = pins[Int(index)].imageID
+        position.pointee = pins[Int(index)].position
     }
 
     func append(_ pin: Pin) {
@@ -108,7 +108,7 @@ class ImageGroupDemo: DemoMapViewController {
         imageGroup?.setNeedsUpdate(false)
 
         map.longPressGestureBlock = { [weak self] gesture in
-            guard let self else { return }
+            guard let self, gesture.state == .began else { return }
             let pt = gesture.location(in: map)
             addPin(at: map.makeMapPoint(fromDisplay: pt))
         }

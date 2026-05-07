@@ -49,8 +49,8 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     private var progressAnimation: GLMapAnimation?
 
     // Route endpoints
-    private let startPoint = GLMapGeoPoint(lat: 37.405054, lon: -122.156626)
-    private let endPoint = GLMapGeoPoint(lat: 37.335055, lon: -122.026958)
+    private let startPoint = GLMapGeoPoint(lat: 37.335055, lon: -122.026958)
+    private let endPoint = GLMapGeoPoint(lat: 37.405054, lon: -122.156626)
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -16,39 +16,29 @@ class POITapDemo: DemoMapViewController {
         map.tapGestureBlock = { [weak self] gesture in
             guard let self else { return }
             let pt = gesture.location(in: map)
-            let mapPt = map.makeMapPoint(fromDisplay: pt)
-            let geoPt = GLMapGeoPoint(point: mapPt)
-
             if let oldBalloon = balloon {
                 map.remove(oldBalloon)
                 balloon = nil
             }
 
-            // Search for the nearest POI at the tap location
-            let search = GLSearch()
-            search.center = mapPt
-            search.limit = 1
-            search.setLocaleSettings(map.localeSettings)
-
-            search.searchAsync { [weak self] results in
-                guard let self, results.count > 0 else { return }
-
-                DispatchQueue.main.async {
-                    let obj = results[0]
-                    let name = obj.localizedName(self.map.localeSettings)?.asString() ?? ""
-
-                    let newBalloon = GLMapBalloon(drawOrder: 10)
-                    let style = GLMapVectorStyle.createStyle("{text-color:black;font-size:14;}")!
-                    newBalloon.setText(
-                        name.isEmpty ? String(format: "%.4f, %.4f", geoPt.lat, geoPt.lon) : name,
-                        with: style,
-                        insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
-                    )
-                    newBalloon.position = mapPt
-                    self.map.add(newBalloon)
-                    self.balloon = newBalloon
-                    self.title = name.isEmpty ? "Unknown" : name
-                }
+            if let object = map.state.mapObject(at: pt, maxDistance: 20) {
+                let name = object.localizedName(self.map.localeSettings)?.asString() ?? ""
+                let newBalloon = GLMapBalloon(drawOrder: 10)
+                let style = GLMapVectorStyle.createStyle("{text-color:black;font-size:14;}")!
+                let image = UIImage(named: "balloon")!
+                let vInset = floor(image.size.height / 2)
+                let hInset = floor(image.size.width / 2)
+                let geoPt = GLMapGeoPoint(point: object.point)
+                newBalloon.setBackgroundImage(image, insets: UIEdgeInsets(top: vInset, left: hInset, bottom: vInset, right: hInset))
+                newBalloon.setText(
+                    name.isEmpty ? String(format: "%.4f, %.4f", geoPt.lat, geoPt.lon) : name,
+                    with: style,
+                    insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+                )
+                newBalloon.position = object.point
+                self.map.add(newBalloon)
+                self.balloon = newBalloon
+                self.title = name.isEmpty ? "Unknown" : name
             }
         }
     }

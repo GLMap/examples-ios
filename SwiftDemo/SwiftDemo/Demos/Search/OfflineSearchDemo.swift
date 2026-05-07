@@ -6,28 +6,19 @@ import UIKit
 class OfflineSearchDemo: DemoMapViewController {
     private var markerLayer: GLMapMarkerLayer?
 
-    /// Berlin bbox for search demo
-    private let searchBBox: GLMapBBox = {
-        var bbox = GLMapBBox.empty
-        bbox.add(point: GLMapPoint(lat: 52.45, lon: 13.30))
-        bbox.add(point: GLMapPoint(lat: 52.56, lon: 13.47))
-        return bbox
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        map.mapGeoCenter = GLMapGeoPoint(lat: 52.505, lon: 13.40)
-        map.mapZoomLevel = 12
+        map.mapGeoCenter = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
+        map.mapZoomLevel = 15
 
-        downloadBBoxData(bbox: searchBBox, mapFile: "search_map.vmtar") { [weak self] in
-            self?.map.reloadTiles()
-            self?.performSearch()
-        }
+        let offlineMapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm")!
+        GLMapManager.shared.add(.map, path: offlineMapPath, bbox: .empty)
+        performSearch()
     }
 
     private func performSearch() {
-        let center = GLMapGeoPoint(lat: 52.505, lon: 13.40)
+        let center = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
 
         let search = GLSearch()
         search.center = GLMapPoint(lat: center.lat, lon: center.lon)
