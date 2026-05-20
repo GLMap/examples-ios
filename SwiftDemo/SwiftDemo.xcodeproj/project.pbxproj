@@ -68,6 +68,7 @@
 		6C99B6612A05097C00FBBF4F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C99B6602A05097C00FBBF4F /* ContentView.swift */; };
 		6C99B6632A05097D00FBBF4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C99B6622A05097D00FBBF4F /* Assets.xcassets */; };
 		6C99B6662A05097D00FBBF4F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C99B6652A05097D00FBBF4F /* Preview Assets.xcassets */; };
+		6C99B6732F433F5900FBBF4F /* GLMap in Frameworks */ = {isa = PBXBuildFile; productRef = 6CF6700D2F432ACF00BFAED6 /* GLMap */; };
 		6C99B66C2A0509E100FBBF4F /* MoveMapExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C99B66A2A0509E100FBBF4F /* MoveMapExampleView.swift */; };
 		6C99B66D2A0509E100FBBF4F /* ExampleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C99B66B2A0509E100FBBF4F /* ExampleList.swift */; };
 		6C99B6712A050A5C00FBBF4F /* GLMapViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C99B6702A050A5C00FBBF4F /* GLMapViewRepresentable.swift */; };
@@ -181,6 +182,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C99B6732F433F5900FBBF4F /* GLMap in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,6 +368,7 @@
 			);
 			name = SwiftUIDemo;
 			packageProductDependencies = (
+				6CF6700D2F432ACF00BFAED6 /* GLMap */,
 			);
 			productName = SwiftUIDemo;
 			productReference = 6C99B65C2A05097C00FBBF4F /* SwiftUIDemo.app */;

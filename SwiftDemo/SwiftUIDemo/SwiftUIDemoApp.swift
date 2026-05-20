@@ -7,6 +7,7 @@
 //
 
 import GLMap
+import GLMapSwift
 import SwiftUI
 
 @main
