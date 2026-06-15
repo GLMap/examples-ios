@@ -125,6 +125,14 @@ enum DemoRegistry {
             makeViewController: { OfflineSearchDemo() }
         ),
         DemoDescriptor(
+            title: "Online Search",
+            subtitle: "GLSearchRequest search and autocomplete",
+            category: .search,
+            icon: "network",
+            isNew: true,
+            makeViewController: { OnlineSearchDemo() }
+        ),
+        DemoDescriptor(
             title: "POI Tap",
             subtitle: "Tap map labels to identify objects",
             category: .search,
