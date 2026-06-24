@@ -91,9 +91,8 @@
 		DD100017274C000000000017 /* LinesPolygonsDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000017274C000000000017 /* LinesPolygonsDemo.swift */; };
 		DD100018274C000000000018 /* GeoJSONDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000018274C000000000018 /* GeoJSONDemo.swift */; };
 		DD100019274C000000000019 /* GPSTrackDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000019274C000000000019 /* GPSTrackDemo.swift */; };
-		DD10001A274C00000000001A /* OfflineSearchDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001A274C00000000001A /* OfflineSearchDemo.swift */; };
+		DD10001A274C00000000001A /* SearchDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001A274C00000000001A /* SearchDemo.swift */; };
 		DD10001B274C00000000001B /* POITapDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001B274C00000000001B /* POITapDemo.swift */; };
-		DD100023274C000000000023 /* OnlineSearchDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000023274C000000000023 /* OnlineSearchDemo.swift */; };
 		DD10001C274C00000000001C /* RouteBuildingDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001C274C00000000001C /* RouteBuildingDemo.swift */; };
 		DD10001D274C00000000001D /* TurnByTurnDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001D274C00000000001D /* TurnByTurnDemo.swift */; };
 		DD10001E274C00000000001E /* DownloadMapsDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00001E274C00000000001E /* DownloadMapsDemo.swift */; };
@@ -192,9 +191,8 @@
 		DD000017274C000000000017 /* LinesPolygonsDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinesPolygonsDemo.swift; sourceTree = "<group>"; };
 		DD000018274C000000000018 /* GeoJSONDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoJSONDemo.swift; sourceTree = "<group>"; };
 		DD000019274C000000000019 /* GPSTrackDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSTrackDemo.swift; sourceTree = "<group>"; };
-		DD00001A274C00000000001A /* OfflineSearchDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSearchDemo.swift; sourceTree = "<group>"; };
+		DD00001A274C00000000001A /* SearchDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchDemo.swift; sourceTree = "<group>"; };
 		DD00001B274C00000000001B /* POITapDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POITapDemo.swift; sourceTree = "<group>"; };
-		DD000023274C000000000023 /* OnlineSearchDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineSearchDemo.swift; sourceTree = "<group>"; };
 		DD00001C274C00000000001C /* RouteBuildingDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteBuildingDemo.swift; sourceTree = "<group>"; };
 		DD00001D274C00000000001D /* TurnByTurnDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TurnByTurnDemo.swift; sourceTree = "<group>"; };
 		DD00001E274C00000000001E /* DownloadMapsDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadMapsDemo.swift; sourceTree = "<group>"; };
@@ -366,8 +364,7 @@
 		DD200014274C000000000014 /* Search */ = {
 			isa = PBXGroup;
 			children = (
-				DD00001A274C00000000001A /* OfflineSearchDemo.swift */,
-				DD000023274C000000000023 /* OnlineSearchDemo.swift */,
+				DD00001A274C00000000001A /* SearchDemo.swift */,
 				DD00001B274C00000000001B /* POITapDemo.swift */,
 			);
 			path = Search;
@@ -655,8 +652,7 @@
 				DD100017274C000000000017 /* LinesPolygonsDemo.swift in Sources */,
 				DD100018274C000000000018 /* GeoJSONDemo.swift in Sources */,
 				DD100019274C000000000019 /* GPSTrackDemo.swift in Sources */,
-				DD10001A274C00000000001A /* OfflineSearchDemo.swift in Sources */,
-				DD100023274C000000000023 /* OnlineSearchDemo.swift in Sources */,
+				DD10001A274C00000000001A /* SearchDemo.swift in Sources */,
 				DD10001B274C00000000001B /* POITapDemo.swift in Sources */,
 				DD10001C274C00000000001C /* RouteBuildingDemo.swift in Sources */,
 				DD10001D274C00000000001D /* TurnByTurnDemo.swift in Sources */,

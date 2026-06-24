@@ -38,7 +38,7 @@ class DemoMapViewController: UIViewController {
 
     func loadDefaultStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        if let style = parser.parseFromResources() {
+        if let style = try? parser.parseFromResources() {
             map.setStyle(style)
         }
     }
@@ -49,7 +49,7 @@ class DemoMapViewController: UIViewController {
         if carDriving { options["Style"] = "CarDriving" }
         if darkTheme { options["Theme"] = "Dark" }
         parser.setOptions(options, defaultValue: false)
-        if let style = parser.parseFromResources() {
+        if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()
         }

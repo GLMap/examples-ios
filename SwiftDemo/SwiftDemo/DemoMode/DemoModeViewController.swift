@@ -95,7 +95,7 @@ class DemoModeViewController: UIViewController {
 
     func loadLightStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        if let style = parser.parseFromResources() {
+        if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()
         }
@@ -104,7 +104,7 @@ class DemoModeViewController: UIViewController {
     func loadDarkStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
         parser.setOptions(["Theme": "Dark"], defaultValue: false)
-        if let style = parser.parseFromResources() {
+        if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()
         }

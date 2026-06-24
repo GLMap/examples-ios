@@ -118,17 +118,10 @@ enum DemoRegistry {
         // MARK: - Search
 
         DemoDescriptor(
-            title: "Offline Search",
-            subtitle: "GLSearch with GLSearchFilter",
-            category: .search,
-            icon: "magnifyingglass",
-            makeViewController: { OfflineSearchDemo() }
-        ),
-        DemoDescriptor(
             title: "Search",
             subtitle: "Online and Offline requests",
             category: .search,
-            icon: "network",
+            icon: "magnifyingglass",
             isNew: true,
             makeViewController: { SearchDemo() }
         ),

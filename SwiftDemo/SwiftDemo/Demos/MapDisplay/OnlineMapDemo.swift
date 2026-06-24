@@ -26,7 +26,7 @@ class OnlineMapDemo: DemoMapViewController {
     private func loadSkiStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
         parser.setOptions(["Style": "Outdoor", "SubStyle": "Ski"], defaultValue: true)
-        if let style = parser.parseFromResources() {
+        if let style = try? parser.parseFromResources() {
             map.setStyle(style)
         }
     }
