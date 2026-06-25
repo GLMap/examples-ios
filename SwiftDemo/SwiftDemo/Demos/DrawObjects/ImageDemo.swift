@@ -21,7 +21,13 @@ class ImageDemo: DemoMapViewController {
             GLMapGeoPoint(lat: 40.4168, lon: -3.7038), // Madrid
         ]
 
-        if let image = UIImage(named: "pin1.png") {
+        // Crisp vector pin rendered from an SVG, so it stays sharp at any size.
+        if let path = Bundle.main.path(forResource: "pin", ofType: "svg"),
+           let image = GLMapVectorImageFactory.shared.image(
+               fromSvg: path,
+               withScale: 1.6,
+               andTintColor: GLMapColor(red: 230, green: 60, blue: 60, alpha: 255)
+           ) {
             mapImage.setImage(image)
             mapImage.offset = CGPoint(x: image.size.width / 2, y: 0)
             mapImage.position = GLMapPoint(geoPoint: destinations[0])

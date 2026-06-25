@@ -9,7 +9,7 @@ class POITapDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522)
+        map.mapGeoCenter = GLMapGeoPoint(lat: 43.7696, lon: 11.2558) // Florence
         map.mapZoomLevel = 16
         title = "Tap to find POI"
 

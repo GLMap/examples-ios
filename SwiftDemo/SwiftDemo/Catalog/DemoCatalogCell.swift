@@ -63,7 +63,7 @@ class DemoCatalogCell: UITableViewCell {
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
 
-            newBadge.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            newBadge.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             newBadge.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             newBadge.widthAnchor.constraint(equalToConstant: 36),
             newBadge.heightAnchor.constraint(equalToConstant: 18),

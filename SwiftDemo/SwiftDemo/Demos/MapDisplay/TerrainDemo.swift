@@ -25,7 +25,7 @@ class TerrainDemo: DemoMapViewController {
         map.mapScale = map.mapScale(for: terrainBBox) * 2 // Start 1 zoom closer
         map.isPitchEnabled = true
         map.mapPitch = 45
-        map.altitudeScale = 1.5
+        map.altitudeScale = 1.0
         map.drawHillshades = true
         map.drawElevationLines = true
 
@@ -54,8 +54,8 @@ class TerrainDemo: DemoMapViewController {
         // Altitude slider
         sliderLabel.font = Theme.subtitleFont
         altitudeSlider.minimumValue = 0.0
-        altitudeSlider.maximumValue = 1.0
-        altitudeSlider.value = 0.5
+        altitudeSlider.maximumValue = 3.0
+        altitudeSlider.value = 1.0
         altitudeSlider.addTarget(self, action: #selector(altitudeChanged), for: .valueChanged)
         updateSliderLabel()
 

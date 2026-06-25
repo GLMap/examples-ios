@@ -31,7 +31,7 @@ enum DemoScenes {
         },
 
         // 3. 3D terrain reveal
-        DemoScene(name: "Terrain Reveal", duration: 6) { vc, completion in
+        DemoScene(name: "Terrain Reveal", duration: 6, caption: "3D Terrain") { vc, completion in
             vc.map.animate { anim in
                 anim.duration = 5.5
                 vc.map.mapPitch = 45
@@ -43,7 +43,7 @@ enum DemoScenes {
         },
 
         // 4. Terrain flight — fly along coastline
-        DemoScene(name: "Terrain Flight", duration: 10) { vc, completion in
+        DemoScene(name: "Terrain Flight", duration: 10, caption: "3D Terrain") { vc, completion in
             vc.map.animate { anim in
                 anim.duration = 9.5
                 anim.transition = .linear
@@ -54,13 +54,13 @@ enum DemoScenes {
         },
 
         // 5. Dark theme switch
-        DemoScene(name: "Dark Theme", duration: 4) { vc, completion in
+        DemoScene(name: "Dark Theme", duration: 4, caption: "Dark Theme") { vc, completion in
             vc.loadDarkStyle()
             DispatchQueue.main.asyncAfter(deadline: .now() + 4) { completion() }
         },
 
         // 6. Night flight
-        DemoScene(name: "Night Flight", duration: 8) { vc, completion in
+        DemoScene(name: "Night Flight", duration: 8, caption: "Dark Theme") { vc, completion in
             vc.map.animate { anim in
                 anim.duration = 7.5
                 anim.transition = .linear
@@ -85,7 +85,7 @@ enum DemoScenes {
         },
 
         // 8. Marker clusters
-        DemoScene(name: "Markers", duration: 6) { vc, completion in
+        DemoScene(name: "Markers", duration: 6, caption: "Marker Clustering") { vc, completion in
             vc.showMarkerClusters()
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 vc.map.animate { anim in
@@ -97,14 +97,18 @@ enum DemoScenes {
             DispatchQueue.main.asyncAfter(deadline: .now() + 6) { completion() }
         },
 
-        // 9. Route overlay
-        DemoScene(name: "Route", duration: 8) { vc, completion in
+        // 9. Route overlay — shown over the default 3D terrain view
+        DemoScene(name: "Route", duration: 8, caption: "Routing") { vc, completion in
             vc.clearOverlays()
+            vc.map.drawHillshades = true
+            vc.map.drawElevationLines = true
             vc.map.animate { anim in
                 anim.flyToMode = .enabled
                 anim.duration = 2
                 vc.map.mapGeoCenter = GLMapGeoPoint(lat: 40.640, lon: 14.610)
                 vc.map.mapZoomLevel = 12
+                vc.map.mapPitch = 45
+                vc.map.altitudeScale = 1.5
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                 vc.buildDemoRoute(from: routeStart, to: routeEnd)
@@ -113,7 +117,7 @@ enum DemoScenes {
         },
 
         // 10. Route flight — camera follows route
-        DemoScene(name: "Route Flight", duration: 15) { vc, completion in
+        DemoScene(name: "Route Flight", duration: 15, caption: "Routing") { vc, completion in
             vc.map.animate { anim in
                 anim.duration = 2
                 vc.map.mapPitch = 45

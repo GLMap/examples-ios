@@ -36,8 +36,12 @@ class DemoMapViewController: UIViewController {
 
     // MARK: - Style helpers
 
+    // defaultValue: true enables every style option that isn't overridden — all POI categories,
+    // building names, transit, and HideExtraData (which hides the extractor-only debug rules in
+    // extra.mapcss). defaultValue: false would instead blank those categories and show the debug labels.
     func loadDefaultStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
+        parser.setOptions([:], defaultValue: true)
         if let style = try? parser.parseFromResources() {
             map.setStyle(style)
         }
@@ -48,7 +52,7 @@ class DemoMapViewController: UIViewController {
         var options = [String: String]()
         if carDriving { options["Style"] = "CarDriving" }
         if darkTheme { options["Theme"] = "Dark" }
-        parser.setOptions(options, defaultValue: false)
+        parser.setOptions(options, defaultValue: true)
         if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()

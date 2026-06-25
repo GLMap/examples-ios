@@ -81,6 +81,8 @@ class DemoModeViewController: UIViewController {
         let scene = DemoScenes.all[sceneIndex]
         sceneIndex += 1
 
+        overlay.showCaption(scene.caption)
+
         scene.action(self) { [weak self] in
             self?.runNextScene()
         }
@@ -95,6 +97,7 @@ class DemoModeViewController: UIViewController {
 
     func loadLightStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
+        parser.setOptions([:], defaultValue: true)
         if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()
@@ -103,7 +106,7 @@ class DemoModeViewController: UIViewController {
 
     func loadDarkStyle() {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        parser.setOptions(["Theme": "Dark"], defaultValue: false)
+        parser.setOptions(["Theme": "Dark"], defaultValue: true)
         if let style = try? parser.parseFromResources() {
             map.setStyle(style)
             map.reloadTiles()

@@ -13,12 +13,21 @@ private struct Pin {
 
 private class PinGroup: GLMapImageGroupDataSource {
     let lock = NSRecursiveLock()
-    let variants: [UIImage] = [
-        UIImage(named: "pin1.png")!,
-        UIImage(named: "pin2.png")!,
-        UIImage(named: "pin3.png")!,
-    ]
+    // Crisp vector pins rendered from a single SVG, tinted into three colors.
+    let variants: [UIImage] = PinGroup.makePins()
     var pins: [Pin] = []
+
+    private static func makePins() -> [UIImage] {
+        guard let path = Bundle.main.path(forResource: "pin", ofType: "svg") else { return [] }
+        let colors = [
+            GLMapColor(red: 230, green: 60, blue: 60, alpha: 255),
+            GLMapColor(red: 60, green: 120, blue: 230, alpha: 255),
+            GLMapColor(red: 40, green: 180, blue: 90, alpha: 255),
+        ]
+        return colors.compactMap {
+            GLMapVectorImageFactory.shared.image(fromSvg: path, withScale: 1.6, andTintColor: $0)
+        }
+    }
 
     func startUpdate() {
         lock.lock()
@@ -89,7 +98,7 @@ class ImageGroupDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522)
+        map.mapGeoCenter = GLMapGeoPoint(lat: 47.8095, lon: 13.0550) // Salzburg
         map.mapZoomLevel = 13
 
         title = "Long press to add, tap to remove"

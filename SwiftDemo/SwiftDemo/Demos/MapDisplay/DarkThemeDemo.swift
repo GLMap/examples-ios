@@ -8,7 +8,7 @@ class DarkThemeDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 40.7580, lon: -73.9855)
+        map.mapGeoCenter = GLMapGeoPoint(lat: 45.4371, lon: 12.3326) // Venice
         map.mapZoomLevel = 14
 
         loadStyle(darkTheme: true)

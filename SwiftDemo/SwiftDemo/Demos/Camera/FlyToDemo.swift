@@ -4,12 +4,12 @@ import UIKit
 
 class FlyToDemo: DemoMapViewController {
     private let destinations: [(name: String, point: GLMapGeoPoint)] = [
-        ("Rome", GLMapGeoPoint(lat: 41.8933, lon: 12.4829)),
-        ("Paris", GLMapGeoPoint(lat: 48.8566, lon: 2.3522)),
-        ("London", GLMapGeoPoint(lat: 51.5072, lon: -0.1275)),
-        ("Istanbul", GLMapGeoPoint(lat: 41.0082, lon: 28.9784)),
-        ("Barcelona", GLMapGeoPoint(lat: 41.3874, lon: 2.1686)),
-        ("Amsterdam", GLMapGeoPoint(lat: 52.3690, lon: 4.9021)),
+        ("Porto", GLMapGeoPoint(lat: 41.1579, lon: -8.6291)),
+        ("San Sebastián", GLMapGeoPoint(lat: 43.3183, lon: -1.9812)),
+        ("Lucerne", GLMapGeoPoint(lat: 47.0502, lon: 8.3093)),
+        ("Bruges", GLMapGeoPoint(lat: 51.2093, lon: 3.2247)),
+        ("Dubrovnik", GLMapGeoPoint(lat: 42.6507, lon: 18.0944)),
+        ("Tallinn", GLMapGeoPoint(lat: 59.4370, lon: 24.7536)),
     ]
     private var destIndex = 0
 

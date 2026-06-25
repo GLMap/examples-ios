@@ -15,7 +15,7 @@ class GPSTrackDemo: DemoMapViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 41.3874, lon: 2.1686)
+        map.mapGeoCenter = GLMapGeoPoint(lat: 43.3183, lon: -1.9812) // San Sebastián
         map.mapZoomLevel = 15
         map.isRotateEnabled = true
 

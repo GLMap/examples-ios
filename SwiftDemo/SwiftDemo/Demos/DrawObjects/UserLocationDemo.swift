@@ -11,7 +11,7 @@ class UserLocationDemo: DemoMapViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 51.5072, lon: -0.1275)
+        map.mapGeoCenter = GLMapGeoPoint(lat: 60.3913, lon: 5.3221) // Bergen
         map.mapZoomLevel = 14
 
         if CLLocationManager.authorizationStatus() == .notDetermined {
