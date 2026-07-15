@@ -39,6 +39,7 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     private let userLocation = GLMapUserLocation(drawOrder: 100)!
     private var routeTracker: GLRouteTracker?
     private var routeTrack: GLMapTrack?
+    private var requestID: Int64 = 0
     private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
 
     // UI
@@ -59,7 +60,7 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         loadDefaultStyle()
         setupManeuverUI()
 
-        if CLLocationManager.authorizationStatus() == .notDetermined {
+        if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         userLocation.add(toMap: map)
@@ -70,6 +71,13 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     }
 
     deinit {
+        locationManager.stopUpdatingLocation()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        requestID = 0
         locationManager.stopUpdatingLocation()
     }
 
@@ -135,8 +143,9 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         request.add(GLRoutePoint(pt: startPoint, heading: .nan, type: .break))
         request.add(GLRoutePoint(pt: endPoint, heading: .nan, type: .break))
 
-        request.startOnline { [weak self] route, error in
-            guard let self else { return }
+        requestID = request.startOnline { [weak self] route, error in
+            guard let self, requestID != 0 else { return }
+            requestID = 0
             if let route {
                 displayRoute(route)
                 routeTracker = GLRouteTracker(data: route)

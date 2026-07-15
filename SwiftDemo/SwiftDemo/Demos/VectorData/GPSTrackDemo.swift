@@ -23,7 +23,7 @@ class GPSTrackDemo: DemoMapViewController, CLLocationManagerDelegate {
         map.add(track)
         self.track = track
 
-        if CLLocationManager.authorizationStatus() == .notDetermined {
+        if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         userLocation.add(toMap: map)

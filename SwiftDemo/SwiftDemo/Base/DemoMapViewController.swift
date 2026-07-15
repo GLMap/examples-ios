@@ -69,55 +69,45 @@ class DemoMapViewController: UIViewController {
 
     func downloadBBoxData(
         bbox: GLMapBBox,
-        mapFile: String = "demo_map.vmtar",
-        navFile: String? = nil,
-        eleFile: String? = nil,
-        completion: @escaping () -> Void
+        files: [(dataSet: GLMapInfoDataSet, filename: String)],
+        completion: @escaping (Error?) -> Void
     ) {
-        let manager = FileManager.default
         let mapManager = GLMapManager.shared
         let group = DispatchGroup()
+        var firstError: Error?
 
-        let mapPath = cachedPath(for: mapFile)
-        if manager.fileExists(atPath: mapPath) {
-            mapManager.add(.map, path: mapPath, bbox: bbox)
-        } else {
+        func add(_ dataSet: GLMapInfoDataSet, path: String) {
+            let error = mapManager.add(dataSet, path: path, bbox: bbox)
+            if !error.isSuccess, firstError == nil {
+                firstError = NSError(
+                    domain: "GLMap",
+                    code: Int(error.rawValue),
+                    userInfo: [NSLocalizedDescriptionKey: "Cannot open \(path)"]
+                )
+            }
+        }
+
+        for file in files {
+            let path = cachedPath(for: file.filename)
+            if FileManager.default.fileExists(atPath: path) {
+                add(file.dataSet, path: path)
+                continue
+            }
+
             group.enter()
-            mapManager.downloadDataSet(.map, path: mapPath, bbox: bbox, progress: { _, _, _ in }) { [weak self] _ in
-                mapManager.add(.map, path: mapPath, bbox: bbox)
-                self?.map.reloadTiles()
+            mapManager.downloadDataSet(file.dataSet, path: path, bbox: bbox, progress: { _, _, _ in }) { error in
+                if let error {
+                    try? FileManager.default.removeItem(atPath: path)
+                    if firstError == nil { firstError = error }
+                } else {
+                    add(file.dataSet, path: path)
+                }
                 group.leave()
             }
         }
 
-        if let navFile {
-            let navPath = cachedPath(for: navFile)
-            if manager.fileExists(atPath: navPath) {
-                mapManager.add(.navigation, path: navPath, bbox: bbox)
-            } else {
-                group.enter()
-                mapManager.downloadDataSet(.navigation, path: navPath, bbox: bbox, progress: { _, _, _ in }) { _ in
-                    mapManager.add(.navigation, path: navPath, bbox: bbox)
-                    group.leave()
-                }
-            }
-        }
-
-        if let eleFile {
-            let elePath = cachedPath(for: eleFile)
-            if manager.fileExists(atPath: elePath) {
-                mapManager.add(.elevation, path: elePath, bbox: bbox)
-            } else {
-                group.enter()
-                mapManager.downloadDataSet(.elevation, path: elePath, bbox: bbox, progress: { _, _, _ in }) { _ in
-                    mapManager.add(.elevation, path: elePath, bbox: bbox)
-                    group.leave()
-                }
-            }
-        }
-
         group.notify(queue: .main) {
-            completion()
+            completion(firstError)
         }
     }
 

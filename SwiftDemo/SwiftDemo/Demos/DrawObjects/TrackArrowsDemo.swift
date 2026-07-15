@@ -5,6 +5,7 @@ import UIKit
 
 class TrackArrowsDemo: DemoMapViewController {
     private var routeTrack: GLMapTrack?
+    private var requestID: Int64 = 0
 
     // Short scenic route: Amalfi Coast
     private let routeStart = GLMapGeoPoint(lat: 40.633, lon: 14.502)
@@ -21,6 +22,12 @@ class TrackArrowsDemo: DemoMapViewController {
         buildRoute()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        requestID = 0
+    }
+
     private func buildRoute() {
         let request = GLRouteRequest()
         request.setAutoWithOptions(CostingOptionsAuto())
@@ -29,13 +36,14 @@ class TrackArrowsDemo: DemoMapViewController {
 
         let routeStyle = GLMapVectorStyle.createStyle("{width: 14pt; fill-image:\"track-arrow.svg\";}")!
 
-        request.startOnline { [weak self] route, _ in
-            guard let self, let route,
+        requestID = request.startOnline { [weak self] route, _ in
+            guard let self, requestID != 0, let route,
                   let trackData = route.trackData(with: GLMapColor(red: 66, green: 133, blue: 244, alpha: 220))
             else {
-                self?.title = "Route failed — check network"
+                if self?.requestID != 0 { self?.title = "Route failed — check network" }
                 return
             }
+            requestID = 0
 
             let track = GLMapTrack(drawOrder: 5)
             track.setData(trackData, style: routeStyle)

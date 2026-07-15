@@ -14,7 +14,7 @@ class UserLocationDemo: DemoMapViewController, CLLocationManagerDelegate {
         map.mapGeoCenter = GLMapGeoPoint(lat: 60.3913, lon: 5.3221) // Bergen
         map.mapZoomLevel = 14
 
-        if CLLocationManager.authorizationStatus() == .notDetermined {
+        if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         userLocation.add(toMap: map)

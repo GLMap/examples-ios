@@ -34,10 +34,13 @@ class TerrainDemo: DemoMapViewController {
 
         downloadBBoxData(
             bbox: terrainBBox,
-            mapFile: "terrain_map.vmtar",
-            eleFile: "terrain_ele.eletar"
-        ) { [weak self] in
-            self?.map.reloadTiles()
+            files: [(.map, "terrain_map.vmtar"), (.elevation, "terrain_ele.eletar")]
+        ) { [weak self] error in
+            if let error {
+                self?.showAlert("Download Error", message: error.localizedDescription)
+            } else {
+                self?.map.reloadTiles()
+            }
         }
     }
 

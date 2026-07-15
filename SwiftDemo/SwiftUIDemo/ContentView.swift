@@ -1,22 +1,21 @@
-//
-//  ContentView.swift
-//  SwiftUIDemo
-//
-//  Created by Evgen Bodunov on 25.04.23.
-//  Copyright © 2023 Evgen Bodunov. All rights reserved.
-//
-
-import GLMapSwift
+import GLMap
 import SwiftUI
 
 struct ContentView: View {
+    @State private var center = GLMapGeoPoint(lat: 41.1579, lon: -8.6291) // Porto
+
     var body: some View {
-        ExampleList()
+        GLMapViewRepresentable(center: $center, zoomLevel: 14) { center = $0 }
+            .ignoresSafeArea()
+            .overlay(alignment: .bottom) {
+                Text("Tap the map to move its center")
+                    .padding()
+                    .background(.regularMaterial, in: Capsule())
+                    .padding()
+            }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+#Preview {
+    ContentView()
 }

@@ -98,7 +98,7 @@ class ImageGroupDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
-        map.mapGeoCenter = GLMapGeoPoint(lat: 47.8095, lon: 13.0550) // Salzburg
+        map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522) // Paris
         map.mapZoomLevel = 13
 
         title = "Long press to add, tap to remove"

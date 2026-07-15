@@ -43,11 +43,18 @@ class DownloadBBoxDemo: DemoMapViewController {
 
         downloadBBoxData(
             bbox: demoBBox,
-            mapFile: "bbox_map.vmtar",
-            navFile: "bbox_nav.navtar",
-            eleFile: "bbox_ele.eletar"
-        ) { [weak self] in
+            files: [
+                (.map, "bbox_map.vmtar"),
+                (.navigation, "bbox_nav.navtar"),
+                (.elevation, "bbox_ele.eletar"),
+            ]
+        ) { [weak self] error in
             guard let self else { return }
+            if let error {
+                downloadLabel.text = "Download failed"
+                showAlert("Download Error", message: error.localizedDescription)
+                return
+            }
             map.drawElevationLines = true
             map.drawHillshades = true
             map.reloadTiles()

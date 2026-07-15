@@ -3,13 +3,8 @@ import GLMapSwift
 import GLSearch
 import UIKit
 
-/// One `GLSearchRequest`, one result set, two presentations. The same
-/// `GLMapVectorObjectArray` returned by `startOnline` / `startOffline` feeds both a
-/// `GLMapMarkerLayer` on the map and the rows of a `UITableView` below it — reading
-/// `localizedName`, `searchSecondaryText` and `point` from each result object. The two
-/// views are linked: tap a row to fly the map to that result, tap a marker to select
-/// its row. The search bar's scope switches the transport (Online = server data,
-/// Offline = downloaded maps); the request, ranking and display are identical.
+/// Runs one request against online or offline data and displays the same result objects
+/// as map markers and table rows.
 class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDelegate,
     UITableViewDataSource, UITableViewDelegate
 {
@@ -18,10 +13,9 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
     private var results: [GLMapVectorObject] = []
     private var markerLayer: GLMapMarkerLayer?
-    private var selectedPin: GLMapImage?
-    private var selectedIndex: Int?
 
     private var requestID: Int64 = 0
+    private var searchGeneration = 0
     private var pendingSearch: DispatchWorkItem?
 
     /// Podgorica — inside the bundled Montenegro offline map, so `startOffline` has data.
@@ -46,21 +40,19 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
         setupLayout()
         setupSearchController()
-        setupMapTap()
 
         runSearch(type: .search)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        pendingSearch?.cancel()
         cancelRunningRequest()
     }
 
     // MARK: - Setup
 
     private func setupLayout() {
-        // The base class adds `map` full-screen; re-lay it out as the top ~58% and
-        // put the results table underneath.
         map.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
@@ -81,8 +73,6 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        // Inset the visible viewport so fitting results (mapScale(for:)/mapCenter) keeps a margin
-        // and edge markers aren't clipped at the map borders.
         map.visibleMapInsetsProvider = { UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20) }
     }
 
@@ -96,28 +86,6 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
-    }
-
-    private func setupMapTap() {
-        // Tap a marker on the map → select the matching row.
-        map.tapGestureBlock = { [weak self] gesture in
-            guard let self else { return }
-            let tapPt = gesture.location(in: self.map)
-            var bestIndex: Int?
-            var bestDist = 30.0 * 30.0 // points, squared
-            for (i, obj) in self.results.enumerated() {
-                let p = self.map.makeDisplayPoint(from: obj.point)
-                let dx = Double(p.x - tapPt.x), dy = Double(p.y - tapPt.y)
-                let d = dx * dx + dy * dy
-                if d < bestDist {
-                    bestDist = d
-                    bestIndex = i
-                }
-            }
-            if let bestIndex {
-                self.select(index: bestIndex, scrollTable: true, moveMap: false)
-            }
-        }
     }
 
     // MARK: - Search
@@ -136,6 +104,7 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
     }
 
     func searchBar(_: UISearchBar, selectedScopeButtonIndexDidChange _: Int) {
+        pendingSearch?.cancel()
         runSearch(type: .search)
     }
 
@@ -155,18 +124,17 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         )
 
         let source = isOnline ? "Online" : "Offline"
+        let generation = searchGeneration
         let completion: (GLMapVectorObjectArray?, Error?) -> Void = { [weak self] results, error in
-            self?.handle(results, error, source: source)
+            guard let self, self.searchGeneration == generation else { return }
+            self.handle(results, error, source: source)
         }
         requestID = isOnline ? request.startOnline(completion: completion) : request.startOffline(completion: completion)
-        if requestID == 0 {
-            showAlert(message: "Search request was not started.")
-        }
     }
 
     private func cancelRunningRequest() {
-        guard requestID != 0 else { return }
-        GLSearchRequest.cancel(requestID)
+        searchGeneration += 1
+        if requestID != 0 { GLSearchRequest.cancel(requestID) }
         requestID = 0
     }
 
@@ -179,37 +147,36 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         self.results = results?.array() ?? []
         displayMarkers()
         tableView.reloadData()
-        clearSelection()
         title = "\(source): \(self.results.count) results"
     }
 
     // MARK: - Map markers
 
-    // Results render the same way regardless of transport (online and offline share one engine
-    // and one display), so markers use a single color; only the selection is highlighted.
     private static let resultColor = GLMapColor(red: 0x00, green: 0x66, blue: 0xCC, alpha: 0xFF)
-    private static let selectedColor = GLMapColor(red: 0xFF, green: 0x99, blue: 0x00, alpha: 0xFF)
+    private lazy var markerStyles: GLMapMarkerStyleCollection? = {
+        guard let imagePath = svgPath("cluster"),
+              let image = GLMapVectorImageFactory.shared.image(
+                  fromSvg: imagePath,
+                  withScale: 0.2,
+                  andTintColor: Self.resultColor
+              )
+        else { return nil }
+
+        let styles = GLMapMarkerStyleCollection()
+        styles.addStyle(with: image)
+        styles.setMarkerLocationBlock { ($0 as? GLMapVectorObject)?.point ?? GLMapPoint() }
+        styles.setMarkerDataFill { _, data in data.setStyle(0) }
+        return styles
+    }()
 
     private func displayMarkers() {
         if let markerLayer {
             map.remove(markerLayer)
             self.markerLayer = nil
         }
-        guard !results.isEmpty,
-              let imagePath = svgPath("cluster"),
-              let image = GLMapVectorImageFactory.shared.image(
-                  fromSvg: imagePath,
-                  withScale: 0.2,
-                  andTintColor: Self.resultColor
-              )
-        else { return }
+        guard !results.isEmpty, let markerStyles else { return }
 
-        let styles = GLMapMarkerStyleCollection()
-        styles.addStyle(with: image)
-        styles.setMarkerLocationBlock { ($0 as? GLMapVectorObject)?.point ?? GLMapPoint() }
-        styles.setMarkerDataFill { _, data in data.setStyle(0) }
-
-        let layer = GLMapMarkerLayer(markers: results, andStyles: styles, clusteringRadius: 0, drawOrder: 3)
+        let layer = GLMapMarkerLayer(markers: results, andStyles: markerStyles, clusteringRadius: 0, drawOrder: 3)
         map.add(layer)
         markerLayer = layer
 
@@ -219,45 +186,6 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         }
         map.mapCenter = bbox.center
         map.mapScale = map.mapScale(for: bbox)
-    }
-
-    // MARK: - Selection (links table ↔ map)
-
-    private func select(index: Int, scrollTable: Bool, moveMap: Bool) {
-        guard results.indices.contains(index) else { return }
-        selectedIndex = index
-        let obj = results[index]
-
-        // Highlight on the map with a pin overlay on top of the markers.
-        if selectedPin == nil, let imagePath = svgPath("cluster"),
-           let image = GLMapVectorImageFactory.shared.image(
-               fromSvg: imagePath, withScale: 0.32, andTintColor: Self.selectedColor
-           )
-        {
-            let pin = GLMapImage(drawOrder: 4)
-            pin.setImage(image)
-            // Anchor the pin at its center, matching the marker style's default offset.
-            pin.offset = CGPoint(x: image.size.width / 2, y: image.size.height / 2)
-            map.add(pin)
-            selectedPin = pin
-        }
-        selectedPin?.position = obj.point
-
-        if moveMap { map.mapCenter = obj.point }
-        if scrollTable {
-            tableView.selectRow(at: IndexPath(row: index, section: 0), animated: true, scrollPosition: .middle)
-        }
-    }
-
-    private func clearSelection() {
-        selectedIndex = nil
-        if let selectedPin {
-            map.remove(selectedPin)
-            self.selectedPin = nil
-        }
-        if let sel = tableView.indexPathForSelectedRow {
-            tableView.deselectRow(at: sel, animated: false)
-        }
     }
 
     // MARK: - UITableView
@@ -288,7 +216,6 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
     }
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Tap a row → fly the map to that result.
-        select(index: indexPath.row, scrollTable: false, moveMap: true)
+        map.mapCenter = results[indexPath.row].point
     }
 }

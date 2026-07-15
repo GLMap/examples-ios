@@ -6,26 +6,40 @@ class DownloadMapsDemo: UITableViewController {
     private var mapsOnDevice: [GLMapInfo] = []
     private var mapsOnServer: [GLMapInfo] = []
     private var allMaps: [GLMapInfo] = []
+    private var mapGroup: GLMapInfo?
+    private var observers: [NSObjectProtocol] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MapCell")
 
-        if let cached = GLMapManager.shared.cachedMapList() {
-            setMaps(cached)
-        }
-        GLMapManager.shared.updateMapList { [weak self] maps, _, error in
-            if let error { NSLog("Map list error: \(error.localizedDescription)") }
-            if let maps { self?.setMaps(maps) }
+        if let mapGroup {
+            setMaps(mapGroup.subMaps)
+        } else {
+            if let cached = GLMapManager.shared.cachedMapList() {
+                setMaps(cached)
+            }
+            GLMapManager.shared.updateMapList { [weak self] maps, _, error in
+                if let error { NSLog("Map list error: \(error.localizedDescription)") }
+                if let maps { self?.setMaps(maps) }
+            }
         }
 
-        NotificationCenter.default.addObserver(forName: GLMapInfo.stateChanged, object: nil, queue: .main) { [weak self] _ in
-            guard let self else { return }
-            setMaps(allMaps)
-        }
-        NotificationCenter.default.addObserver(forName: GLMapDownloadTask.downloadProgress, object: nil, queue: .main) { [weak self] notification in
-            guard let self, let task = notification.object as? GLMapDownloadTask else { return }
-            updateCell(for: task.map)
+        observers = [
+            NotificationCenter.default.addObserver(forName: GLMapInfo.stateChanged, object: nil, queue: .main) { [weak self] _ in
+                guard let self else { return }
+                setMaps(allMaps)
+            },
+            NotificationCenter.default.addObserver(forName: GLMapDownloadTask.downloadProgress, object: nil, queue: .main) { [weak self] notification in
+                guard let self, let task = notification.object as? GLMapDownloadTask else { return }
+                updateCell(for: task.map)
+            },
+        ]
+    }
+
+    deinit {
+        for observer in observers {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 
@@ -67,13 +81,17 @@ class DownloadMapsDemo: UITableViewController {
         let info = indexPath.section == 0 ? mapsOnDevice[indexPath.row] : mapsOnServer[indexPath.row]
 
         var config = cell.defaultContentConfiguration()
-        config.text = info.name(inLanguage: "en")
+        config.text = info.name(inLanguage: "en") ?? info.name()
 
         if info.subMaps.count > 0 {
             cell.accessoryType = .disclosureIndicator
         } else if let task = GLMapManager.shared.downloadTask(forMap: info, dataSet: .map) {
-            let pct = Float(task.downloaded) * 100.0 / Float(task.total)
-            config.secondaryText = String(format: "Downloading %.1f%%", pct)
+            if task.total > 0 {
+                let percent = Double(task.downloaded) * 100 / Double(task.total)
+                config.secondaryText = String(format: "Downloading %.1f%%", percent)
+            } else {
+                config.secondaryText = "Starting download..."
+            }
             cell.accessoryType = .none
         } else if indexPath.section == 0 {
             let size = info.sizeOnDisk(forDataSets: .all)
@@ -94,8 +112,8 @@ class DownloadMapsDemo: UITableViewController {
 
         if info.subMaps.count > 0 {
             let sub = DownloadMapsDemo(style: .grouped)
-            sub.title = info.name(inLanguage: "en")
-            sub.setMaps(info.subMaps)
+            sub.mapGroup = info
+            sub.title = info.name(inLanguage: "en") ?? info.name()
             navigationController?.pushViewController(sub, animated: true)
         } else {
             if let task = GLMapManager.shared.downloadTask(forMap: info, dataSet: .map) {

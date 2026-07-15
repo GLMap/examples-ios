@@ -9,10 +9,14 @@ class RouteBuildingDemo: DemoMapViewController {
     private var startPoint = GLMapGeoPoint(lat: 41.1457, lon: -8.6107) // Porto, São Bento
     private var endPoint = GLMapGeoPoint(lat: 41.1597, lon: -8.6300) // Porto, Casa da Música
     private var routeTrack: GLMapTrack?
+    private var requestID: Int64 = 0
+    private var routeGeneration = 0
     private var valhallaConfig: String?
+    private let routeStyle = GLMapVectorStyle.createStyle("{width:7pt; fill-image:\"track-arrow.svg\";}")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        GLMapManager.shared.tileDownloadingAllowed = true
 
         loadDefaultStyle()
 
@@ -67,8 +71,15 @@ class RouteBuildingDemo: DemoMapViewController {
         updateRoute()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancelRouteRequest()
+    }
+
     @objc private func updateRoute() {
         guard let valhallaConfig else { return }
+        cancelRouteRequest()
+        let generation = routeGeneration
 
         let request = GLRouteRequest()
         switch routingMode.selectedSegmentIndex {
@@ -80,10 +91,9 @@ class RouteBuildingDemo: DemoMapViewController {
         request.add(GLRoutePoint(pt: startPoint, heading: .nan, type: .break))
         request.add(GLRoutePoint(pt: endPoint, heading: .nan, type: .break))
 
-        let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
-
         let completion: GLRouteRequestCompletionBlock = { [weak self] (result: GLRoute?, error: Error?) in
-            guard let self else { return }
+            guard let self, routeGeneration == generation else { return }
+            requestID = 0
             if let result, let trackData = result.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
                 if routeTrack == nil {
                     let track = GLMapTrack(drawOrder: 5)
@@ -98,9 +108,15 @@ class RouteBuildingDemo: DemoMapViewController {
         }
 
         if networkMode.selectedSegmentIndex != 0 {
-            request.startOffline(withConfig: valhallaConfig, completion: completion)
+            requestID = request.startOffline(withConfig: valhallaConfig, completion: completion)
         } else {
-            request.startOnline(completion: completion)
+            requestID = request.startOnline(completion: completion)
         }
+    }
+
+    private func cancelRouteRequest() {
+        routeGeneration += 1
+        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        requestID = 0
     }
 }
