@@ -1,29 +1,7 @@
-# examples-ios
+# GLMap iOS Demo
 
-Explore endless mapping possibilities with GLMap. This repository showcases how to integrate GLMap into your iOS project.
+`SwiftDemo` is the public GLMap 2.0 example application. It uses Swift, UIKit, and Swift Package Manager.
 
-## What's Inside
+Each screen is a compact, self-contained example of one API: map setup, camera, styles, vector objects, offline data, search, or routing. Open `SwiftDemo/SwiftDemo.xcodeproj`, add an API key from [GLMap User Dashboard](https://user.globus.software/apps/), and run the `SwiftDemo` scheme.
 
-- **SwiftDemo**: Demonstrates GLMapSwift integration via Swift Package Manager (SPM).
-- **ObjCDemo**: Utilizes the traditional CocoaPods approach for dependency management.
-
-## Features
-
-- **Offline**: Engineered for seamless offline use with highly optimized map data.
-- **Vector**: Harness real-time GPU rendering. Easily incorporate your own GeoJSON layers.
-- **Fast**: Leverages both CPU and GPU for efficient map rendering.
-- **Customizable**: Make it your own with rapid MapCSS styling.
-
-## 📚 Documentation
-
-- **Getting Started**: [GLMap Documentation](https://globus.software/docs)
-
-## 🙋‍♂️ Need Assistance?
-
-Run into issues? We've got you covered. Contact [support@globus.software](mailto:support@globus.software).
-
-## 💌 Feedback
-
-Love what you see? Share your thoughts at [hi@globus.software](mailto:hi@globus.software).
-
-Unleash your mapping potential with GLMap. Get started now! 🌍🚀
+See [GLMap documentation](https://globus.software/docs) or contact [support@globus.software](mailto:support@globus.software) for help.

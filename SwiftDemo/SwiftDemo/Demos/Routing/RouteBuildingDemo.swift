@@ -18,8 +18,6 @@ class RouteBuildingDemo: DemoMapViewController {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
 
-        loadDefaultStyle()
-
         guard let configPath = Bundle.main.path(forResource: "valhalla", ofType: "json"),
               let config = try? String(contentsOfFile: configPath)
         else {

@@ -57,7 +57,6 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
 
-        loadDefaultStyle()
         setupManeuverUI()
 
         if locationManager.authorizationStatus == .notDetermined {

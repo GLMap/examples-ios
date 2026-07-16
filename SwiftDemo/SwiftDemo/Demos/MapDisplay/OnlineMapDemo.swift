@@ -16,19 +16,9 @@ class OnlineMapDemo: DemoMapViewController {
         map.drawElevationLines = true
         map.drawHillshades = true
 
-        loadSkiStyle()
+        loadStyle(options: ["Style": "Outdoor", "SubStyle": "Ski"])
         setupSegmentedControl()
         setupTapGesture()
-    }
-
-    // MARK: - Style
-
-    private func loadSkiStyle() {
-        let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        parser.setOptions(["Style": "Outdoor", "SubStyle": "Ski"], defaultValue: true)
-        if let style = try? parser.parseFromResources() {
-            map.setStyle(style)
-        }
     }
 
     // MARK: - Tile source toggle

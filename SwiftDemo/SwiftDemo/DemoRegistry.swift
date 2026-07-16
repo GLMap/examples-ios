@@ -13,7 +13,7 @@ enum DemoRegistry {
         ),
         DemoDescriptor(
             title: "Dark Theme",
-            subtitle: "GLMapVectorCascadeStyle with theme options",
+            subtitle: "GLMapStyleParser with theme options",
             category: .mapDisplay,
             icon: "moon.fill",
             makeViewController: { DarkThemeDemo() }
@@ -31,7 +31,7 @@ enum DemoRegistry {
 
         DemoDescriptor(
             title: "Fly To",
-            subtitle: "GLMapAnimation.flyToPoint",
+            subtitle: "GLMapAnimation.flyToMode",
             category: .camera,
             icon: "airplane",
             makeViewController: { FlyToDemo() }

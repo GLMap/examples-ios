@@ -16,7 +16,7 @@ class DemoMapViewController: UIViewController {
 
         if let path = GLMapManager.shared.resourcesBundle.path(forResource: "DefaultStyle", ofType: "bundle") {
             stylePath = path
-            loadDefaultStyle()
+            loadStyle()
         }
 
         if #available(iOS 15, *) {
@@ -36,26 +36,18 @@ class DemoMapViewController: UIViewController {
 
     // MARK: - Style helpers
 
-    // defaultValue: true enables every style option that isn't overridden — all POI categories,
-    // building names, transit, and HideExtraData (which hides the extractor-only debug rules in
-    // extra.mapcss). defaultValue: false would instead blank those categories and show the debug labels.
-    func loadDefaultStyle() {
+    // defaultValue: true keeps every style option enabled unless explicitly overridden.
+    func loadStyle(options: [String: String] = [:]) {
         let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        parser.setOptions([:], defaultValue: true)
-        if let style = try? parser.parseFromResources() {
-            map.setStyle(style)
-        }
-    }
-
-    func loadStyle(darkTheme: Bool = false, carDriving: Bool = false) {
-        let parser = GLMapStyleParser(paths: [stylePath, Bundle.main.bundlePath])
-        var options = [String: String]()
-        if carDriving { options["Style"] = "CarDriving" }
-        if darkTheme { options["Theme"] = "Dark" }
         parser.setOptions(options, defaultValue: true)
-        if let style = try? parser.parseFromResources() {
-            map.setStyle(style)
+
+        do {
+            map.setStyle(try parser.parseFromResources())
             map.reloadTiles()
+        } catch {
+            DispatchQueue.main.async { [weak self] in
+                self?.showAlert("Style Error", message: error.localizedDescription)
+            }
         }
     }
 
@@ -77,13 +69,10 @@ class DemoMapViewController: UIViewController {
         var firstError: Error?
 
         func add(_ dataSet: GLMapInfoDataSet, path: String) {
-            let error = mapManager.add(dataSet, path: path, bbox: bbox)
-            if !error.isSuccess, firstError == nil {
-                firstError = NSError(
-                    domain: "GLMap",
-                    code: Int(error.rawValue),
-                    userInfo: [NSLocalizedDescriptionKey: "Cannot open \(path)"]
-                )
+            if let error = mapManager.add(dataSet, path: path, bbox: bbox).nsError,
+               firstError == nil
+            {
+                firstError = error
             }
         }
 

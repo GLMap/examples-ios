@@ -29,7 +29,6 @@ class TerrainDemo: DemoMapViewController {
         map.drawHillshades = true
         map.drawElevationLines = true
 
-        loadDefaultStyle()
         setupControls()
 
         downloadBBoxData(
