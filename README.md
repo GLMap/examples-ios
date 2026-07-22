@@ -1,29 +1,36 @@
-# examples-ios
+# GLMap iOS examples
 
-Explore endless mapping possibilities with GLMap. This repository showcases how to integrate GLMap into your iOS project.
+This repository contains the reference applications for GLMap SDK 2.0. They use Swift Package Manager and the public GLMap binary frameworks.
 
-## What's Inside
+## Run the examples
 
-- **SwiftDemo**: Demonstrates GLMapSwift integration via Swift Package Manager (SPM).
-- **ObjCDemo**: Utilizes the traditional CocoaPods approach for dependency management.
+1. Open `SwiftDemo/SwiftDemo.xcodeproj` in Xcode.
+2. Get an API key from the [GLMap User Dashboard](https://user.globus.software/apps/).
+3. Replace `<#API key#>` in the application you want to run:
+   - `SwiftDemo/SwiftDemo/AppDelegate.swift` for the UIKit catalog;
+   - `SwiftDemo/SwiftUIDemo/SwiftUIDemoApp.swift` for the SwiftUI example.
+4. Select an iOS simulator or device and run one of the schemes below.
 
-## Features
+Xcode downloads the GLMap package and binary frameworks when it resolves package dependencies for the first time.
 
-- **Offline**: Engineered for seamless offline use with highly optimized map data.
-- **Vector**: Harness the power of real-time Metal rendering. Easily incorporate your own GeoJSON layers.
-- **Fast**: Leverages both CPU and GPU for efficient map rendering.
-- **Customizable**: Make it your own with rapid MapCSS styling.
+## SwiftDemo
 
-## 📚 Documentation
+`SwiftDemo` is the UIKit reference application for iOS 15 and later. The catalog contains compact, self-contained examples for:
 
-- **Getting Started**: [GLMap Documentation](https://globus.software/docs)
+- map setup, styles, camera animation, and 3D terrain;
+- images, markers, tracks, GeoJSON, and user location;
+- online and offline search;
+- online and offline routing;
+- downloading maps and related offline data.
 
-## 🙋‍♂️ Need Assistance?
+Each catalog screen focuses on one API and keeps setup next to the code that uses it. The **Demo Mode** button above the catalog runs an automatic visual tour of the SDK; it is a showcase, while the individual screens are the code examples to learn from.
 
-Run into issues? We've got you covered. Contact [support@globus.software](mailto:support@globus.software).
+## SwiftUIDemo
 
-## 💌 Feedback
+`SwiftUIDemo` is a minimal SwiftUI integration for iOS 16.2 and later. It wraps `GLMapView` with `UIViewRepresentable`, keeps the map center in a SwiftUI binding, and handles map taps without adding an application-specific architecture layer.
 
-Love what you see? Share your thoughts at [hi@globus.software](mailto:hi@globus.software).
+## More information
 
-Unleash your mapping potential with GLMap. Get started now! 🌍🚀
+- [GLMap documentation](https://globus.software/docs)
+- [GLMap website](https://globus.software/)
+- [support@globus.software](mailto:support@globus.software)
