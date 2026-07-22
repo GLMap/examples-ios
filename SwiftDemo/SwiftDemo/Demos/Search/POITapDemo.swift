@@ -22,10 +22,10 @@ class POITapDemo: DemoMapViewController {
             }
 
             if let object = map.state.mapObject(at: pt, maxDistance: 20) {
+                guard let image = UIImage(named: "balloon") else { return }
                 let name = object.localizedName(self.map.localeSettings)?.asString() ?? ""
                 let newBalloon = GLMapBalloon(drawOrder: 10)
                 let style = GLMapVectorStyle.createStyle("{text-color:black;font-size:14;}")!
-                let image = UIImage(named: "balloon")!
                 let vInset = floor(image.size.height / 2)
                 let hInset = floor(image.size.width / 2)
                 let geoPt = GLMapGeoPoint(point: object.point)

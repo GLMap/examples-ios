@@ -21,7 +21,12 @@ class BalloonDemo: DemoMapViewController {
         title = "Tap a pin to see balloon"
 
         // Place pins at landmarks
-        guard let pinImg = UIImage(named: "pin1.png") else { return }
+        guard let path = Bundle.main.path(forResource: "pin", ofType: "svg"),
+              let pinImg = GLMapVectorImageFactory.shared.image(
+                  fromSvg: path,
+                  withScale: 1.6,
+                  andTintColor: GLMapColor(red: 230, green: 60, blue: 60, alpha: 255)
+              ) else { return }
         for city in cities {
             let pin = GLMapImage(drawOrder: 3)
             pin.setImage(pinImg)
@@ -56,11 +61,10 @@ class BalloonDemo: DemoMapViewController {
                 }
             }
 
-            guard let city = bestCity else { return }
+            guard let city = bestCity, let image = UIImage(named: "balloon") else { return }
 
             let newBalloon = GLMapBalloon(drawOrder: 10)
-            let style = GLMapVectorStyle.createStyle("{text-color:#2C3E50;font-size:16;font-stroke-width:0;}")!
-            let image = UIImage(named: "balloon")!
+            let style = GLMapVectorStyle.createStyle("{ text-color:#2C3E50; font-size:16; font-stroke-width:0; }")!
             let vInset = floor(image.size.height / 2)
             let hInset = floor(image.size.width / 2)
             newBalloon.setBackgroundImage(image, insets: UIEdgeInsets(top: vInset, left: hInset, bottom: vInset, right: hInset))

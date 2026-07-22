@@ -36,10 +36,13 @@ extension GLManeuverType {
 
 class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
-    private let userLocation = GLMapUserLocation(drawOrder: 100)!
+    private let userLocation = GLMapUserLocation(drawOrder: 101)!
     private var routeTracker: GLRouteTracker?
     private var routeTrack: GLMapTrack?
+    private var maneuverArrow: GLMapLineArrow?
+    private var lastLocation: CLLocation?
     private var requestID: Int64 = 0
+    private var routeGeneration = 0
     private let routeStyle = GLMapVectorStyle.createStyle("{width:14pt; fill-image:\"track-arrow.svg\";}")!
 
     // UI
@@ -47,17 +50,15 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     private let maneuverDistance = UILabel()
     private let maneuverStreet = UILabel()
     private let routeInfoLabel = UILabel()
+    private var locationAnimation: GLMapAnimation?
     private var progressAnimation: GLMapAnimation?
-
-    // Route endpoints
-    private let startPoint = GLMapGeoPoint(lat: 37.335055, lon: -122.026958)
-    private let endPoint = GLMapGeoPoint(lat: 37.405054, lon: -122.156626)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         GLMapManager.shared.tileDownloadingAllowed = true
 
         setupManeuverUI()
+        setupManeuverArrow()
 
         if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
@@ -65,18 +66,18 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         userLocation.add(toMap: map)
         locationManager.delegate = self
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
-
-        buildRoute()
-    }
-
-    deinit {
-        locationManager.stopUpdatingLocation()
+        map.tapGestureBlock = { [weak self] gesture in
+            guard let self, let lastLocation else { return }
+            let destination = GLMapGeoPoint(point: map.makeMapPoint(fromDisplay: gesture.location(in: map)))
+            buildRoute(from: GLMapGeoPoint(location: lastLocation), to: destination)
+        }
+        title = "Waiting for location..."
+        locationManager.startUpdatingLocation()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if requestID != 0 { GLRouteRequest.cancel(requestID) }
-        requestID = 0
+        cancelRouteRequest()
         locationManager.stopUpdatingLocation()
     }
 
@@ -134,7 +135,29 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         ])
     }
 
-    private func buildRoute() {
+    private func setupManeuverArrow() {
+        let green = GLMapColor(red: 50, green: 200, blue: 0, alpha: 255)
+        guard let path = svgPath("route-maneuver-head"),
+              let head = GLMapVectorImageFactory.shared.image(fromSvg: path, withScale: 1, andTintColor: green),
+              let style = GLMapVectorStyle.createStyle(
+                  "{casing-width:2pt; casing-color:#32C800FF; width:14pt; color:white; linecap:round;}"
+              )
+        else { return }
+
+        let arrow = GLMapLineArrow(drawOrder: 100)
+        arrow.setLineStyle(style, head: head)
+        arrow.hidden = true
+        map.add(arrow)
+        maneuverArrow = arrow
+    }
+
+    private func buildRoute(from startPoint: GLMapGeoPoint, to endPoint: GLMapGeoPoint) {
+        cancelRouteRequest()
+        let generation = routeGeneration
+        routeTracker = nil
+        maneuverArrow?.hidden = true
+        title = "Building route..."
+
         let request = GLRouteRequest()
         request.setAutoWithOptions(CostingOptionsAuto())
         request.locale = "en-US"
@@ -143,14 +166,16 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         request.add(GLRoutePoint(pt: endPoint, heading: .nan, type: .break))
 
         requestID = request.startOnline { [weak self] route, error in
-            guard let self, requestID != 0 else { return }
+            guard let self, routeGeneration == generation else { return }
             requestID = 0
             if let route {
                 displayRoute(route)
                 routeTracker = GLRouteTracker(data: route)
                 routeTracker?.currentTargetPointIndex = 1
-                locationManager.startUpdatingLocation()
+                title = "Turn-by-Turn Navigation"
+                if let lastLocation { updateNavigation(with: lastLocation) }
             } else if let error {
+                title = "Tap map to choose destination"
                 showAlert("Route Error", message: error.localizedDescription)
             }
         }
@@ -158,28 +183,59 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
 
     private func displayRoute(_ route: GLRoute) {
         if let trackData = route.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) {
-            let track = GLMapTrack(drawOrder: 99)
-            track.progressColor = GLMapColor(red: 128, green: 128, blue: 128, alpha: 200)
-            track.setData(trackData, style: routeStyle)
-            map.add(track)
-            routeTrack = track
+            if let routeTrack {
+                routeTrack.progressIndex = 0
+                routeTrack.setData(trackData, style: routeStyle)
+            } else {
+                let track = GLMapTrack(drawOrder: 99)
+                track.progressColor = GLMapColor(red: 128, green: 128, blue: 128, alpha: 200)
+                track.setData(trackData, style: routeStyle)
+                map.add(track)
+                routeTrack = track
+            }
         }
 
-        var bbox = GLMapBBox.empty
-        bbox.add(point: GLMapPoint(geoPoint: startPoint))
-        bbox.add(point: GLMapPoint(geoPoint: endPoint))
+        let bbox = route.bbox
         map.mapCenter = bbox.center
-        map.mapScale = map.mapScale(for: bbox) / 2
+        map.mapScale = map.mapScale(for: bbox)
+    }
+
+    private func cancelRouteRequest() {
+        routeGeneration += 1
+        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        requestID = 0
     }
 
     // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        userLocation.locationManager(manager, didUpdateLocations: locations)
+        guard let location = locations.last else { return }
+        let firstLocation = lastLocation == nil
+        lastLocation = location
 
-        guard let location = locations.last, let tracker = routeTracker else { return }
+        if firstLocation {
+            userLocation.locationManager(manager, didUpdateLocations: locations)
+            map.mapGeoCenter = GLMapGeoPoint(location: location)
+            map.mapZoomLevel = 14
+            title = "Tap map to choose destination"
+        } else {
+            // Feed the GPS fix inside the map animation so the location marker interpolates
+            // instead of jumping between one-second updates.
+            locationAnimation?.cancel(false)
+            locationAnimation = map.animate { animation in
+                animation.duration = 1
+                animation.transition = .linear
+                self.userLocation.locationManager(manager, didUpdateLocations: locations)
+            }
+        }
 
-        let geoPt = GLMapGeoPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
+        updateNavigation(with: location)
+    }
+
+    private func updateNavigation(with location: CLLocation) {
+        guard let tracker = routeTracker else { return }
+
+        let geoPt = GLMapGeoPoint(location: location)
         let bearing = location.course >= 0 ? Float(location.course) : Float.nan
 
         let maneuver = tracker.updateLocation(geoPt, userBearing: bearing)
@@ -192,6 +248,10 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
             if let path = svgPath(maneuver.type.svgName) {
                 maneuverImage.image = GLMapVectorImageFactory.shared.image(fromSvg: path, withScale: 1.0, andTintColor: .white)
             }
+            maneuverArrow?.hidden = false
+            maneuverArrow?.setLine(maneuver.line, index: maneuver.lineStartIndex)
+        } else {
+            maneuverArrow?.hidden = true
         }
 
         let remaining = tracker.remainingDistance

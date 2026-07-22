@@ -48,7 +48,7 @@ class OnlineMapDemo: DemoMapViewController {
 
     private func setupTapGesture() {
         map.tapGestureBlock = { [weak self] gesture in
-            guard let self else { return }
+            guard let self, let image = UIImage(named: "balloon") else { return }
             let displayPt = gesture.location(in: map)
             let mapPt = map.makeMapPoint(fromDisplay: displayPt)
             let geoPt = GLMapGeoPoint(point: mapPt)
@@ -57,7 +57,6 @@ class OnlineMapDemo: DemoMapViewController {
             let style = GLMapVectorStyle.createStyle("{text-color:#2C3E50;font-size:14;font-stroke-width:0;}")!
             let balloon = balloon ?? {
                 let newBalloon = GLMapBalloon(drawOrder: 10)
-                let image = UIImage(named: "balloon")!
                 let vInset = floor(image.size.height / 2)
                 let hInset = floor(image.size.width / 2)
                 newBalloon.setBackgroundImage(image, insets: UIEdgeInsets(top: vInset, left: hInset, bottom: vInset, right: hInset))

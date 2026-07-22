@@ -48,7 +48,7 @@ enum DemoRegistry {
 
         DemoDescriptor(
             title: "Image",
-            subtitle: "GLMapImage — pin on map, animated position",
+            subtitle: "GLMapImage — tap to place and move a pin",
             category: .drawObjects,
             icon: "mappin",
             makeViewController: { ImageDemo() }
@@ -76,7 +76,7 @@ enum DemoRegistry {
         ),
         DemoDescriptor(
             title: "Track Arrows",
-            subtitle: "GLMapTrack with directional arrows",
+            subtitle: "GLMapTrack fill image and GLMapLineArrow",
             category: .drawObjects,
             icon: "arrow.right",
             isNew: true,
@@ -144,7 +144,7 @@ enum DemoRegistry {
         ),
         DemoDescriptor(
             title: "Turn-by-Turn Navigation",
-            subtitle: "GLRouteTracker with maneuvers",
+            subtitle: "Live location, GLRouteTracker, maneuvers",
             category: .routing,
             icon: "location.north.line",
             makeViewController: { TurnByTurnDemo() }
@@ -154,7 +154,7 @@ enum DemoRegistry {
 
         DemoDescriptor(
             title: "Download Maps",
-            subtitle: "GLMapManager.updateMapList, downloadDataSets",
+            subtitle: "Browse, search, and manage offline maps",
             category: .offlineData,
             icon: "arrow.down.circle",
             makeViewController: { DownloadMapsDemo() }

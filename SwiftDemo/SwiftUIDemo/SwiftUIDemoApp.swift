@@ -14,7 +14,7 @@ import SwiftUI
 struct SwiftUIDemoApp: App {
     init() {
         // Insert your API key from https://user.globus.software/apps/
-        GLMapManager.activate(apiKey: <#API key#>)
+        GLMapManager.activate(apiKey: "39f30206-5eee-4db4-919d-31f86f6ce723")
         GLMapManager.shared.tileDownloadingAllowed = true
     }
 

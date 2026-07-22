@@ -43,7 +43,7 @@ private class PinGroup: GLMapImageGroupDataSource {
 
     func getVariant(_ index: UInt32, offset: UnsafeMutablePointer<CGPoint>) -> UIImage {
         let img = variants[Int(index)]
-        offset.pointee = CGPoint(x: img.size.width / 2, y: 0)
+        offset.pointee = CGPoint(x: img.size.width / 2 * img.scale, y: 0)
         return img
     }
 
@@ -79,8 +79,8 @@ private class PinGroup: GLMapImageGroupDataSource {
 }
 
 class ImageGroupDemo: DemoMapViewController {
-    private var pinGroup: PinGroup?
-    private var imageGroup: GLMapImageGroup?
+    private let pinGroup = PinGroup()
+    private lazy var imageGroup = GLMapImageGroup(callback: pinGroup, andDrawOrder: 3)
     private var pinCount: UInt32 = 0
 
     /// Pre-populated POIs around Paris
@@ -103,18 +103,12 @@ class ImageGroupDemo: DemoMapViewController {
 
         title = "Long press to add, tap to remove"
 
-        pinGroup = PinGroup()
-        let group = GLMapImageGroup(callback: pinGroup!, andDrawOrder: 3)
-        map.add(group)
-        imageGroup = group
-
-        // Pre-populate pins
         for poi in initialPins {
             let pin = Pin(position: GLMapPoint(lat: poi.lat, lon: poi.lon), imageID: pinCount % 3)
             pinCount += 1
-            pinGroup?.append(pin)
+            pinGroup.append(pin)
         }
-        imageGroup?.setNeedsUpdate(false)
+        map.add(imageGroup)
 
         map.longPressGestureBlock = { [weak self] gesture in
             guard let self, gesture.state == .began else { return }
@@ -123,7 +117,7 @@ class ImageGroupDemo: DemoMapViewController {
         }
 
         map.tapGestureBlock = { [weak self] gesture in
-            guard let self, let pinGroup else { return }
+            guard let self else { return }
             let pt = gesture.location(in: map)
             if let pin = pinGroup.findPin(point: pt, mapView: map) {
                 removePin(pin)
@@ -133,20 +127,18 @@ class ImageGroupDemo: DemoMapViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if let imageGroup {
-            map.remove(imageGroup)
-        }
+        map.remove(imageGroup)
     }
 
     private func addPin(at position: GLMapPoint) {
         let pin = Pin(position: position, imageID: pinCount % 3)
         pinCount += 1
-        pinGroup?.append(pin)
-        imageGroup?.setNeedsUpdate(false)
+        pinGroup.append(pin)
+        imageGroup.setNeedsUpdate(false)
     }
 
     private func removePin(_ pin: Pin) {
-        pinGroup?.remove(pin)
-        imageGroup?.setNeedsUpdate(false)
+        pinGroup.remove(pin)
+        imageGroup.setNeedsUpdate(false)
     }
 }

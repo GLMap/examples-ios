@@ -2,7 +2,8 @@ import GLMap
 import GLMapSwift
 import UIKit
 
-class DownloadMapsDemo: UITableViewController {
+class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
+    private let searchController = UISearchController(searchResultsController: nil)
     private var mapsOnDevice: [GLMapInfo] = []
     private var mapsOnServer: [GLMapInfo] = []
     private var allMaps: [GLMapInfo] = []
@@ -12,6 +13,12 @@ class DownloadMapsDemo: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MapCell")
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = "Search maps"
+        searchController.obscuresBackgroundDuringPresentation = false
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
 
         if let mapGroup {
             setMaps(mapGroup.subMaps)
@@ -45,8 +52,21 @@ class DownloadMapsDemo: UITableViewController {
 
     private func setMaps(_ maps: [GLMapInfo]) {
         allMaps = maps.sorted { ($0.name(inLanguage: "en") ?? $0.name()) < ($1.name(inLanguage: "en") ?? $1.name()) }
-        mapsOnDevice = allMaps.filter { isOnDevice($0) || $0.subMaps.contains(where: { isOnDevice($0) }) }
-        mapsOnServer = allMaps.filter { !isOnDevice($0) && !$0.subMaps.contains(where: { isOnDevice($0) }) }
+        updateVisibleMaps()
+    }
+
+    func updateSearchResults(for _: UISearchController) {
+        updateVisibleMaps()
+    }
+
+    private func updateVisibleMaps() {
+        let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let visibleMaps = query.isEmpty ? allMaps : allMaps.filter { info in
+            info.names.values.contains { $0.localizedStandardContains(query) }
+                || info.isoCode?.localizedStandardContains(query) == true
+        }
+        mapsOnDevice = visibleMaps.filter { isOnDevice($0) || $0.subMaps.contains(where: { isOnDevice($0) }) }
+        mapsOnServer = visibleMaps.filter { !isOnDevice($0) && !$0.subMaps.contains(where: { isOnDevice($0) }) }
         tableView.reloadData()
     }
 

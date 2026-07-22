@@ -13,6 +13,21 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
     private var results: [GLMapVectorObject] = []
     private var markerLayer: GLMapMarkerLayer?
+    private var selectedResult: GLMapVectorObject?
+    private lazy var selectedMarker: GLMapImage? = {
+        guard let path = svgPath("pin"),
+              let image = GLMapVectorImageFactory.shared.image(
+                  fromSvg: path,
+                  withScale: 1.4,
+                  andTintColor: GLMapColor(red: 230, green: 60, blue: 60, alpha: 255)
+              ) else { return nil }
+
+        let marker = GLMapImage(drawOrder: 4)
+        marker.setImage(image)
+        marker.offset = CGPoint(x: image.size.width / 2, y: 0)
+        marker.hidden = true
+        return marker
+    }()
 
     private var requestID: Int64 = 0
     private var searchGeneration = 0
@@ -40,6 +55,21 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
         setupLayout()
         setupSearchController()
+        if let selectedMarker { map.add(selectedMarker) }
+        map.tapGestureBlock = { [weak self] gesture in
+            guard let self, let markerLayer else { return }
+            var point = map.makeMapPoint(fromDisplay: gesture.location(in: map))
+
+            // Let the marker layer perform screen-space hit-testing. It may return a new
+            // Objective-C wrapper for the same native object, so compare by value, not identity.
+            guard let marker = markerLayer.objects(at: map, nearPoint: &point, distance: 24)?.first as? GLMapVectorObject,
+                  let row = results.firstIndex(where: { $0.isEqual(marker) })
+            else { return }
+
+            let indexPath = IndexPath(row: row, section: 0)
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
+            selectResult(at: indexPath)
+        }
 
         runSearch(type: .search)
     }
@@ -62,18 +92,27 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
         let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            map.topAnchor.constraint(equalTo: guide.topAnchor),
+            map.topAnchor.constraint(equalTo: view.topAnchor),
             map.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             map.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            map.heightAnchor.constraint(equalTo: guide.heightAnchor, multiplier: 0.58),
+            map.bottomAnchor.constraint(equalTo: tableView.topAnchor),
 
-            tableView.topAnchor.constraint(equalTo: map.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.heightAnchor.constraint(equalTo: guide.heightAnchor, multiplier: 0.42),
         ])
 
-        map.visibleMapInsetsProvider = { UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20) }
+        // The map renders under the navigation controls, so expose their actual footprint
+        // to camera framing and drawable placement.
+        map.visibleMapInsetsProvider = { [weak self] in
+            guard let self else { return .zero }
+            var navigationBarBottom = view.safeAreaInsets.top
+            if let navigationBar = navigationController?.navigationBar {
+                navigationBarBottom = navigationBar.convert(navigationBar.bounds, to: map).maxY
+            }
+            return UIEdgeInsets(top: navigationBarBottom + 20, left: 20, bottom: 20, right: 20)
+        }
     }
 
     private func setupSearchController() {
@@ -85,6 +124,9 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
+        if #available(iOS 16, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
         definesPresentationContext = true
     }
 
@@ -144,6 +186,8 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
             showAlert("\(source) Search Failed", message: error.localizedDescription)
             return
         }
+        selectedMarker?.hidden = true
+        selectedResult = nil
         self.results = results?.array() ?? []
         displayMarkers()
         tableView.reloadData()
@@ -184,8 +228,31 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         for obj in results {
             bbox.add(point: obj.point)
         }
-        map.mapCenter = bbox.center
-        map.mapScale = map.mapScale(for: bbox)
+        let scale = map.mapScale(for: bbox)
+        if scale.isFinite {
+            map.mapScale = scale
+        } else {
+            map.mapZoomLevel = 15
+        }
+
+        centerMap(on: bbox.center)
+    }
+
+    private func centerMap(on point: GLMapPoint) {
+        // Insets constrain the scale but intentionally do not move the camera. Center the
+        // requested point explicitly in the unobscured part of the map.
+        let insets = map.visibleMapInsets()
+        let origin = map.mapOrigin
+        let displayOffset = CGPoint(
+            x: (insets.right - insets.left) * 0.5 + map.bounds.width * (0.5 - origin.x),
+            y: (insets.bottom - insets.top) * 0.5 + map.bounds.height * (0.5 - origin.y)
+        )
+        let mapOffset = map.makeMapPoint(
+            fromDisplayDelta: displayOffset,
+            andMapScale: map.mapScale,
+            andMapAngle: map.mapAngle
+        )
+        map.mapCenter = point.add(x: mapOffset.x, y: mapOffset.y)
     }
 
     // MARK: - UITableView
@@ -216,6 +283,25 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
     }
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        map.mapCenter = results[indexPath.row].point
+        selectResult(at: indexPath)
+    }
+
+    private func selectResult(at indexPath: IndexPath) {
+        let result = results[indexPath.row]
+        if selectedResult !== result {
+            // The layer animates the selected circle out and restores the previous one while
+            // the individual image provides a distinct, inexpensive selected state.
+            markerLayer?.add(selectedResult.map { [$0] }, remove: [result], animated: true)
+            selectedResult = result
+            selectedMarker?.position = result.point
+            selectedMarker?.scale = 0.01
+            selectedMarker?.hidden = false
+        }
+
+        map.animate { animation in
+            animation.duration = 0.3
+            self.selectedMarker?.scale = 1
+            self.centerMap(on: result.point)
+        }
     }
 }
