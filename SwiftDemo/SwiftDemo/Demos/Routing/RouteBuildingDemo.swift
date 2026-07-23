@@ -81,9 +81,9 @@ class RouteBuildingDemo: DemoMapViewController {
 
         let request = GLRouteRequest()
         switch routingMode.selectedSegmentIndex {
-        case 0: request.setAutoWithOptions(CostingOptionsAuto())
-        case 1: request.setBicycleWithOptions(CostingOptionsBicycle())
-        default: request.setPedestrianWithOptions(CostingOptionsPedestrian())
+        case 0: request.setAutoWithOptions(.default)
+        case 1: request.setBicycleWithOptions(.default)
+        default: request.setPedestrianWithOptions(.default)
         }
 
         request.add(GLRoutePoint(pt: startPoint, heading: .nan, type: .break))

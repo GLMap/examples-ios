@@ -159,7 +159,7 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
         title = "Building route..."
 
         let request = GLRouteRequest()
-        request.setAutoWithOptions(CostingOptionsAuto())
+        request.setAutoWithOptions(.default)
         request.locale = "en-US"
         request.unitSystem = .international
         request.add(GLRoutePoint(pt: startPoint, heading: .nan, type: .break))

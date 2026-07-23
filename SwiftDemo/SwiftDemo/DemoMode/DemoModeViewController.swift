@@ -1,6 +1,7 @@
 import GLMap
 import GLMapSwift
 import GLRoute
+import GLSearch
 import UIKit
 
 class DemoModeViewController: UIViewController {
@@ -11,6 +12,9 @@ class DemoModeViewController: UIViewController {
     private var sceneIndex = 0
     private var isRunning = false
     private var overlayLayers: [AnyObject] = []
+    private var contentGeneration = 0
+    private var routeRequestID: Int64 = 0
+    private var searchRequestID: Int64 = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +56,7 @@ class DemoModeViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         isRunning = false
+        clearOverlays()
         UIApplication.shared.isIdleTimerDisabled = false
         GLMapManager.shared.tileDownloadingAllowed = false
     }
@@ -115,6 +120,15 @@ class DemoModeViewController: UIViewController {
     // MARK: - Overlay helpers
 
     func clearOverlays() {
+        contentGeneration += 1
+        if routeRequestID != 0 {
+            GLRouteRequest.cancel(routeRequestID)
+            routeRequestID = 0
+        }
+        if searchRequestID != 0 {
+            GLSearchRequest.cancel(searchRequestID)
+            searchRequestID = 0
+        }
         for layer in overlayLayers {
             if let drawable = layer as? GLMapDrawable {
                 map.remove(drawable)
@@ -128,6 +142,7 @@ class DemoModeViewController: UIViewController {
     }
 
     func showMarkerClusters() {
+        let generation = contentGeneration
         guard let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg") else { return }
 
         let tintColors = [
@@ -172,7 +187,7 @@ class DemoModeViewController: UIViewController {
             let bbox = objects.bbox
 
             DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
+                guard let self, isRunning, generation == contentGeneration else { return }
                 self.map.add(markerLayer)
                 self.overlayLayers.append(markerLayer)
                 self.map.mapCenter = bbox.center
@@ -182,21 +197,75 @@ class DemoModeViewController: UIViewController {
     }
 
     func buildDemoRoute(from start: GLMapGeoPoint, to end: GLMapGeoPoint) {
+        let generation = contentGeneration
         let request = GLRouteRequest()
-        request.setAutoWithOptions(CostingOptionsAuto())
+        var options = CostingOptionsAuto.default
+        options.road.useHighways = 0 // Keep this showcase route on the scenic coastal roads.
+        request.setAutoWithOptions(options)
         request.add(GLRoutePoint(pt: start, heading: .nan, type: .break))
         request.add(GLRoutePoint(pt: end, heading: .nan, type: .break))
 
         let routeStyle = GLMapVectorStyle.createStyle("{width: 7pt; fill-image:\"track-arrow.svg\";}")!
 
-        request.startOnline { [weak self] route, _ in
-            guard let self, let route,
+        routeRequestID = request.startOnline { [weak self] route, _ in
+            guard let self, isRunning, generation == contentGeneration else { return }
+            routeRequestID = 0
+            guard let route,
                   let trackData = route.trackData(with: GLMapColor(red: 50, green: 200, blue: 0, alpha: 200)) else { return }
 
             let track = GLMapTrack(drawOrder: 5)
             track.setData(trackData, style: routeStyle)
             map.add(track)
             overlayLayers.append(track)
+        }
+    }
+
+    func showOnlineSearchResults(at center: GLMapGeoPoint) {
+        let generation = contentGeneration
+        let request = GLSearchRequest(
+            type: .search,
+            text: "",
+            center: center,
+            limit: 30,
+            locales: ["en", "native"],
+            categories: ["restaurant"]
+        )
+
+        searchRequestID = request.startOnline { [weak self] results, error in
+            guard let self, isRunning, generation == contentGeneration else { return }
+            searchRequestID = 0
+            guard error == nil, let results, results.count > 0 else {
+                overlay.showCaption("Search unavailable")
+                return
+            }
+            guard let imagePath = Bundle.main.path(forResource: "cluster", ofType: "svg"),
+                  let image = GLMapVectorImageFactory.shared.image(
+                      fromSvg: imagePath,
+                      withScale: 0.2,
+                      andTintColor: GLMapColor(red: 0, green: 102, blue: 204, alpha: 255)
+                  )
+            else { return }
+
+            let styles = GLMapMarkerStyleCollection()
+            styles.addStyle(with: image)
+            styles.setMarkerDataFill { _, data in data.setStyle(0) }
+
+            let markerLayer = GLMapMarkerLayer(
+                vectorObjects: results,
+                andStyles: styles,
+                clusteringRadius: 0,
+                drawOrder: 3
+            )
+            map.add(markerLayer)
+            overlayLayers.append(markerLayer)
+            overlay.showCaption("Search · \(results.count) results")
+
+            let bbox = results.bbox
+            map.animate { animation in
+                animation.duration = 1.5
+                self.map.mapCenter = bbox.center
+                self.map.mapScale = self.map.mapScale(for: bbox)
+            }
         }
     }
 }

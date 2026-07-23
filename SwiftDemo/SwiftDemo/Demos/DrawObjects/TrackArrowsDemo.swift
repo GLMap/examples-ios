@@ -32,7 +32,7 @@ class TrackArrowsDemo: DemoMapViewController {
 
     private func buildRoute() {
         let request = GLRouteRequest()
-        request.setAutoWithOptions(CostingOptionsAuto())
+        request.setAutoWithOptions(.default)
         request.add(GLRoutePoint(pt: routeStart, heading: .nan, type: .break))
         request.add(GLRoutePoint(pt: routeEnd, heading: .nan, type: .break))
 

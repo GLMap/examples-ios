@@ -133,17 +133,15 @@ enum DemoScenes {
             DispatchQueue.main.asyncAfter(deadline: .now() + 15) { completion() }
         },
 
-        // 11. Search results
-        DemoScene { vc, completion in
+        // 11. Online search — category results around the scenic area
+        DemoScene(caption: "Search") { vc, completion in
+            vc.clearOverlays()
             vc.map.animate { anim in
                 anim.duration = 2
                 vc.map.mapPitch = 0
             }
-            vc.overlay.showTitle("Offline Search", subtitle: nil)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                vc.overlay.hideTitle()
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { completion() }
+            vc.showOnlineSearchResults(at: scenicCenter)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 6) { completion() }
         },
 
         // 12. End card — zoom out to globe
