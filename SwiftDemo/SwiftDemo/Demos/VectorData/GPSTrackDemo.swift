@@ -44,7 +44,7 @@ class GPSTrackDemo: DemoMapViewController, CLLocationManagerDelegate {
             var trackPoint = GLTrackPoint(pt: mapPoint, color: GLMapColor(red: 255, green: 255, blue: 0, alpha: 255))
 
             if let curData = trackData {
-                trackData = GLMapTrackData(data: curData, andNewPoint: trackPoint, startNewSegment: false)
+                trackData = curData.appending(trackPoint, startingNewSegment: false)
             } else {
                 trackData = GLMapTrackData(points: &trackPoint, count: 1)
             }

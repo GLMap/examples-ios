@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GLMap/GLMapSwift",
       "state" : {
-        "revision" : "ca75940c1bba4890d0e70df86145f1b93fb4d0ec",
-        "version" : "2.0.0"
+        "revision" : "5ab21f0ffc71b1942988017065347ec6d0a66614",
+        "version" : "2.1.0"
       }
     }
   ],

@@ -41,7 +41,9 @@ class ZoomToBBoxDemo: DemoMapViewController {
 
         let style = GLMapVectorCascadeStyle.createStyle("line{width:4pt; color:#E74C3C;}")!
         let layer = GLMapVectorLayer(drawOrder: 5)
-        layer.setVectorObject(GLMapVectorLine(line: GLMapPointArray(cityPoints)), with: style)
+        let builder = GeometryBuilder()
+        builder.addLine(cityPoints)
+        layer.setVectorObject(builder.build()!, with: style)
         map.add(layer)
     }
 
