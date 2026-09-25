@@ -173,7 +173,9 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
                 routeTracker = GLRouteTracker(data: route)
                 routeTracker?.currentTargetPointIndex = 1
                 title = "Turn-by-Turn Navigation"
-                if let lastLocation { updateNavigation(with: lastLocation) }
+                if let lastLocation {
+                    updateNavigation(with: lastLocation)
+                }
             } else if let error {
                 title = "Tap map to choose destination"
                 showAlert("Route Error", message: error.localizedDescription)
@@ -202,7 +204,9 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
 
     private func cancelRouteRequest() {
         routeGeneration += 1
-        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        if requestID != 0 {
+            GLRouteRequest.cancel(requestID)
+        }
         requestID = 0
     }
 
@@ -286,7 +290,9 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     private func formatDuration(_ seconds: Double) -> String {
         guard seconds.isFinite else { return "-- min" }
         let mins = Int(seconds / 60)
-        if mins < 60 { return "\(mins) min" }
+        if mins < 60 {
+            return "\(mins) min"
+        }
         return "\(mins / 60) h \(mins % 60) min"
     }
 }

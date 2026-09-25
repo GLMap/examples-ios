@@ -27,8 +27,12 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
                 setMaps(cached)
             }
             GLMapManager.shared.updateMapList { [weak self] maps, _, error in
-                if let error { NSLog("Map list error: \(error.localizedDescription)") }
-                if let maps { self?.setMaps(maps) }
+                if let error {
+                    NSLog("Map list error: \(error.localizedDescription)")
+                }
+                if let maps {
+                    self?.setMaps(maps)
+                }
             }
         }
 
@@ -140,7 +144,9 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
                 task.cancel()
             } else {
                 GLMapManager.shared.downloadDataSets(.all, forMap: info) { task in
-                    if let error = task.error { NSLog("Download error: \(error)") }
+                    if let error = task.error {
+                        NSLog("Download error: \(error)")
+                    }
                 }
             }
         }

@@ -17,7 +17,9 @@ class ZoomToBBoxDemo: DemoMapViewController {
 
     private var cityBBox: GLMapBBox {
         var bbox = GLMapBBox.empty
-        for point in cityPoints { bbox.add(point: point) }
+        for point in cityPoints {
+            bbox.add(point: point)
+        }
         return bbox
     }
 

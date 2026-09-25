@@ -42,7 +42,7 @@ class DemoMapViewController: UIViewController {
         parser.setOptions(options, defaultValue: true)
 
         do {
-            map.setStyle(try parser.parseFromResources())
+            try map.setStyle(parser.parseFromResources())
             map.reloadTiles()
         } catch {
             DispatchQueue.main.async { [weak self] in
@@ -87,7 +87,9 @@ class DemoMapViewController: UIViewController {
             mapManager.downloadDataSet(file.dataSet, path: path, bbox: bbox, progress: { _, _, _ in }) { error in
                 if let error {
                     try? FileManager.default.removeItem(atPath: path)
-                    if firstError == nil { firstError = error }
+                    if firstError == nil {
+                        firstError = error
+                    }
                 } else {
                     add(file.dataSet, path: path)
                 }

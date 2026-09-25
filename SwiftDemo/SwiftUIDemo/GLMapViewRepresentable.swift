@@ -27,10 +27,20 @@ struct GLMapViewRepresentable: PlatformViewRepresentable {
     }
 
     #if os(iOS)
-        func makeUIView(context _: Context) -> GLMapView { makeMapView() }
-        func updateUIView(_ map: GLMapView, context _: Context) { update(map) }
+        func makeUIView(context _: Context) -> GLMapView {
+            makeMapView()
+        }
+
+        func updateUIView(_ map: GLMapView, context _: Context) {
+            update(map)
+        }
     #else
-        func makeNSView(context _: Context) -> GLMapView { makeMapView() }
-        func updateNSView(_ map: GLMapView, context _: Context) { update(map) }
+        func makeNSView(context _: Context) -> GLMapView {
+            makeMapView()
+        }
+
+        func updateNSView(_ map: GLMapView, context _: Context) {
+            update(map)
+        }
     #endif
 }

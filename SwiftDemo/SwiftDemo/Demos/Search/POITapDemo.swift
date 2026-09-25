@@ -45,6 +45,8 @@ class POITapDemo: DemoMapViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if let balloon { map.remove(balloon) }
+        if let balloon {
+            map.remove(balloon)
+        }
     }
 }

@@ -81,7 +81,9 @@ class BalloonDemo: DemoMapViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if let balloon { map.remove(balloon) }
+        if let balloon {
+            map.remove(balloon)
+        }
         for pin in pins {
             map.remove(pin)
         }

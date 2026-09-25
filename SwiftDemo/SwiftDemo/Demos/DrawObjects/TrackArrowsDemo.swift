@@ -26,7 +26,9 @@ class TrackArrowsDemo: DemoMapViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        if requestID != 0 {
+            GLRouteRequest.cancel(requestID)
+        }
         requestID = 0
     }
 

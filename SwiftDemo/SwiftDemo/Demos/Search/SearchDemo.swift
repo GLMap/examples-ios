@@ -55,7 +55,9 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
         setupLayout()
         setupSearchController()
-        if let selectedMarker { map.add(selectedMarker) }
+        if let selectedMarker {
+            map.add(selectedMarker)
+        }
         map.tapGestureBlock = { [weak self] gesture in
             guard let self, let markerLayer else { return }
             var point = map.makeMapPoint(fromDisplay: gesture.location(in: map))
@@ -176,7 +178,9 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
 
     private func cancelRunningRequest() {
         searchGeneration += 1
-        if requestID != 0 { GLSearchRequest.cancel(requestID) }
+        if requestID != 0 {
+            GLSearchRequest.cancel(requestID)
+        }
         requestID = 0
     }
 

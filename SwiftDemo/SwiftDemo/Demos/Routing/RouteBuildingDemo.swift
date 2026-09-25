@@ -114,7 +114,9 @@ class RouteBuildingDemo: DemoMapViewController {
 
     private func cancelRouteRequest() {
         routeGeneration += 1
-        if requestID != 0 { GLRouteRequest.cancel(requestID) }
+        if requestID != 0 {
+            GLRouteRequest.cancel(requestID)
+        }
         requestID = 0
     }
 }
