@@ -12,7 +12,7 @@ enum DemoScenes {
     static let all: [DemoScene] = [
         // 1. Title card
         DemoScene { vc, completion in
-            vc.overlay.showTitle("GLMap 2.0", subtitle: "SDK Demo")
+            vc.overlay.showTitle("GLMap 2.2.0", subtitle: "SDK Demo")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 vc.overlay.hideTitle()
                 completion()

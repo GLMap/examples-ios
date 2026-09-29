@@ -5,7 +5,7 @@ class DemoCatalogViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "GLMap 2.0"
+        title = "GLMap 2.2.0"
         view.backgroundColor = Theme.backgroundColor
 
         tableView.register(DemoCatalogCell.self, forCellReuseIdentifier: DemoCatalogCell.reuseID)

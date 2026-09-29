@@ -14,7 +14,9 @@ import SwiftUI
 struct SwiftUIDemoApp: App {
     init() {
         // Insert your API key from https://user.globus.software/apps/
-        GLMapManager.activate(apiKey: <#API key#>)
+        guard GLMapManager.activate(apiKey: "YOUR_API_KEY") else {
+            fatalError("GLMap SDK initialization failed")
+        }
         GLMapManager.shared.tileDownloadingAllowed = true
     }
 

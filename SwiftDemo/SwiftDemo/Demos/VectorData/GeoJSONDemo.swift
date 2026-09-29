@@ -5,9 +5,10 @@ import UIKit
 class GeoJSONDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Tap on any UK region"
+        title = "Loading GeoJSON..."
 
         guard let path = Bundle.main.path(forResource: "uk_postcodes", ofType: "geojson") else {
+            title = "GeoJSON failed"
             showAlert(message: "uk_postcodes.geojson not found in bundle")
             return
         }
@@ -17,7 +18,23 @@ class GeoJSONDemo: DemoMapViewController {
             let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#3498DB40; width:1.5pt; color:#2C3E50;}")!
 
             let vectorLayer = GLMapVectorLayer()
-            vectorLayer.setVectorObjects(objects, with: style)
+            // Updates and their completion run on the main thread. Ready means the
+            // geometry is ready to draw, not that a frame has already been presented.
+            vectorLayer.setVectorObjects(objects, with: style) { [weak self] result in
+                guard let self else { return }
+                switch result {
+                case .ready:
+                    title = "Tap on any UK region"
+                case .failed:
+                    title = "GeoJSON failed"
+                    showAlert(message: "Cannot prepare GeoJSON for drawing")
+                case .superseded, .cancelled:
+                    // Normal lifecycle outcomes, not a successful update or a loading error.
+                    title = "GeoJSON"
+                @unknown default:
+                    break
+                }
+            }
             map.add(vectorLayer)
 
             let bbox = objects.bbox
@@ -40,6 +57,7 @@ class GeoJSONDemo: DemoMapViewController {
                 }
             }
         } catch {
+            title = "GeoJSON failed"
             showAlert(message: "GeoJSON error: \(error.localizedDescription)")
         }
     }
