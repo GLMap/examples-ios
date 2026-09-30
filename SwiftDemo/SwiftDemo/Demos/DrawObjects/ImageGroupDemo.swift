@@ -97,7 +97,6 @@ class ImageGroupDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
         map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522) // Paris
         map.mapZoomLevel = 13
 
@@ -123,11 +122,6 @@ class ImageGroupDemo: DemoMapViewController {
                 removePin(pin)
             }
         }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        map.remove(imageGroup)
     }
 
     private func addPin(at position: GLMapPoint) {

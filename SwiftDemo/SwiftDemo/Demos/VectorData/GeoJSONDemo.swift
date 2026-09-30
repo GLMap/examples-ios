@@ -3,6 +3,10 @@ import GLMapSwift
 import UIKit
 
 class GeoJSONDemo: DemoMapViewController {
+    override var usesOnlineTiles: Bool {
+        false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Loading GeoJSON..."
@@ -13,52 +17,57 @@ class GeoJSONDemo: DemoMapViewController {
             return
         }
 
-        do {
-            let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
-            let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#3498DB40; width:1.5pt; color:#2C3E50;}")!
-
-            let vectorLayer = GLMapVectorLayer()
-            // Updates and their completion run on the main thread. Ready means the
-            // geometry is ready to draw, not that a frame has already been presented.
-            vectorLayer.setVectorObjects(objects, with: style) { [weak self] result in
-                guard let self else { return }
-                switch result {
-                case .ready:
-                    title = "Tap on any UK region"
-                case .failed:
-                    title = "GeoJSON failed"
-                    showAlert(message: "Cannot prepare GeoJSON for drawing")
-                case .superseded, .cancelled:
-                    // Normal lifecycle outcomes, not a successful update or a loading error.
-                    title = "GeoJSON"
-                @unknown default:
-                    break
+        // File I/O and parsing of the large sample must not block opening the screen.
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            do {
+                let objects = try GLMapVectorObject.createVectorObjects(fromFile: path)
+                DispatchQueue.main.async { self?.display(objects) }
+            } catch {
+                DispatchQueue.main.async {
+                    self?.title = "GeoJSON failed"
+                    self?.showAlert(message: "GeoJSON error: \(error.localizedDescription)")
                 }
             }
-            map.add(vectorLayer)
+        }
+    }
 
-            let bbox = objects.bbox
-            map.mapCenter = bbox.center
-            map.mapScale = map.mapScale(for: bbox)
+    private func display(_ objects: GLMapVectorObjectArray) {
+        let style = GLMapVectorCascadeStyle.createStyle("area{fill-color:#3498DB40; width:1.5pt; color:#2C3E50;}")!
+        let vectorLayer = GLMapVectorLayer()
+        // Updates and their completion run on the main thread. Ready means the
+        // geometry is ready to draw, not that a frame has already been presented.
+        vectorLayer.setVectorObjects(objects, with: style) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .ready:
+                title = "Tap on any UK region"
+            case .failed:
+                title = "GeoJSON failed"
+                showAlert(message: "Cannot prepare GeoJSON for drawing")
+            case .superseded, .cancelled:
+                title = "GeoJSON"
+            @unknown default:
+                break
+            }
+        }
+        map.add(vectorLayer)
+        let bbox = objects.bbox
+        map.mapCenter = bbox.center
+        map.mapScale = map.mapScale(for: bbox)
 
-            map.tapGestureBlock = { [weak self] gesture in
-                guard let self else { return }
-                let mapPoint = map.makeMapPoint(fromDisplay: gesture.location(in: map))
-                let tmp = map.makeMapPoint(fromDisplayDelta: CGPoint(x: 0, y: 10))
-                let maxDist = hypot(tmp.x, tmp.y)
-
-                for index in 0 ..< objects.count {
-                    let object = objects[index]
-                    var pt = mapPoint
-                    if object.findNearestPoint(&pt, to: mapPoint, maxDistance: maxDist) {
-                        showAlert(message: "Tapped: \(object.debugDescription())")
-                        return
-                    }
+        map.tapGestureBlock = { [weak self] gesture in
+            guard let self else { return }
+            let mapPoint = map.makeMapPoint(fromDisplay: gesture.location(in: map))
+            let delta = map.makeMapPoint(fromDisplayDelta: CGPoint(x: 0, y: 10))
+            let maxDistance = hypot(delta.x, delta.y)
+            for index in 0 ..< objects.count {
+                let object = objects[index]
+                var point = mapPoint
+                if object.findNearestPoint(&point, to: mapPoint, maxDistance: maxDistance) {
+                    showAlert(message: "Tapped: \(object.debugDescription())")
+                    return
                 }
             }
-        } catch {
-            title = "GeoJSON failed"
-            showAlert(message: "GeoJSON error: \(error.localizedDescription)")
         }
     }
 }

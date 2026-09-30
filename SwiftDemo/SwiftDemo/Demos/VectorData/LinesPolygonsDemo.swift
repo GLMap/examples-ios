@@ -5,7 +5,6 @@ import UIKit
 class LinesPolygonsDemo: DemoMapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         let center = GLMapGeoPoint(lat: 48.8566, lon: 2.3522) // Paris
         map.mapGeoCenter = center

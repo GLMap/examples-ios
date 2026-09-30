@@ -28,7 +28,7 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
             }
             GLMapManager.shared.updateMapList { [weak self] maps, _, error in
                 if let error {
-                    NSLog("Map list error: \(error.localizedDescription)")
+                    self?.showError("Map list unavailable", message: error.localizedDescription)
                 }
                 if let maps {
                     self?.setMaps(maps)
@@ -75,7 +75,17 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
     }
 
     private func isOnDevice(_ info: GLMapInfo) -> Bool {
-        info.state(for: .map) != .notDownloaded || info.state(for: .navigation) != .notDownloaded
+        info.state(for: .map) != .notDownloaded
+            || info.state(for: .navigation) != .notDownloaded
+            || info.state(for: .elevation) != .notDownloaded
+    }
+
+    private func showError(_ title: String, message: String) {
+        navigationItem.prompt = message
+        guard viewIfLoaded?.window != nil, presentedViewController == nil else { return }
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func updateCell(for mapInfo: GLMapInfo) {
@@ -109,10 +119,11 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
 
         if info.subMaps.count > 0 {
             cell.accessoryType = .disclosureIndicator
-        } else if let task = GLMapManager.shared.downloadTask(forMap: info, dataSet: .map) {
-            if task.total > 0 {
-                let percent = Double(task.downloaded) * 100 / Double(task.total)
-                config.secondaryText = String(format: "Downloading %.1f%%", percent)
+        } else if let tasks = GLMapManager.shared.downloadTasks(forMap: info, dataSets: .all), !tasks.isEmpty {
+            let downloaded = tasks.reduce(0.0) { $0 + Double($1.downloaded) }
+            let total = tasks.reduce(0.0) { $0 + Double($1.total) }
+            if total > 0 {
+                config.secondaryText = String(format: "Downloading %d data sets · %.1f%%", tasks.count, downloaded * 100 / total)
             } else {
                 config.secondaryText = "Starting download..."
             }
@@ -140,12 +151,17 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
             sub.title = info.name(inLanguage: "en") ?? info.name()
             navigationController?.pushViewController(sub, animated: true)
         } else {
-            if let task = GLMapManager.shared.downloadTask(forMap: info, dataSet: .map) {
-                task.cancel()
+            if let tasks = GLMapManager.shared.downloadTasks(forMap: info, dataSets: .all), !tasks.isEmpty {
+                // A map download consists of independent map, navigation and elevation tasks.
+                for task in tasks {
+                    task.cancel()
+                }
             } else {
-                GLMapManager.shared.downloadDataSets(.all, forMap: info) { task in
-                    if let error = task.error {
-                        NSLog("Download error: \(error)")
+                GLMapManager.shared.downloadDataSets(.all, forMap: info) { [weak self] task in
+                    if let error = task.error, !task.isCancelled {
+                        DispatchQueue.main.async {
+                            self?.showError("Download failed", message: error.localizedDescription)
+                        }
                     }
                 }
             }
@@ -162,7 +178,11 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
 
     override func tableView(_: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            GLMapManager.shared.deleteDataSets(.all, forMap: mapsOnDevice[indexPath.row])
+            let info = mapsOnDevice[indexPath.row]
+            for task in GLMapManager.shared.downloadTasks(forMap: info, dataSets: .all) ?? [] {
+                task.cancel()
+            }
+            GLMapManager.shared.deleteDataSets(.all, forMap: info)
             setMaps(allMaps)
         }
     }

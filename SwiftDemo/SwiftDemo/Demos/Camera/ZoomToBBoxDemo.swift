@@ -25,7 +25,6 @@ class ZoomToBBoxDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         map.visibleMapInsetsProvider = { [weak self] in
             guard let self else { return .zero }

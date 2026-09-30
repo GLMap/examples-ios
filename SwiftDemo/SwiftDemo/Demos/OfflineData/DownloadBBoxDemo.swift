@@ -3,6 +3,10 @@ import GLMapSwift
 import UIKit
 
 class DownloadBBoxDemo: DemoMapViewController {
+    override var usesOnlineTiles: Bool {
+        false
+    }
+
     private let downloadLabel = UILabel()
 
     private let demoBBox: GLMapBBox = {

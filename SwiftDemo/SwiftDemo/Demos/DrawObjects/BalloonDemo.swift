@@ -15,7 +15,6 @@ class BalloonDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
         map.mapGeoCenter = GLMapGeoPoint(lat: 48, lon: 8)
         map.mapZoomLevel = 5
         title = "Tap a pin to see balloon"
@@ -76,16 +75,6 @@ class BalloonDemo: DemoMapViewController {
             newBalloon.position = GLMapPoint(lat: city.lat, lon: city.lon)
             map.add(newBalloon)
             balloon = newBalloon
-        }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let balloon {
-            map.remove(balloon)
-        }
-        for pin in pins {
-            map.remove(pin)
         }
     }
 }

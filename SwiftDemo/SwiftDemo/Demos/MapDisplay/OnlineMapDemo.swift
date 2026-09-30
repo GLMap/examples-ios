@@ -8,7 +8,6 @@ class OnlineMapDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         // Cortina d'Ampezzo — Dolomites ski resort, great for hillshades and contour lines
         map.mapGeoCenter = GLMapGeoPoint(lat: 46.5369, lon: 12.1356)
@@ -67,14 +66,5 @@ class OnlineMapDemo: DemoMapViewController {
             balloon.setText(text, with: style, insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
             balloon.position = mapPt
         }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let balloon {
-            map.remove(balloon)
-        }
-        map.base = GLMapVectorTileSource()
-        osmTileSource = nil
     }
 }

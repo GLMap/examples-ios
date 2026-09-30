@@ -19,7 +19,6 @@ class TerrainDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         map.mapCenter = terrainBBox.center
         map.mapScale = map.mapScale(for: terrainBBox) * 2 // Start 1 zoom closer

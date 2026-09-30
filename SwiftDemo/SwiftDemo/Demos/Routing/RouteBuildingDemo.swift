@@ -16,7 +16,6 @@ class RouteBuildingDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         guard let configPath = Bundle.main.path(forResource: "valhalla", ofType: "json"),
               let config = try? String(contentsOfFile: configPath)
@@ -65,12 +64,15 @@ class RouteBuildingDemo: DemoMapViewController {
             alert.popoverPresentationController?.sourceRect = CGRect(x: pt.x, y: pt.y, width: 1, height: 1)
             present(alert, animated: true)
         }
+    }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         updateRoute()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         cancelRouteRequest()
     }
 
@@ -99,9 +101,12 @@ class RouteBuildingDemo: DemoMapViewController {
                     routeTrack = track
                 }
                 routeTrack?.setData(trackData, style: routeStyle)
+                routeTrack?.hidden = false
             }
             if let error {
-                showAlert("Routing Error", message: error.localizedDescription)
+                routeTrack?.hidden = true
+                let help = networkMode.selectedSegmentIndex == 0 ? "" : "\n\nFor offline routing, first download navigation data for this area in Download Maps (Portugal for the initial Porto route)."
+                showAlert("Routing Error", message: error.localizedDescription + help)
             }
         }
 

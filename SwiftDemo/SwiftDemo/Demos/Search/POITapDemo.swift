@@ -8,7 +8,6 @@ class POITapDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
         map.mapGeoCenter = GLMapGeoPoint(lat: 43.7696, lon: 11.2558) // Florence
         map.mapZoomLevel = 16
         title = "Tap to find POI"
@@ -23,7 +22,7 @@ class POITapDemo: DemoMapViewController {
 
             if let object = map.state.mapObject(at: pt, maxDistance: 20) {
                 guard let image = UIImage(named: "balloon") else { return }
-                let name = object.localizedName(self.map.localeSettings)?.asString() ?? ""
+                let name = object.localizedName(map.localeSettings)?.asString() ?? ""
                 let newBalloon = GLMapBalloon(drawOrder: 10)
                 let style = GLMapVectorStyle.createStyle("{text-color:black;font-size:14;}")!
                 let vInset = floor(image.size.height / 2)
@@ -36,17 +35,10 @@ class POITapDemo: DemoMapViewController {
                     insets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
                 )
                 newBalloon.position = object.point
-                self.map.add(newBalloon)
-                self.balloon = newBalloon
-                self.title = name.isEmpty ? "Unknown" : name
+                map.add(newBalloon)
+                balloon = newBalloon
+                title = name.isEmpty ? "Unknown" : name
             }
-        }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let balloon {
-            map.remove(balloon)
         }
     }
 }

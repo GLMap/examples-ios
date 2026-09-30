@@ -15,7 +15,6 @@ class FlyToDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "Fly", style: .plain, target: self, action: #selector(flyToNext)

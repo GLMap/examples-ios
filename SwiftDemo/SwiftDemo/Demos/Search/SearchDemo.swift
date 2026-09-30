@@ -33,6 +33,15 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
     private var searchGeneration = 0
     private var pendingSearch: DispatchWorkItem?
 
+    /// Custom datasets belong to the shared manager, not to an individual screen.
+    /// Register the bundled map once, even when the example is opened repeatedly.
+    private static let offlineMapError: String? = {
+        guard let path = Bundle.main.path(forResource: "Montenegro", ofType: "vm") else {
+            return "Montenegro.vm is missing from the app resources."
+        }
+        return GLMapManager.shared.add(.map, path: path, bbox: .empty).nsError?.localizedDescription
+    }()
+
     /// Podgorica — inside the bundled Montenegro offline map, so `startOffline` has data.
     private let center = GLMapGeoPoint(lat: 42.4341, lon: 19.26)
 
@@ -44,10 +53,8 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         super.viewDidLoad()
         title = "Search"
 
-        GLMapManager.shared.tileDownloadingAllowed = true
-        // Load an offline map so the offline path has something to search.
-        if let offlineMapPath = Bundle.main.path(forResource: "Montenegro", ofType: "vm") {
-            GLMapManager.shared.add(.map, path: offlineMapPath, bbox: .empty)
+        if let error = Self.offlineMapError {
+            showAlert("Offline Map Error", message: error)
         }
 
         map.mapGeoCenter = center
@@ -72,12 +79,15 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
             tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
             selectResult(at: indexPath)
         }
+    }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         runSearch(type: .search)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         pendingSearch?.cancel()
         cancelRunningRequest()
     }
@@ -170,8 +180,8 @@ class SearchDemo: DemoMapViewController, UISearchResultsUpdating, UISearchBarDel
         let source = isOnline ? "Online" : "Offline"
         let generation = searchGeneration
         let completion: (GLMapVectorObjectArray?, Error?) -> Void = { [weak self] results, error in
-            guard let self, self.searchGeneration == generation else { return }
-            self.handle(results, error, source: source)
+            guard let self, searchGeneration == generation else { return }
+            handle(results, error, source: source)
         }
         requestID = isOnline ? request.startOnline(completion: completion) : request.startOffline(completion: completion)
     }

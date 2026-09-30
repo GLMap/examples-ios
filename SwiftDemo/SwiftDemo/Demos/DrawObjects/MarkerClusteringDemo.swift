@@ -3,6 +3,10 @@ import GLMapSwift
 import UIKit
 
 class MarkerClusteringDemo: DemoMapViewController {
+    override var usesOnlineTiles: Bool {
+        false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

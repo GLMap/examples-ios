@@ -8,28 +8,28 @@ import UIKit
 extension GLManeuverType {
     var svgName: String {
         switch self {
-        case .start, .becomes, .continue, .rampStraight, .stayStraight: return "arrow_straight"
-        case .startRight: return "arrow_right"
-        case .startLeft: return "arrow_left"
-        case .slightRight: return "arrow_right_45"
-        case .slightLeft: return "arrow_left_45"
-        case .rampRight, .exitRight, .stayRight: return "arrow_right_45_plus"
-        case .rampLeft, .exitLeft, .stayLeft: return "arrow_left_45_plus"
-        case .right: return "arrow_right_90"
-        case .left: return "arrow_left_90"
-        case .sharpRight: return "arrow_right_135"
-        case .sharpLeft: return "arrow_left_135"
-        case .uturnRight: return "arrow_right_180"
-        case .uturnLeft: return "arrow_left_180"
-        case .destination: return "finish"
-        case .destinationRight: return "finish_right"
-        case .destinationLeft: return "finish_left"
-        case .merge: return "arrow_join"
-        case .ferryEnter: return "ferry_enter"
-        case .ferryExit: return "ferry_exit"
-        case .roundaboutEnter: return "roundabout_enter"
-        case .roundaboutExit: return "roundabout_exit"
-        default: return ""
+        case .start, .becomes, .continue, .rampStraight, .stayStraight: "arrow_straight"
+        case .startRight: "arrow_right"
+        case .startLeft: "arrow_left"
+        case .slightRight: "arrow_right_45"
+        case .slightLeft: "arrow_left_45"
+        case .rampRight, .exitRight, .stayRight: "arrow_right_45_plus"
+        case .rampLeft, .exitLeft, .stayLeft: "arrow_left_45_plus"
+        case .right: "arrow_right_90"
+        case .left: "arrow_left_90"
+        case .sharpRight: "arrow_right_135"
+        case .sharpLeft: "arrow_left_135"
+        case .uturnRight: "arrow_right_180"
+        case .uturnLeft: "arrow_left_180"
+        case .destination: "finish"
+        case .destinationRight: "finish_right"
+        case .destinationLeft: "finish_left"
+        case .merge: "arrow_join"
+        case .ferryEnter: "ferry_enter"
+        case .ferryExit: "ferry_exit"
+        case .roundaboutEnter: "roundabout_enter"
+        case .roundaboutExit: "roundabout_exit"
+        default: ""
         }
     }
 }
@@ -55,14 +55,10 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
 
         setupManeuverUI()
         setupManeuverArrow()
 
-        if locationManager.authorizationStatus == .notDetermined {
-            locationManager.requestWhenInUseAuthorization()
-        }
         userLocation.add(toMap: map)
         locationManager.delegate = self
         map.mapOrigin = CGPoint(x: 0.5, y: 0.25)
@@ -72,13 +68,50 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
             buildRoute(from: GLMapGeoPoint(location: lastLocation), to: destination)
         }
         title = "Waiting for location..."
-        locationManager.startUpdatingLocation()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    private var isVisible = false
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isVisible = true
+        updateLocationAuthorization()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        isVisible = false
         cancelRouteRequest()
         locationManager.stopUpdatingLocation()
+    }
+
+    func locationManagerDidChangeAuthorization(_: CLLocationManager) {
+        updateLocationAuthorization()
+    }
+
+    private func updateLocationAuthorization() {
+        guard isVisible else { return }
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedAlways, .authorizedWhenInUse:
+            title = routeTracker == nil ? "Tap map to choose destination" : "Turn-by-Turn Navigation"
+            navigationItem.prompt = "Waiting for location…"
+            locationManager.startUpdatingLocation()
+        case .denied, .restricted:
+            locationManager.stopUpdatingLocation()
+            cancelRouteRequest()
+            lastLocation = nil
+            title = "Location unavailable"
+            navigationItem.prompt = "Check Settings → Privacy → Location Services."
+        @unknown default:
+            break
+        }
+    }
+
+    func locationManager(_: CLLocationManager, didFailWithError error: Error) {
+        guard isVisible else { return }
+        navigationItem.prompt = error.localizedDescription
     }
 
     private func setupManeuverUI() {
@@ -213,7 +246,8 @@ class TurnByTurnDemo: DemoMapViewController, CLLocationManagerDelegate {
     // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard isVisible, let location = locations.last, location.horizontalAccuracy >= 0 else { return }
+        navigationItem.prompt = nil
         let firstLocation = lastLocation == nil
         lastLocation = location
 

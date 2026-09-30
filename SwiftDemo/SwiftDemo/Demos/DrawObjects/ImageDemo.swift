@@ -7,7 +7,6 @@ class ImageDemo: DemoMapViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        GLMapManager.shared.tileDownloadingAllowed = true
         map.mapGeoCenter = GLMapGeoPoint(lat: 48.8566, lon: 2.3522) // Paris
         map.mapZoomLevel = 7
         title = "Tap map to move the image"

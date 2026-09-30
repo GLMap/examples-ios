@@ -6,7 +6,87 @@
 	objectVersion = 54;
 	objects = {
 
+/* SwiftDemo regression tests */
+		F00000000000000000000001 /* SwiftDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../tests/SwiftDemoTests.swift; sourceTree = SOURCE_ROOT; };
+		F00000000000000000000002 /* SwiftDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = SwiftDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F00000000000000000000003 /* SwiftDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000001; };
+		F00000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (F00000000000000000000003,);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000009 /* SwiftDemo proxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C6C25521DD9F5F70060A241;
+			proxyType = 1;
+			remoteGlobalIDString = 6C6C25591DD9F5F70060A241;
+			remoteInfo = SwiftDemo;
+		};
+		F0000000000000000000000A /* SwiftDemo dependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C6C25591DD9F5F70060A241;
+			targetProxy = F00000000000000000000009;
+		};
+		F0000000000000000000000B /* SwiftDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F0000000000000000000000E;
+			buildPhases = (F00000000000000000000007, F00000000000000000000008,);
+			buildRules = ();
+			dependencies = (F0000000000000000000000A,);
+			name = SwiftDemoTests;
+			packageProductDependencies = ();
+			productName = SwiftDemoTests;
+			productReference = F00000000000000000000002;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F0000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(BUILT_PRODUCTS_DIR)",);
+				SWIFT_INCLUDE_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks",);
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.demo.swift.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftDemo.app/SwiftDemo";
+			};
+			name = Debug;
+		};
+		F0000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(BUILT_PRODUCTS_DIR)",);
+				SWIFT_INCLUDE_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks",);
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyourmap.demo.swift.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftDemo.app/SwiftDemo";
+			};
+			name = Release;
+		};
+		F0000000000000000000000E /* Build configuration list for SwiftDemoTests */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (F0000000000000000000000C, F0000000000000000000000D,);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+
 /* Begin PBXBuildFile section */
+		EF100001274C000000000001 /* Montenegro.vm in Resources */ = {isa = PBXBuildFile; fileRef = EF000001274C000000000001 /* Montenegro.vm */; };
+		EF100002274C000000000002 /* DemoTourOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF000002274C000000000002 /* DemoTourOverlay.swift */; };
+		EF100003274C000000000003 /* DemoTourArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF000003274C000000000003 /* DemoTourArtwork.swift */; };
 		6C1DA9EF274C31B4001C162B /* route_finish.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9C8274C31B4001C162B /* route_finish.svg */; };
 		6C1DA9F1274C31B4001C162B /* arrow_right_90.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CA274C31B4001C162B /* arrow_right_90.svg */; };
 		6C1DA9F3274C31B4001C162B /* arrow_left_135.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6C1DA9CC274C31B4001C162B /* arrow_left_135.svg */; };
@@ -69,9 +149,6 @@
 		DD100006274C000000000006 /* DemoCatalogCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000006274C000000000006 /* DemoCatalogCell.swift */; };
 		DD100007274C000000000007 /* DemoCatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000007274C000000000007 /* DemoCatalogViewController.swift */; };
 		DD100008274C000000000008 /* DemoModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000008274C000000000008 /* DemoModeViewController.swift */; };
-		DD100009274C000000000009 /* DemoOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000009274C000000000009 /* DemoOverlayView.swift */; };
-		DD10000A274C00000000000A /* DemoScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000A274C00000000000A /* DemoScene.swift */; };
-		DD10000B274C00000000000B /* DemoScenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000B274C00000000000B /* DemoScenes.swift */; };
 		DD10000C274C00000000000C /* OnlineMapDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000C274C00000000000C /* OnlineMapDemo.swift */; };
 		DD10000D274C00000000000D /* DarkThemeDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000D274C00000000000D /* DarkThemeDemo.swift */; };
 		DD10000E274C00000000000E /* TerrainDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000E274C00000000000E /* TerrainDemo.swift */; };
@@ -96,9 +173,14 @@
 		DD100021274C000000000021 /* user_movement.svg in Resources */ = {isa = PBXBuildFile; fileRef = DD000021274C000000000021 /* user_movement.svg */; };
 		DD100022274C000000000022 /* OSMTileSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000022274C000000000022 /* OSMTileSource.swift */; };
 		DD100099274C000000000099 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000099274C000000000099 /* SceneDelegate.swift */; };
+		EE100001274C000000000001 /* DemoTour.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000001274C000000000001 /* DemoTour.swift */; };
+		EE100002274C000000000002 /* DemoTourMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000002274C000000000002 /* DemoTourMotion.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EF000001274C000000000001 /* Montenegro.vm */ = {isa = PBXFileReference; lastKnownFileType = file; name = Montenegro.vm; path = ../../../Resources/Montenegro.vm; sourceTree = "<group>"; };
+		EF000002274C000000000002 /* DemoTourOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTourOverlay.swift; sourceTree = "<group>"; };
+		EF000003274C000000000003 /* DemoTourArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTourArtwork.swift; sourceTree = "<group>"; };
 		6C1DA9C8274C31B4001C162B /* route_finish.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = route_finish.svg; path = ../../../Resources/route_finish.svg; sourceTree = "<group>"; };
 		6C1DA9C9274C31B4001C162B /* valhalla.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = valhalla.json; path = ../../../Resources/valhalla.json; sourceTree = "<group>"; };
 		6C1DA9CA274C31B4001C162B /* arrow_right_90.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = arrow_right_90.svg; path = ../../../Resources/arrow_right_90.svg; sourceTree = "<group>"; };
@@ -160,9 +242,6 @@
 		DD000006274C000000000006 /* DemoCatalogCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCatalogCell.swift; sourceTree = "<group>"; };
 		DD000007274C000000000007 /* DemoCatalogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCatalogViewController.swift; sourceTree = "<group>"; };
 		DD000008274C000000000008 /* DemoModeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModeViewController.swift; sourceTree = "<group>"; };
-		DD000009274C000000000009 /* DemoOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoOverlayView.swift; sourceTree = "<group>"; };
-		DD00000A274C00000000000A /* DemoScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoScene.swift; sourceTree = "<group>"; };
-		DD00000B274C00000000000B /* DemoScenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoScenes.swift; sourceTree = "<group>"; };
 		DD00000C274C00000000000C /* OnlineMapDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMapDemo.swift; sourceTree = "<group>"; };
 		DD00000D274C00000000000D /* DarkThemeDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkThemeDemo.swift; sourceTree = "<group>"; };
 		DD00000E274C00000000000E /* TerrainDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerrainDemo.swift; sourceTree = "<group>"; };
@@ -187,6 +266,8 @@
 		DD000021274C000000000021 /* user_movement.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = user_movement.svg; path = ../../../Resources/user_movement.svg; sourceTree = "<group>"; };
 		DD000022274C000000000022 /* OSMTileSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSMTileSource.swift; sourceTree = "<group>"; };
 		DD000099274C000000000099 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		EE000001274C000000000001 /* DemoTour.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTour.swift; sourceTree = "<group>"; };
+		EE000002274C000000000002 /* DemoTourMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTourMotion.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +306,7 @@
 				6C99B65D2A05097C00FBBF4F /* SwiftUIDemo */,
 				6C6C255B1DD9F5F70060A241 /* Products */,
 				6C37B0E125DE6E70008D49B8 /* Frameworks */,
+				F00000000000000000000001 /* SwiftDemoTests.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -233,6 +315,7 @@
 			children = (
 				6C6C255A1DD9F5F70060A241 /* SwiftDemo.app */,
 				6C99B65C2A05097C00FBBF4F /* SwiftUIDemo.app */,
+				F00000000000000000000002 /* SwiftDemoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -304,6 +387,7 @@
 				6C1DA9CE274C31B4001C162B /* route_pause.svg */,
 				6C1DA9ED274C31B4001C162B /* track-arrow.svg */,
 				6C558A95224B65360095E602 /* uk_postcodes.geojson */,
+				EF000001274C000000000001 /* Montenegro.vm */,
 				6C1DA9C9274C31B4001C162B /* valhalla.json */,
 			);
 			path = Resources;
@@ -365,9 +449,10 @@
 			isa = PBXGroup;
 			children = (
 				DD000008274C000000000008 /* DemoModeViewController.swift */,
-				DD000009274C000000000009 /* DemoOverlayView.swift */,
-				DD00000A274C00000000000A /* DemoScene.swift */,
-				DD00000B274C00000000000B /* DemoScenes.swift */,
+				EE000001274C000000000001 /* DemoTour.swift */,
+				EE000002274C000000000002 /* DemoTourMotion.swift */,
+				EF000002274C000000000002 /* DemoTourOverlay.swift */,
+				EF000003274C000000000003 /* DemoTourArtwork.swift */,
 			);
 			path = DemoMode;
 			sourceTree = "<group>";
@@ -523,6 +608,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				F0000000000000000000000B /* SwiftDemoTests */,
 				6C6C25591DD9F5F70060A241 /* SwiftDemo */,
 				6C99B65B2A05097C00FBBF4F /* SwiftUIDemo */,
 			);
@@ -561,6 +647,7 @@
 				6C1DA9FE274C31B4001C162B /* route_button_act.svg in Resources */,
 				6C1DAA0A274C31B4001C162B /* roundabout_exit.svg in Resources */,
 				6C558A96224B65360095E602 /* uk_postcodes.geojson in Resources */,
+				EF100001274C000000000001 /* Montenegro.vm in Resources */,
 				6C1DAA13274C31B4001C162B /* gray_circle.svg in Resources */,
 				6C1DA9F9274C31B4001C162B /* nav_bottom_finish.svg in Resources */,
 				6C1DA9F8274C31B4001C162B /* arrow_join.svg in Resources */,
@@ -610,9 +697,10 @@
 				DD100006274C000000000006 /* DemoCatalogCell.swift in Sources */,
 				DD100007274C000000000007 /* DemoCatalogViewController.swift in Sources */,
 				DD100008274C000000000008 /* DemoModeViewController.swift in Sources */,
-				DD100009274C000000000009 /* DemoOverlayView.swift in Sources */,
-				DD10000A274C00000000000A /* DemoScene.swift in Sources */,
-				DD10000B274C00000000000B /* DemoScenes.swift in Sources */,
+				EE100001274C000000000001 /* DemoTour.swift in Sources */,
+				EE100002274C000000000002 /* DemoTourMotion.swift in Sources */,
+				EF100002274C000000000002 /* DemoTourOverlay.swift in Sources */,
+				EF100003274C000000000003 /* DemoTourArtwork.swift in Sources */,
 				DD10000C274C00000000000C /* OnlineMapDemo.swift in Sources */,
 				DD10000D274C00000000000D /* DarkThemeDemo.swift in Sources */,
 				DD10000E274C00000000000E /* TerrainDemo.swift in Sources */,

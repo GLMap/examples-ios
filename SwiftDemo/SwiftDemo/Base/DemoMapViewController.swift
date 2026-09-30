@@ -5,6 +5,11 @@ import UIKit
 class DemoMapViewController: UIViewController {
     private(set) var map: GLMapView!
     private(set) var stylePath: String = ""
+    var usesOnlineTiles: Bool {
+        true
+    }
+
+    private var previousTileDownloadingAllowed: Bool?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,11 +32,23 @@ class DemoMapViewController: UIViewController {
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        GLMapManager.shared.tileDownloadingAllowed = false
-        map.tapGestureBlock = nil
-        map.longPressGestureBlock = nil
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if previousTileDownloadingAllowed == nil {
+            previousTileDownloadingAllowed = GLMapManager.shared.tileDownloadingAllowed
+        }
+        GLMapManager.shared.tileDownloadingAllowed = usesOnlineTiles
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if let previousTileDownloadingAllowed {
+            GLMapManager.shared.tileDownloadingAllowed = previousTileDownloadingAllowed
+            self.previousTileDownloadingAllowed = nil
+        }
+        // Keep drawables and weak gesture callbacks for the lifetime of the view.
+        // viewWillDisappear can be followed by a cancelled interactive back gesture.
+        map.cancelMapAnimations()
     }
 
     // MARK: - Style helpers
@@ -105,6 +122,12 @@ class DemoMapViewController: UIViewController {
     // MARK: - Alerts
 
     func showAlert(_ title: String? = nil, message: String?) {
+        // Resource loading may fail before the view is presented. Keep that error
+        // visible rather than trying to present an alert from an offscreen controller.
+        guard viewIfLoaded?.window != nil, presentedViewController == nil else {
+            navigationItem.prompt = message
+            return
+        }
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)

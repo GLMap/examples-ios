@@ -23,7 +23,20 @@ Xcode downloads the GLMap package and binary frameworks when it resolves package
 - online and offline routing;
 - downloading maps and related offline data.
 
-Each catalog screen focuses on one API and keeps setup next to the code that uses it. The **Demo Mode** button above the catalog runs an automatic visual tour of the SDK; it is a showcase, while the individual screens are the code examples to learn from.
+Each catalog screen focuses on one API and keeps setup next to the code that uses it. The **Demo Mode** button above the catalog runs one continuous, 26-second story on the Amalfi Coast: explore the map with contour lines, find a restaurant, reveal a walking route, then follow a simulated walker in 3D. The traversed route turns grey using `GLMapTrack.progressIndex` and `progressColor`; the camera and marker share the same distance-based timeline. The walking segment is explicitly labeled as an accelerated route preview, not real GPS navigation. It uses real online search results and routing data; the compact UI and animated markers are part of the demo app, not SDK-provided controls. Tap anywhere to return to the catalog. The individual screens remain the code examples to learn from.
+
+### Tests
+
+The `SwiftDemo` scheme includes simulator tests for screen lifecycle, bundled offline data, GeoJSON loading, and Demo Mode layout. Run them with **Product → Test** in Xcode; no API key is needed for these checks.
+
+The timeline, distance-based track progress, and heading interpolation have standalone tests that do not require UIKit, an API key, or a simulator:
+
+```sh
+swiftc SwiftDemo/SwiftDemo/DemoMode/DemoTourMotion.swift tests/DemoTourMotionTests.swift -o /tmp/demo-motion-tests
+/tmp/demo-motion-tests
+```
+
+All map markers — restaurants, start, arrival ring, and the simulated walker — use native `GLMapImage` drawables that account for terrain height. UIKit is used only for screen-space captions and panels. The grey traversed prefix is the same native track, recolored through `progressIndex` / `progressColor`. Camera bearing is spatially smoothed and interpolated along the shortest angular path; `mapOrigin` keeps the walker below screen center. No location-manager permission or real GPS feed is involved.
 
 ## SwiftUIDemo
 
