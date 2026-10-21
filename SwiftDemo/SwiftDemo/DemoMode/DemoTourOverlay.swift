@@ -18,7 +18,7 @@ final class DemoTourOverlay: UIView {
         isUserInteractionEnabled = false
         let accent = DemoTourArtwork.accent
         let ink = DemoTourArtwork.ink
-        heading.text = "Amalfi Coast"
+        heading.text = "Lake Como"
         heading.font = .systemFont(ofSize: 30, weight: .bold)
         heading.textColor = ink
         heading.layer.shadowColor = UIColor.white.cgColor
@@ -62,7 +62,7 @@ final class DemoTourOverlay: UIView {
         placeName.adjustsFontSizeToFitWidth = true
         placeName.minimumScaleFactor = 0.65
         let action = UILabel()
-        action.text = "A coastal walk  →"
+        action.text = "A lakeside walk  →"
         action.font = .systemFont(ofSize: 17, weight: .semibold)
         action.textColor = .white
         action.textAlignment = .center
@@ -150,7 +150,7 @@ final class DemoTourOverlay: UIView {
         let nextPhase = time < M.routeStart ? 0 : time < M.followStart ? 1 : time < M.arrival ? 2 : 3
         if phase != nextPhase {
             phase = nextPhase
-            searchText.text = ["Restaurants nearby", "Your coastal walk", "Walking preview", "You've arrived"][phase]
+            searchText.text = ["Restaurants nearby", "Your lakeside walk", "Walking preview", "You've arrived"][phase]
             searchIcon.image = UIImage(systemName: ["magnifyingglass", "figure.walk", "location.fill", "checkmark.circle.fill"][phase])
         }
         routeSummary.alpha = M.ease((time - M.revealEnd) / 0.5) * outro

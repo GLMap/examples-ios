@@ -12,8 +12,9 @@ final class DemoTour: NSObject {
     private let host: UIView
     private let overlay = DemoTourOverlay()
     private let onFailure: (String) -> Void
-    private let start = GLMapGeoPoint(lat: 40.63318, lon: 14.60257)
-    private let atrani = GLMapGeoPoint(lat: 40.63602, lon: 14.60980)
+    // From Tempio Voltiano along the lakefront to the Brunate funicular in Como
+    private let start = GLMapGeoPoint(lat: 45.81483, lon: 9.07525)
+    private let funicular = GLMapGeoPoint(lat: 45.81702, lon: 9.08286)
     private var pins: [GLMapImage] = []
     private var startDot: GLMapImage?
     private var finishRing: GLMapImage?
@@ -24,7 +25,7 @@ final class DemoTour: NSObject {
     private var shape: [GLMapPoint] = []
     private var shapeDistances: [Double] = []
     private var followHeadings: [Double] = []
-    private var routeMidpoint = GLMapGeoPoint(lat: 40.635, lon: 14.606)
+    private var routeMidpoint = GLMapGeoPoint(lat: 45.8148, lon: 9.0800)
     private var searchID: Int64 = 0
     private var routeID: Int64 = 0
     private var generation = 0
@@ -107,7 +108,7 @@ final class DemoTour: NSObject {
 
     private func preparePlaces() {
         let token = generation
-        let request = GLSearchRequest(type: .search, text: "", center: atrani,
+        let request = GLSearchRequest(type: .search, text: "", center: funicular,
                                       limit: 60, locales: ["en", "native"], categories: ["restaurant"])
         searchID = request.startOnline { [weak self] results, error in
             guard let self, active, token == generation else { return }
@@ -116,11 +117,11 @@ final class DemoTour: NSObject {
                 fail("Search failed: \(error.localizedDescription)"); return
             }
             guard let results else { fail("No restaurants found nearby."); return }
-            let center = GLMapPoint(geoPoint: atrani)
+            let center = GLMapPoint(geoPoint: funicular)
             let candidates = results.array().filter {
                 self.distance($0.point, center) < 1500 && !self.name(of: $0).isEmpty
             }.sorted { self.distance($0.point, center) < self.distance($1.point, center) }
-            guard let selected = candidates.first else { fail("No restaurants found near Atrani."); return }
+            guard let selected = candidates.first else { fail("No restaurants found near the funicular."); return }
             var places = [selected]
             // A few separated results keep the overview readable; one is enough to run the tour.
             for object in candidates where places.count < 5 {
@@ -287,15 +288,15 @@ final class DemoTour: NSObject {
     }
 
     private var opening: Camera {
-        Camera(lat: 40.6368, lon: 14.6055, zoom: 15.1, pitch: 42, angle: -18)
+        Camera(lat: 45.8165, lon: 9.0830, zoom: 15.1, pitch: 42, angle: 20)
     }
 
     private var searchCamera: Camera {
-        Camera(lat: 40.6356, lon: 14.6062, zoom: 15.8, pitch: 8, angle: 0)
+        Camera(lat: 45.8150, lon: 9.0822, zoom: 15.8, pitch: 8, angle: 0)
     }
 
     private var overview: Camera {
-        Camera(lat: routeMidpoint.lat + 0.0003, lon: routeMidpoint.lon, zoom: 15.95, pitch: 20, angle: -4)
+        Camera(lat: routeMidpoint.lat + 0.0003, lon: routeMidpoint.lon, zoom: 15.55, pitch: 20, angle: -4)
     }
 
     private func camera(at time: Double) -> Camera {

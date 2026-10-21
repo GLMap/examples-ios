@@ -5,8 +5,9 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Insert your API key from https://user.globus.software/apps/
-        guard GLMapManager.activate(apiKey: "YOUR_API_KEY") else {
+        // Insert your API key from https://user.globus.software/apps/, or pass GLMAP_API_KEY in the launch environment
+        let apiKey = ProcessInfo.processInfo.environment["GLMAP_API_KEY"] ?? "YOUR_API_KEY"
+        guard GLMapManager.activate(apiKey: apiKey) else {
             fatalError("GLMap SDK initialization failed")
         }
         return true
