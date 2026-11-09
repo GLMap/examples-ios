@@ -150,18 +150,16 @@ class DownloadMapsDemo: UITableViewController, UISearchResultsUpdating {
             sub.mapGroup = info
             sub.title = info.name(inLanguage: "en") ?? info.name()
             navigationController?.pushViewController(sub, animated: true)
+        } else if let tasks = GLMapManager.shared.downloadTasks(forMap: info, dataSets: .all), !tasks.isEmpty {
+            // A map download consists of independent map, navigation and elevation tasks.
+            for task in tasks {
+                task.cancel()
+            }
         } else {
-            if let tasks = GLMapManager.shared.downloadTasks(forMap: info, dataSets: .all), !tasks.isEmpty {
-                // A map download consists of independent map, navigation and elevation tasks.
-                for task in tasks {
-                    task.cancel()
-                }
-            } else {
-                GLMapManager.shared.downloadDataSets(.all, forMap: info) { [weak self] task in
-                    if let error = task.error, !task.isCancelled {
-                        DispatchQueue.main.async {
-                            self?.showError("Download failed", message: error.localizedDescription)
-                        }
+            GLMapManager.shared.downloadDataSets(.all, forMap: info) { [weak self] task in
+                if let error = task.error, !task.isCancelled {
+                    DispatchQueue.main.async {
+                        self?.showError("Download failed", message: error.localizedDescription)
                     }
                 }
             }
