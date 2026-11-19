@@ -1,6 +1,6 @@
 # GLMap iOS examples
 
-This repository contains the reference applications for GLMap SDK 2.3.0. They use Swift Package Manager and the public GLMap binary frameworks.
+This repository contains the reference applications for GLMap SDK 2.3.1. They use Swift Package Manager and the public GLMap binary frameworks.
 
 ## Run the examples
 
@@ -42,7 +42,7 @@ All map markers â€” restaurants, start, arrival ring, and the simulated walker â
 
 `SwiftUIDemo` is a minimal SwiftUI integration for iOS 16.2 and later. It wraps `GLMapView` with `UIViewRepresentable`, keeps the map center in a SwiftUI binding, and handles map taps without adding an application-specific architecture layer.
 
-## SDK 2.3.0 API notes
+## SDK 2.3.1 API notes
 
 - Both apps check the Boolean result of `GLMapManager.activate(apiKey:)` before using the SDK. A failure means resource/storage initialization failed; this does not validate the API key.
 - `GLMapSwift` re-exports the Core Swift conveniences, so existing `import GLMap` / `import GLMapSwift` clients continue to work with the modular SDK.
