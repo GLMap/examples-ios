@@ -1,6 +1,7 @@
 import CoreLocation
 import GLMap
 import GLMapSwift
+import GLRoute
 import GLSearch
 @testable import SwiftDemo
 import XCTest
@@ -83,6 +84,32 @@ final class SwiftDemoTests: XCTestCase {
         defer {
             if task != 0 {
                 GLSearchRequest.cancel(task)
+            }
+        }
+        wait(for: [completed], timeout: 20)
+    }
+
+    func testBundledConfigBuildsOfflineRoute() throws {
+        // Valhalla tiles of levels 1 and 2 around Podgorica, installed (VTCR) format.
+        let pack = try XCTUnwrap(Bundle(for: SwiftDemoTests.self).path(forResource: "Podgorica", ofType: "rt"))
+        let configPath = try XCTUnwrap(Bundle.main.path(forResource: "valhalla", ofType: "json"))
+        let config = try String(contentsOfFile: configPath, encoding: .utf8)
+        XCTAssertNil(GLMapManager.shared.add(.navigation, path: pack, bbox: .empty).nsError)
+        defer { GLMapManager.shared.remove(.navigation, path: pack) }
+
+        let request = GLRouteRequest()
+        request.setAutoWithOptions(.default)
+        request.add(GLRoutePoint(pt: GLMapGeoPoint(lat: 42.4413, lon: 19.2560), heading: .nan, type: .break))
+        request.add(GLRoutePoint(pt: GLMapGeoPoint(lat: 42.4300, lon: 19.2700), heading: .nan, type: .break))
+        let completed = expectation(description: "Offline route")
+        let requestID = request.startOffline(withConfig: config) { route, error in
+            XCTAssertNil(error, "Offline route failed with Resources/valhalla.json")
+            XCTAssertGreaterThan(route?.length ?? 0, 0)
+            completed.fulfill()
+        }
+        defer {
+            if requestID != 0 {
+                GLRouteRequest.cancel(requestID)
             }
         }
         wait(for: [completed], timeout: 20)

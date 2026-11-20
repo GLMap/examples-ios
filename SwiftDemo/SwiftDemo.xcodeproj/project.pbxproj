@@ -10,6 +10,14 @@
 		F00000000000000000000001 /* SwiftDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../tests/SwiftDemoTests.swift; sourceTree = SOURCE_ROOT; };
 		F00000000000000000000002 /* SwiftDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = SwiftDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F00000000000000000000003 /* SwiftDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000001; };
+		F00000000000000000000004 /* Podgorica.rt */ = {isa = PBXFileReference; lastKnownFileType = file; path = ../tests/Podgorica.rt; sourceTree = SOURCE_ROOT; };
+		F00000000000000000000005 /* Podgorica.rt in Resources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000004; };
+		F00000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (F00000000000000000000005,);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F00000000000000000000007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,7 +45,7 @@
 		F0000000000000000000000B /* SwiftDemoTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F0000000000000000000000E;
-			buildPhases = (F00000000000000000000007, F00000000000000000000008,);
+			buildPhases = (F00000000000000000000007, F00000000000000000000008, F00000000000000000000006,);
 			buildRules = ();
 			dependencies = (F0000000000000000000000A,);
 			name = SwiftDemoTests;
@@ -307,6 +315,7 @@
 				6C6C255B1DD9F5F70060A241 /* Products */,
 				6C37B0E125DE6E70008D49B8 /* Frameworks */,
 				F00000000000000000000001 /* SwiftDemoTests.swift */,
+				F00000000000000000000004 /* Podgorica.rt */,
 			);
 			sourceTree = "<group>";
 		};
